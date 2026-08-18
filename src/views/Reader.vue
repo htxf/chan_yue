@@ -316,18 +316,18 @@ function handleToggle() {
         />
       </transition>
       
-      <!-- Zen Mode Overlay -->
+      <!-- Zen Mode (经典大字呼吸感禅定模式) -->
       <transition name="fade">
         <div 
           v-if="isZenMode" 
-          class="fixed inset-0 z-[9999] bg-black flex items-center justify-center cursor-pointer" 
+          class="fixed inset-0 z-[9999] bg-black flex items-center justify-center cursor-pointer select-none" 
           @click="isZenMode = false"
         >
-          <div class="px-8 md:px-12 text-center zen-breathing-container" :class="{ 'is-paused': !isPlaying }">
-            <div class="text-sm text-neutral-400 tracking-[0.4em] mb-6 font-serif">
+          <div class="px-8 md:px-16 text-center zen-breathing-container" :class="{ 'is-paused': !isPlaying }">
+            <div class="text-sm md:text-lg text-neutral-400 tracking-[0.4em] mb-8 font-serif uppercase">
               {{ isPlaying ? '正在持诵' : '已暂停' }} · {{ extractText(bookMeta?.title) }}
             </div>
-            <div class="text-2xl md:text-3xl text-amber-100/60 tracking-[0.2em] font-serif leading-relaxed">
+            <div class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-amber-100/75 tracking-[0.25em] font-serif leading-relaxed font-semibold zen-title-text">
               {{ extractText(chapterData?.title) }}
             </div>
           </div>
@@ -344,21 +344,26 @@ function handleToggle() {
   overflow-x: hidden;
 }
 
+.zen-title-text {
+  text-shadow: 0 0 35px rgba(212, 175, 55, 0.45),
+               0 0 70px rgba(212, 175, 55, 0.15);
+}
+
 @keyframes zen-breath {
   0% {
     opacity: 0.45;
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
   100% {
     opacity: 1;
-    transform: scale(1.02);
-    text-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+    transform: scale(1.03);
+    text-shadow: 0 0 45px rgba(212, 175, 55, 0.6);
   }
 }
 
 .zen-breathing-container {
   animation: zen-breath 5s ease-in-out infinite alternate;
-  will-change: opacity, transform; /* 开启硬件加速，防止移动端卡顿 */
+  will-change: opacity, transform;
   display: flex;
   flex-direction: column;
   align-items: center;

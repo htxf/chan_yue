@@ -18,6 +18,7 @@ const props = defineProps({
 })
 
 const lineRefs = ref([])
+const paragraphEl = ref(null)
 
 /**
  * 当前激活的行索引（-1 表示无）
@@ -31,26 +32,19 @@ const activeLineIndex = computed(() => {
   )
 })
 
-let isFirstActivation = true
-
-/* 激活行变化时，丝滑滚动到屏幕中央 */
-watch(activeLineIndex, async (idx) => {
-  if (idx < 0) return
-  
-  // 禁用初次进场时的强制滚动，避免与外层 Tailwind 进场动画冲突拉扯
-  if (isFirstActivation) {
-    isFirstActivation = false
-    if (idx === 0) return
-  }
+/* 当段落激活或激活行变化时，丝滑滚动到屏幕中央 */
+watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
+  if (props.mode !== 'listening' || !isActive) return
   
   await nextTick()
-  const el = lineRefs.value[idx]
+  const el = (lineIdx >= 0 && lineRefs.value[lineIdx]) ? lineRefs.value[lineIdx] : paragraphEl.value
   el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 })
 </script>
 
 <template>
   <div
+    ref="paragraphEl"
     class="sutra-paragraph"
     :class="[`mode-${mode}`, { active }]"
   >

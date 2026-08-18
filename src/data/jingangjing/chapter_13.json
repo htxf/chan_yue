@@ -38,57 +38,79 @@
     {
       "lines": [
         {
-          "lineStart": 0.1,
-          "lineEnd": 2.986,
+          "lineStart": 0.25,
+          "lineEnd": 4.766,
           "chars": [
             {
               "text": "尔",
-              "pinyin": "ěr"
+              "pinyin": "ěr",
+              "startTime": 0.25,
+              "endTime": 0.661
             },
             {
               "text": "时",
-              "pinyin": "shí"
+              "pinyin": "shí",
+              "startTime": 0.661,
+              "endTime": 1.071
             },
             {
               "text": "，"
             },
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 1.071,
+              "endTime": 1.482
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 1.482,
+              "endTime": 1.892
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 1.892,
+              "endTime": 2.303
             },
             {
               "text": "白",
-              "pinyin": "bái"
+              "pinyin": "bái",
+              "startTime": 2.303,
+              "endTime": 2.713
             },
             {
               "text": "佛",
-              "pinyin": "fó"
+              "pinyin": "fó",
+              "startTime": 2.713,
+              "endTime": 3.124
             },
             {
               "text": "言",
-              "pinyin": "yán"
+              "pinyin": "yán",
+              "startTime": 3.124,
+              "endTime": 3.534
             },
             {
               "text": "："
             },
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 3.534,
+              "endTime": 3.945
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 3.945,
+              "endTime": 4.355
             },
             {
               "text": "尊",
-              "pinyin": "zūn"
+              "pinyin": "zūn",
+              "startTime": 4.355,
+              "endTime": 4.766
             },
             {
               "text": "！"
@@ -96,28 +118,38 @@
           ]
         },
         {
-          "lineStart": 2.986,
-          "lineEnd": 4.429,
+          "lineStart": 4.766,
+          "lineEnd": 6.819,
           "chars": [
             {
               "text": "当",
-              "pinyin": "dāng"
+              "pinyin": "dāng",
+              "startTime": 4.766,
+              "endTime": 5.177
             },
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 5.177,
+              "endTime": 5.587
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 5.587,
+              "endTime": 5.998
             },
             {
               "text": "此",
-              "pinyin": "cǐ"
+              "pinyin": "cǐ",
+              "startTime": 5.998,
+              "endTime": 6.408
             },
             {
               "text": "经",
-              "pinyin": "jīng"
+              "pinyin": "jīng",
+              "startTime": 6.408,
+              "endTime": 6.819
             },
             {
               "text": "？"
@@ -125,126 +157,178 @@
           ]
         },
         {
-          "lineStart": 4.429,
-          "lineEnd": 6.161,
+          "lineStart": 6.819,
+          "lineEnd": 9.693,
           "chars": [
             {
               "text": "我",
-              "pinyin": "wǒ"
+              "pinyin": "wǒ",
+              "startTime": 6.819,
+              "endTime": 7.23
             },
             {
               "text": "等",
-              "pinyin": "děng"
+              "pinyin": "děng",
+              "startTime": 7.23,
+              "endTime": 7.64
             },
             {
               "text": "云",
-              "pinyin": "yún"
+              "pinyin": "yún",
+              "startTime": 7.64,
+              "endTime": 8.051
             },
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 8.051,
+              "endTime": 8.461
             },
             {
               "text": "奉",
-              "pinyin": "fèng"
+              "pinyin": "fèng",
+              "startTime": 8.461,
+              "endTime": 8.872
             },
             {
               "text": "持",
-              "pinyin": "chí"
+              "pinyin": "chí",
+              "startTime": 8.872,
+              "endTime": 9.282
             },
             {
               "text": "？"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 9.282,
+              "endTime": 9.693
             }
           ]
         }
       ],
-      "startTime": 0.1,
-      "endTime": 6.161
+      "startTime": 0.25,
+      "endTime": 9.693
     },
     {
       "lines": [
         {
-          "lineStart": 6.161,
-          "lineEnd": 10.779,
+          "lineStart": 10.243,
+          "lineEnd": 18.03,
           "chars": [
             {
               "text": "佛",
-              "pinyin": "fó"
+              "pinyin": "fó",
+              "startTime": 10.243,
+              "endTime": 10.653
             },
             {
               "text": "告",
-              "pinyin": "gào"
+              "pinyin": "gào",
+              "startTime": 10.653,
+              "endTime": 11.063
             },
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 11.063,
+              "endTime": 11.473
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 11.473,
+              "endTime": 11.882
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 11.882,
+              "endTime": 12.292
             },
             {
               "text": "："
             },
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 12.292,
+              "endTime": 12.702
             },
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 12.702,
+              "endTime": 13.112
             },
             {
               "text": "经",
-              "pinyin": "jīng"
+              "pinyin": "jīng",
+              "startTime": 13.112,
+              "endTime": 13.522
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 13.522,
+              "endTime": 13.932
             },
             {
               "text": "为",
-              "pinyin": "wéi"
+              "pinyin": "wéi",
+              "startTime": 13.932,
+              "endTime": 14.342
             },
             {
-              "text": "《"
+              "text": "《",
+              "startTime": 14.342,
+              "endTime": 14.751
             },
             {
               "text": "金",
-              "pinyin": "jīn"
+              "pinyin": "jīn",
+              "startTime": 14.751,
+              "endTime": 15.161
             },
             {
               "text": "刚",
-              "pinyin": "gāng"
+              "pinyin": "gāng",
+              "startTime": 15.161,
+              "endTime": 15.571
             },
             {
               "text": "般",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 15.571,
+              "endTime": 15.981
             },
             {
               "text": "若",
-              "pinyin": "rě"
+              "pinyin": "rě",
+              "startTime": 15.981,
+              "endTime": 16.391
             },
             {
               "text": "波",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 16.391,
+              "endTime": 16.801
             },
             {
               "text": "罗",
-              "pinyin": "luó"
+              "pinyin": "luó",
+              "startTime": 16.801,
+              "endTime": 17.211
             },
             {
               "text": "蜜",
-              "pinyin": "mì"
+              "pinyin": "mì",
+              "startTime": 17.211,
+              "endTime": 17.62
             },
             {
-              "text": "》"
+              "text": "》",
+              "startTime": 17.62,
+              "endTime": 18.03
             },
             {
               "text": "，"
@@ -252,43 +336,59 @@
           ]
         },
         {
-          "lineStart": 10.779,
-          "lineEnd": 13.088,
+          "lineStart": 18.03,
+          "lineEnd": 21.309,
           "chars": [
             {
               "text": "以",
-              "pinyin": "yǐ"
+              "pinyin": "yǐ",
+              "startTime": 18.03,
+              "endTime": 18.44
             },
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 18.44,
+              "endTime": 18.85
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 18.85,
+              "endTime": 19.26
             },
             {
               "text": "字",
-              "pinyin": "zì"
+              "pinyin": "zì",
+              "startTime": 19.26,
+              "endTime": 19.669
             },
             {
               "text": "，"
             },
             {
               "text": "汝",
-              "pinyin": "rǔ"
+              "pinyin": "rǔ",
+              "startTime": 19.669,
+              "endTime": 20.079
             },
             {
               "text": "当",
-              "pinyin": "dāng"
+              "pinyin": "dāng",
+              "startTime": 20.079,
+              "endTime": 20.489
             },
             {
               "text": "奉",
-              "pinyin": "fèng"
+              "pinyin": "fèng",
+              "startTime": 20.489,
+              "endTime": 20.899
             },
             {
               "text": "持",
-              "pinyin": "chí"
+              "pinyin": "chí",
+              "startTime": 20.899,
+              "endTime": 21.309
             },
             {
               "text": "。"
@@ -296,24 +396,32 @@
           ]
         },
         {
-          "lineStart": 13.088,
-          "lineEnd": 14.243,
+          "lineStart": 21.309,
+          "lineEnd": 22.948,
           "chars": [
             {
               "text": "所",
-              "pinyin": "suǒ"
+              "pinyin": "suǒ",
+              "startTime": 21.309,
+              "endTime": 21.719
             },
             {
               "text": "以",
-              "pinyin": "yǐ"
+              "pinyin": "yǐ",
+              "startTime": 21.719,
+              "endTime": 22.129
             },
             {
               "text": "者",
-              "pinyin": "zhě"
+              "pinyin": "zhě",
+              "startTime": 22.129,
+              "endTime": 22.539
             },
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 22.539,
+              "endTime": 22.948
             },
             {
               "text": "？"
@@ -321,20 +429,26 @@
           ]
         },
         {
-          "lineStart": 14.243,
-          "lineEnd": 15.109,
+          "lineStart": 22.948,
+          "lineEnd": 24.178,
           "chars": [
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 22.948,
+              "endTime": 23.358
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 23.358,
+              "endTime": 23.768
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 23.768,
+              "endTime": 24.178
             },
             {
               "text": "！"
@@ -342,36 +456,50 @@
           ]
         },
         {
-          "lineStart": 15.109,
-          "lineEnd": 17.129,
+          "lineStart": 24.178,
+          "lineEnd": 27.046,
           "chars": [
             {
               "text": "佛",
-              "pinyin": "fó"
+              "pinyin": "fó",
+              "startTime": 24.178,
+              "endTime": 24.588
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 24.588,
+              "endTime": 24.998
             },
             {
               "text": "般",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 24.998,
+              "endTime": 25.408
             },
             {
               "text": "若",
-              "pinyin": "rě"
+              "pinyin": "rě",
+              "startTime": 25.408,
+              "endTime": 25.817
             },
             {
               "text": "波",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 25.817,
+              "endTime": 26.227
             },
             {
               "text": "罗",
-              "pinyin": "luó"
+              "pinyin": "luó",
+              "startTime": 26.227,
+              "endTime": 26.637
             },
             {
               "text": "蜜",
-              "pinyin": "mì"
+              "pinyin": "mì",
+              "startTime": 26.637,
+              "endTime": 27.047
             },
             {
               "text": "，"
@@ -379,36 +507,50 @@
           ]
         },
         {
-          "lineStart": 17.129,
-          "lineEnd": 19.15,
+          "lineStart": 27.046,
+          "lineEnd": 29.915,
           "chars": [
             {
               "text": "即",
-              "pinyin": "jí"
+              "pinyin": "jí",
+              "startTime": 27.046,
+              "endTime": 27.456
             },
             {
               "text": "非",
-              "pinyin": "fēi"
+              "pinyin": "fēi",
+              "startTime": 27.456,
+              "endTime": 27.866
             },
             {
               "text": "般",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 27.866,
+              "endTime": 28.276
             },
             {
               "text": "若",
-              "pinyin": "rě"
+              "pinyin": "rě",
+              "startTime": 28.276,
+              "endTime": 28.685
             },
             {
               "text": "波",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 28.685,
+              "endTime": 29.095
             },
             {
               "text": "罗",
-              "pinyin": "luó"
+              "pinyin": "luó",
+              "startTime": 29.095,
+              "endTime": 29.505
             },
             {
               "text": "蜜",
-              "pinyin": "mì"
+              "pinyin": "mì",
+              "startTime": 29.505,
+              "endTime": 29.915
             },
             {
               "text": "，"
@@ -416,36 +558,50 @@
           ]
         },
         {
-          "lineStart": 19.15,
-          "lineEnd": 21.17,
+          "lineStart": 29.915,
+          "lineEnd": 32.784,
           "chars": [
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 29.915,
+              "endTime": 30.325
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 30.325,
+              "endTime": 30.735
             },
             {
               "text": "般",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 30.735,
+              "endTime": 31.145
             },
             {
               "text": "若",
-              "pinyin": "rě"
+              "pinyin": "rě",
+              "startTime": 31.145,
+              "endTime": 31.554
             },
             {
               "text": "波",
-              "pinyin": "bō"
+              "pinyin": "bō",
+              "startTime": 31.554,
+              "endTime": 31.964
             },
             {
               "text": "罗",
-              "pinyin": "luó"
+              "pinyin": "luó",
+              "startTime": 31.964,
+              "endTime": 32.374
             },
             {
               "text": "蜜",
-              "pinyin": "mì"
+              "pinyin": "mì",
+              "startTime": 32.374,
+              "endTime": 32.784
             },
             {
               "text": "。"
@@ -453,20 +609,26 @@
           ]
         },
         {
-          "lineStart": 21.17,
-          "lineEnd": 22.036,
+          "lineStart": 32.784,
+          "lineEnd": 34.014,
           "chars": [
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 32.784,
+              "endTime": 33.194
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 33.194,
+              "endTime": 33.604
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 33.604,
+              "endTime": 34.014
             },
             {
               "text": "！"
@@ -474,24 +636,32 @@
           ]
         },
         {
-          "lineStart": 22.036,
-          "lineEnd": 23.19,
+          "lineStart": 34.014,
+          "lineEnd": 35.653,
           "chars": [
             {
               "text": "于",
-              "pinyin": "yú"
+              "pinyin": "yú",
+              "startTime": 34.014,
+              "endTime": 34.424
             },
             {
               "text": "意",
-              "pinyin": "yì"
+              "pinyin": "yì",
+              "startTime": 34.424,
+              "endTime": 34.834
             },
             {
               "text": "云",
-              "pinyin": "yún"
+              "pinyin": "yún",
+              "startTime": 34.834,
+              "endTime": 35.244
             },
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 35.244,
+              "endTime": 35.653
             },
             {
               "text": "？"
@@ -499,167 +669,229 @@
           ]
         },
         {
-          "lineStart": 23.19,
-          "lineEnd": 25.211,
+          "lineStart": 35.653,
+          "lineEnd": 38.932,
           "chars": [
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 35.653,
+              "endTime": 36.063
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 36.063,
+              "endTime": 36.473
             },
             {
               "text": "有",
-              "pinyin": "yǒu"
+              "pinyin": "yǒu",
+              "startTime": 36.473,
+              "endTime": 36.883
             },
             {
               "text": "所",
-              "pinyin": "suǒ"
+              "pinyin": "suǒ",
+              "startTime": 36.883,
+              "endTime": 37.292
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 37.292,
+              "endTime": 37.702
             },
             {
               "text": "法",
-              "pinyin": "fǎ"
+              "pinyin": "fǎ",
+              "startTime": 37.702,
+              "endTime": 38.112
             },
             {
               "text": "不",
-              "pinyin": "fǒu"
+              "pinyin": "fǒu",
+              "startTime": 38.112,
+              "endTime": 38.522
             },
             {
               "text": "？"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 38.522,
+              "endTime": 38.932
             }
           ]
         }
       ],
-      "startTime": 6.161,
-      "endTime": 25.211
+      "startTime": 10.243,
+      "endTime": 38.932
     },
     {
       "lines": [
         {
-          "lineStart": 25.211,
-          "lineEnd": 28.963,
+          "lineStart": 39.482,
+          "lineEnd": 45.375,
           "chars": [
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 39.482,
+              "endTime": 39.875
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 39.875,
+              "endTime": 40.268
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 40.268,
+              "endTime": 40.661
             },
             {
               "text": "白",
-              "pinyin": "bái"
+              "pinyin": "bái",
+              "startTime": 40.661,
+              "endTime": 41.053
             },
             {
               "text": "佛",
-              "pinyin": "fó"
+              "pinyin": "fó",
+              "startTime": 41.053,
+              "endTime": 41.446
             },
             {
               "text": "言",
-              "pinyin": "yán"
+              "pinyin": "yán",
+              "startTime": 41.446,
+              "endTime": 41.839
             },
             {
               "text": "："
             },
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 41.839,
+              "endTime": 42.232
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 42.232,
+              "endTime": 42.625
             },
             {
               "text": "尊",
-              "pinyin": "zūn"
+              "pinyin": "zūn",
+              "startTime": 42.625,
+              "endTime": 43.018
             },
             {
               "text": "！"
             },
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 43.018,
+              "endTime": 43.41
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 43.41,
+              "endTime": 43.803
             },
             {
               "text": "无",
-              "pinyin": "wú"
+              "pinyin": "wú",
+              "startTime": 43.803,
+              "endTime": 44.196
             },
             {
               "text": "所",
-              "pinyin": "suǒ"
+              "pinyin": "suǒ",
+              "startTime": 44.196,
+              "endTime": 44.589
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 44.589,
+              "endTime": 44.982
             },
             {
               "text": "。"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 44.982,
+              "endTime": 45.375
             }
           ]
         }
       ],
-      "startTime": 25.211,
-      "endTime": 28.963
+      "startTime": 39.482,
+      "endTime": 45.375
     },
     {
       "lines": [
         {
-          "lineStart": 28.963,
-          "lineEnd": 30.983,
+          "lineStart": 45.925,
+          "lineEnd": 48.936,
           "chars": [
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 45.925,
+              "endTime": 46.301
             },
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 46.301,
+              "endTime": 46.678
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 46.678,
+              "endTime": 47.054
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 47.054,
+              "endTime": 47.431
             },
             {
               "text": "！"
             },
             {
               "text": "于",
-              "pinyin": "yú"
+              "pinyin": "yú",
+              "startTime": 47.431,
+              "endTime": 47.807
             },
             {
               "text": "意",
-              "pinyin": "yì"
+              "pinyin": "yì",
+              "startTime": 47.807,
+              "endTime": 48.183
             },
             {
               "text": "云",
-              "pinyin": "yún"
+              "pinyin": "yún",
+              "startTime": 48.183,
+              "endTime": 48.56
             },
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 48.56,
+              "endTime": 48.936
             },
             {
               "text": "？"
@@ -667,171 +899,235 @@
           ]
         },
         {
-          "lineStart": 30.983,
-          "lineEnd": 35.024,
+          "lineStart": 48.936,
+          "lineEnd": 54.582,
           "chars": [
             {
               "text": "三",
-              "pinyin": "sān"
+              "pinyin": "sān",
+              "startTime": 48.936,
+              "endTime": 49.312
             },
             {
               "text": "千",
-              "pinyin": "qiān"
+              "pinyin": "qiān",
+              "startTime": 49.312,
+              "endTime": 49.689
             },
             {
               "text": "大",
-              "pinyin": "dà"
+              "pinyin": "dà",
+              "startTime": 49.689,
+              "endTime": 50.065
             },
             {
               "text": "千",
-              "pinyin": "qiān"
+              "pinyin": "qiān",
+              "startTime": 50.065,
+              "endTime": 50.442
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 50.442,
+              "endTime": 50.818
             },
             {
               "text": "界",
-              "pinyin": "jiè"
+              "pinyin": "jiè",
+              "startTime": 50.818,
+              "endTime": 51.194
             },
             {
               "text": "所",
-              "pinyin": "suǒ"
+              "pinyin": "suǒ",
+              "startTime": 51.194,
+              "endTime": 51.571
             },
             {
               "text": "有",
-              "pinyin": "yǒu"
+              "pinyin": "yǒu",
+              "startTime": 51.571,
+              "endTime": 51.947
             },
             {
               "text": "微",
-              "pinyin": "wēi"
+              "pinyin": "wēi",
+              "startTime": 51.947,
+              "endTime": 52.324
             },
             {
               "text": "尘",
-              "pinyin": "chén"
+              "pinyin": "chén",
+              "startTime": 52.324,
+              "endTime": 52.7
             },
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 52.7,
+              "endTime": 53.077
             },
             {
               "text": "为",
-              "pinyin": "wéi"
+              "pinyin": "wéi",
+              "startTime": 53.077,
+              "endTime": 53.453
             },
             {
               "text": "多",
-              "pinyin": "duō"
+              "pinyin": "duō",
+              "startTime": 53.453,
+              "endTime": 53.829
             },
             {
               "text": "不",
-              "pinyin": "fǒu"
+              "pinyin": "fǒu",
+              "startTime": 53.829,
+              "endTime": 54.206
             },
             {
               "text": "？"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 54.206,
+              "endTime": 54.582
             }
           ]
         }
       ],
-      "startTime": 28.963,
-      "endTime": 35.024
+      "startTime": 45.925,
+      "endTime": 54.582
     },
     {
       "lines": [
         {
-          "lineStart": 35.024,
-          "lineEnd": 37.333,
+          "lineStart": 55.132,
+          "lineEnd": 59.082,
           "chars": [
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 55.132,
+              "endTime": 55.527
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 55.527,
+              "endTime": 55.922
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 55.922,
+              "endTime": 56.317
             },
             {
               "text": "言",
-              "pinyin": "yán"
+              "pinyin": "yán",
+              "startTime": 56.317,
+              "endTime": 56.712
             },
             {
               "text": "："
             },
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 56.712,
+              "endTime": 57.107
             },
             {
               "text": "甚",
-              "pinyin": "shèn"
+              "pinyin": "shèn",
+              "startTime": 57.107,
+              "endTime": 57.502
             },
             {
               "text": "多",
-              "pinyin": "duō"
+              "pinyin": "duō",
+              "startTime": 57.502,
+              "endTime": 57.897
             },
             {
               "text": "，"
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 57.897,
+              "endTime": 58.292
             },
             {
               "text": "尊",
-              "pinyin": "zūn"
+              "pinyin": "zūn",
+              "startTime": 58.292,
+              "endTime": 58.687
             },
             {
               "text": "！"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 58.687,
+              "endTime": 59.082
             }
           ]
         }
       ],
-      "startTime": 35.024,
-      "endTime": 37.333
+      "startTime": 55.132,
+      "endTime": 59.082
     },
     {
       "lines": [
         {
-          "lineStart": 37.333,
-          "lineEnd": 39.065,
+          "lineStart": 59.632,
+          "lineEnd": 62.674,
           "chars": [
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 59.632,
+              "endTime": 60.067
             },
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 60.067,
+              "endTime": 60.501
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 60.501,
+              "endTime": 60.936
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 60.936,
+              "endTime": 61.37
             },
             {
               "text": "！"
             },
             {
               "text": "诸",
-              "pinyin": "zhū"
+              "pinyin": "zhū",
+              "startTime": 61.37,
+              "endTime": 61.805
             },
             {
               "text": "微",
-              "pinyin": "wēi"
+              "pinyin": "wēi",
+              "startTime": 61.805,
+              "endTime": 62.239
             },
             {
               "text": "尘",
-              "pinyin": "chén"
+              "pinyin": "chén",
+              "startTime": 62.239,
+              "endTime": 62.674
             },
             {
               "text": "，"
@@ -839,32 +1135,44 @@
           ]
         },
         {
-          "lineStart": 39.065,
-          "lineEnd": 40.797,
+          "lineStart": 62.674,
+          "lineEnd": 65.281,
           "chars": [
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 62.674,
+              "endTime": 63.109
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 63.109,
+              "endTime": 63.543
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 63.543,
+              "endTime": 63.978
             },
             {
               "text": "非",
-              "pinyin": "fēi"
+              "pinyin": "fēi",
+              "startTime": 63.978,
+              "endTime": 64.412
             },
             {
               "text": "微",
-              "pinyin": "wēi"
+              "pinyin": "wēi",
+              "startTime": 64.412,
+              "endTime": 64.847
             },
             {
               "text": "尘",
-              "pinyin": "chén"
+              "pinyin": "chén",
+              "startTime": 64.847,
+              "endTime": 65.281
             },
             {
               "text": "，"
@@ -872,24 +1180,32 @@
           ]
         },
         {
-          "lineStart": 40.797,
-          "lineEnd": 41.951,
+          "lineStart": 65.281,
+          "lineEnd": 67.019,
           "chars": [
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 65.281,
+              "endTime": 65.716
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 65.716,
+              "endTime": 66.15
             },
             {
               "text": "微",
-              "pinyin": "wēi"
+              "pinyin": "wēi",
+              "startTime": 66.15,
+              "endTime": 66.585
             },
             {
               "text": "尘",
-              "pinyin": "chén"
+              "pinyin": "chén",
+              "startTime": 66.585,
+              "endTime": 67.019
             },
             {
               "text": "。"
@@ -897,31 +1213,41 @@
           ]
         },
         {
-          "lineStart": 41.951,
-          "lineEnd": 43.395,
+          "lineStart": 67.019,
+          "lineEnd": 69.192,
           "chars": [
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 67.019,
+              "endTime": 67.454
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 67.454,
+              "endTime": 67.888
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 67.888,
+              "endTime": 68.323
             },
             {
               "text": "："
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 68.323,
+              "endTime": 68.757
             },
             {
               "text": "界",
-              "pinyin": "jiè"
+              "pinyin": "jiè",
+              "startTime": 68.757,
+              "endTime": 69.192
             },
             {
               "text": "，"
@@ -929,20 +1255,26 @@
           ]
         },
         {
-          "lineStart": 43.395,
-          "lineEnd": 44.26,
+          "lineStart": 69.192,
+          "lineEnd": 70.495,
           "chars": [
             {
               "text": "非",
-              "pinyin": "fēi"
+              "pinyin": "fēi",
+              "startTime": 69.192,
+              "endTime": 69.627
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 69.627,
+              "endTime": 70.061
             },
             {
               "text": "界",
-              "pinyin": "jiè"
+              "pinyin": "jiè",
+              "startTime": 70.061,
+              "endTime": 70.496
             },
             {
               "text": "，"
@@ -950,24 +1282,32 @@
           ]
         },
         {
-          "lineStart": 44.26,
-          "lineEnd": 45.415,
+          "lineStart": 70.495,
+          "lineEnd": 72.233,
           "chars": [
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 70.495,
+              "endTime": 70.93
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 70.93,
+              "endTime": 71.364
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 71.364,
+              "endTime": 71.799
             },
             {
               "text": "界",
-              "pinyin": "jiè"
+              "pinyin": "jiè",
+              "startTime": 71.799,
+              "endTime": 72.233
             },
             {
               "text": "。"
@@ -975,39 +1315,53 @@
           ]
         },
         {
-          "lineStart": 45.415,
-          "lineEnd": 47.435,
+          "lineStart": 72.233,
+          "lineEnd": 75.275,
           "chars": [
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 72.233,
+              "endTime": 72.668
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 72.668,
+              "endTime": 73.102
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 73.102,
+              "endTime": 73.537
             },
             {
               "text": "！"
             },
             {
               "text": "于",
-              "pinyin": "yú"
+              "pinyin": "yú",
+              "startTime": 73.537,
+              "endTime": 73.971
             },
             {
               "text": "意",
-              "pinyin": "yì"
+              "pinyin": "yì",
+              "startTime": 73.971,
+              "endTime": 74.406
             },
             {
               "text": "云",
-              "pinyin": "yún"
+              "pinyin": "yún",
+              "startTime": 74.406,
+              "endTime": 74.84
             },
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 74.84,
+              "endTime": 75.275
             },
             {
               "text": "？"
@@ -1015,88 +1369,120 @@
           ]
         },
         {
-          "lineStart": 47.435,
-          "lineEnd": 50.322,
+          "lineStart": 75.275,
+          "lineEnd": 80.055,
           "chars": [
             {
               "text": "可",
-              "pinyin": "kě"
+              "pinyin": "kě",
+              "startTime": 75.275,
+              "endTime": 75.71
             },
             {
               "text": "以",
-              "pinyin": "yǐ"
+              "pinyin": "yǐ",
+              "startTime": 75.71,
+              "endTime": 76.144
             },
             {
               "text": "三",
-              "pinyin": "sān"
+              "pinyin": "sān",
+              "startTime": 76.144,
+              "endTime": 76.579
             },
             {
               "text": "十",
-              "pinyin": "shí"
+              "pinyin": "shí",
+              "startTime": 76.579,
+              "endTime": 77.013
             },
             {
               "text": "二",
-              "pinyin": "èr"
+              "pinyin": "èr",
+              "startTime": 77.013,
+              "endTime": 77.448
             },
             {
               "text": "相",
-              "pinyin": "xiàng"
+              "pinyin": "xiàng",
+              "startTime": 77.448,
+              "endTime": 77.882
             },
             {
               "text": "见",
-              "pinyin": "jiàn"
+              "pinyin": "jiàn",
+              "startTime": 77.882,
+              "endTime": 78.317
             },
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 78.317,
+              "endTime": 78.751
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 78.751,
+              "endTime": 79.186
             },
             {
               "text": "不",
-              "pinyin": "fǒu"
+              "pinyin": "fǒu",
+              "startTime": 79.186,
+              "endTime": 79.62
             },
             {
               "text": "？"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 79.62,
+              "endTime": 80.055
             }
           ]
         }
       ],
-      "startTime": 37.333,
-      "endTime": 50.322
+      "startTime": 59.632,
+      "endTime": 80.055
     },
     {
       "lines": [
         {
-          "lineStart": 50.322,
-          "lineEnd": 51.476,
+          "lineStart": 80.605,
+          "lineEnd": 82.703,
           "chars": [
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 80.605,
+              "endTime": 81.025
             },
             {
               "text": "不",
-              "pinyin": "bù"
+              "pinyin": "bù",
+              "startTime": 81.025,
+              "endTime": 81.444
             },
             {
               "text": "也",
-              "pinyin": "yě"
+              "pinyin": "yě",
+              "startTime": 81.444,
+              "endTime": 81.864
             },
             {
               "text": "，"
             },
             {
               "text": "世",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 81.864,
+              "endTime": 82.284
             },
             {
               "text": "尊",
-              "pinyin": "zūn"
+              "pinyin": "zūn",
+              "startTime": 82.284,
+              "endTime": 82.703
             },
             {
               "text": "！"
@@ -1104,52 +1490,74 @@
           ]
         },
         {
-          "lineStart": 51.476,
-          "lineEnd": 54.651,
+          "lineStart": 82.703,
+          "lineEnd": 87.319,
           "chars": [
             {
               "text": "不",
-              "pinyin": "bù"
+              "pinyin": "bù",
+              "startTime": 82.703,
+              "endTime": 83.123
             },
             {
               "text": "可",
-              "pinyin": "kě"
+              "pinyin": "kě",
+              "startTime": 83.123,
+              "endTime": 83.542
             },
             {
               "text": "以",
-              "pinyin": "yǐ"
+              "pinyin": "yǐ",
+              "startTime": 83.542,
+              "endTime": 83.962
             },
             {
               "text": "三",
-              "pinyin": "sān"
+              "pinyin": "sān",
+              "startTime": 83.962,
+              "endTime": 84.382
             },
             {
               "text": "十",
-              "pinyin": "shí"
+              "pinyin": "shí",
+              "startTime": 84.382,
+              "endTime": 84.801
             },
             {
               "text": "二",
-              "pinyin": "èr"
+              "pinyin": "èr",
+              "startTime": 84.801,
+              "endTime": 85.221
             },
             {
               "text": "相",
-              "pinyin": "xiàng"
+              "pinyin": "xiàng",
+              "startTime": 85.221,
+              "endTime": 85.641
             },
             {
               "text": "得",
-              "pinyin": "dé"
+              "pinyin": "dé",
+              "startTime": 85.641,
+              "endTime": 86.06
             },
             {
               "text": "见",
-              "pinyin": "jiàn"
+              "pinyin": "jiàn",
+              "startTime": 86.06,
+              "endTime": 86.48
             },
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 86.48,
+              "endTime": 86.9
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 86.9,
+              "endTime": 87.319
             },
             {
               "text": "。"
@@ -1157,20 +1565,26 @@
           ]
         },
         {
-          "lineStart": 54.651,
-          "lineEnd": 55.517,
+          "lineStart": 87.319,
+          "lineEnd": 88.578,
           "chars": [
             {
               "text": "何",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 87.319,
+              "endTime": 87.739
             },
             {
               "text": "以",
-              "pinyin": "yǐ"
+              "pinyin": "yǐ",
+              "startTime": 87.739,
+              "endTime": 88.158
             },
             {
               "text": "故",
-              "pinyin": "gù"
+              "pinyin": "gù",
+              "startTime": 88.158,
+              "endTime": 88.578
             },
             {
               "text": "？"
@@ -1178,39 +1592,53 @@
           ]
         },
         {
-          "lineStart": 55.517,
-          "lineEnd": 57.537,
+          "lineStart": 88.578,
+          "lineEnd": 91.516,
           "chars": [
             {
               "text": "如",
-              "pinyin": "rú"
+              "pinyin": "rú",
+              "startTime": 88.578,
+              "endTime": 88.998
             },
             {
               "text": "来",
-              "pinyin": "lái"
+              "pinyin": "lái",
+              "startTime": 88.998,
+              "endTime": 89.417
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 89.417,
+              "endTime": 89.837
             },
             {
               "text": "："
             },
             {
               "text": "三",
-              "pinyin": "sān"
+              "pinyin": "sān",
+              "startTime": 89.837,
+              "endTime": 90.257
             },
             {
               "text": "十",
-              "pinyin": "shí"
+              "pinyin": "shí",
+              "startTime": 90.257,
+              "endTime": 90.676
             },
             {
               "text": "二",
-              "pinyin": "èr"
+              "pinyin": "èr",
+              "startTime": 90.676,
+              "endTime": 91.096
             },
             {
               "text": "相",
-              "pinyin": "xiàng"
+              "pinyin": "xiàng",
+              "startTime": 91.096,
+              "endTime": 91.516
             },
             {
               "text": "，"
@@ -1218,24 +1646,32 @@
           ]
         },
         {
-          "lineStart": 57.537,
-          "lineEnd": 58.692,
+          "lineStart": 91.516,
+          "lineEnd": 93.195,
           "chars": [
             {
               "text": "即",
-              "pinyin": "jí"
+              "pinyin": "jí",
+              "startTime": 91.516,
+              "endTime": 91.936
             },
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 91.936,
+              "endTime": 92.355
             },
             {
               "text": "非",
-              "pinyin": "fēi"
+              "pinyin": "fēi",
+              "startTime": 92.355,
+              "endTime": 92.775
             },
             {
               "text": "相",
-              "pinyin": "xiàng"
+              "pinyin": "xiàng",
+              "startTime": 92.775,
+              "endTime": 93.195
             },
             {
               "text": "，"
@@ -1243,65 +1679,87 @@
           ]
         },
         {
-          "lineStart": 58.692,
-          "lineEnd": 60.424,
+          "lineStart": 93.195,
+          "lineEnd": 96.132,
           "chars": [
             {
               "text": "是",
-              "pinyin": "shì"
+              "pinyin": "shì",
+              "startTime": 93.195,
+              "endTime": 93.615
             },
             {
               "text": "名",
-              "pinyin": "míng"
+              "pinyin": "míng",
+              "startTime": 93.615,
+              "endTime": 94.034
             },
             {
               "text": "三",
-              "pinyin": "sān"
+              "pinyin": "sān",
+              "startTime": 94.034,
+              "endTime": 94.454
             },
             {
               "text": "十",
-              "pinyin": "shí"
+              "pinyin": "shí",
+              "startTime": 94.454,
+              "endTime": 94.874
             },
             {
               "text": "二",
-              "pinyin": "èr"
+              "pinyin": "èr",
+              "startTime": 94.874,
+              "endTime": 95.293
             },
             {
               "text": "相",
-              "pinyin": "xiàng"
+              "pinyin": "xiàng",
+              "startTime": 95.293,
+              "endTime": 95.713
             },
             {
               "text": "。"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 95.713,
+              "endTime": 96.133
             }
           ]
         }
       ],
-      "startTime": 50.322,
-      "endTime": 60.424
+      "startTime": 80.605,
+      "endTime": 96.132
     },
     {
       "lines": [
         {
-          "lineStart": 60.424,
-          "lineEnd": 61.29,
+          "lineStart": 96.682,
+          "lineEnd": 98.348,
           "chars": [
             {
-              "text": "“"
+              "text": "“",
+              "startTime": 96.682,
+              "endTime": 97.099
             },
             {
               "text": "须",
-              "pinyin": "xū"
+              "pinyin": "xū",
+              "startTime": 97.099,
+              "endTime": 97.515
             },
             {
               "text": "菩",
-              "pinyin": "pú"
+              "pinyin": "pú",
+              "startTime": 97.515,
+              "endTime": 97.932
             },
             {
               "text": "提",
-              "pinyin": "tí"
+              "pinyin": "tí",
+              "startTime": 97.932,
+              "endTime": 98.348
             },
             {
               "text": "！"
@@ -1309,43 +1767,59 @@
           ]
         },
         {
-          "lineStart": 61.29,
-          "lineEnd": 63.599,
+          "lineStart": 98.348,
+          "lineEnd": 101.68,
           "chars": [
             {
               "text": "若",
-              "pinyin": "ruò"
+              "pinyin": "ruò",
+              "startTime": 98.348,
+              "endTime": 98.765
             },
             {
               "text": "有",
-              "pinyin": "yǒu"
+              "pinyin": "yǒu",
+              "startTime": 98.765,
+              "endTime": 99.181
             },
             {
               "text": "善",
-              "pinyin": "shàn"
+              "pinyin": "shàn",
+              "startTime": 99.181,
+              "endTime": 99.598
             },
             {
               "text": "男",
-              "pinyin": "nán"
+              "pinyin": "nán",
+              "startTime": 99.598,
+              "endTime": 100.014
             },
             {
               "text": "子",
-              "pinyin": "zǐ"
+              "pinyin": "zǐ",
+              "startTime": 100.014,
+              "endTime": 100.431
             },
             {
               "text": "、"
             },
             {
               "text": "善",
-              "pinyin": "shàn"
+              "pinyin": "shàn",
+              "startTime": 100.431,
+              "endTime": 100.847
             },
             {
               "text": "女",
-              "pinyin": "nǚ"
+              "pinyin": "nǚ",
+              "startTime": 100.847,
+              "endTime": 101.264
             },
             {
               "text": "人",
-              "pinyin": "rén"
+              "pinyin": "rén",
+              "startTime": 101.264,
+              "endTime": 101.68
             },
             {
               "text": "，"
@@ -1353,44 +1827,62 @@
           ]
         },
         {
-          "lineStart": 63.599,
-          "lineEnd": 66.196,
+          "lineStart": 101.68,
+          "lineEnd": 105.429,
           "chars": [
             {
               "text": "以",
-              "pinyin": "yǐ"
+              "pinyin": "yǐ",
+              "startTime": 101.68,
+              "endTime": 102.097
             },
             {
               "text": "恒",
-              "pinyin": "héng"
+              "pinyin": "héng",
+              "startTime": 102.097,
+              "endTime": 102.513
             },
             {
               "text": "河",
-              "pinyin": "hé"
+              "pinyin": "hé",
+              "startTime": 102.513,
+              "endTime": 102.93
             },
             {
               "text": "沙",
-              "pinyin": "shā"
+              "pinyin": "shā",
+              "startTime": 102.93,
+              "endTime": 103.346
             },
             {
               "text": "等",
-              "pinyin": "děng"
+              "pinyin": "děng",
+              "startTime": 103.346,
+              "endTime": 103.763
             },
             {
               "text": "身",
-              "pinyin": "shēn"
+              "pinyin": "shēn",
+              "startTime": 103.763,
+              "endTime": 104.179
             },
             {
               "text": "命",
-              "pinyin": "mìng"
+              "pinyin": "mìng",
+              "startTime": 104.179,
+              "endTime": 104.596
             },
             {
               "text": "布",
-              "pinyin": "bù"
+              "pinyin": "bù",
+              "startTime": 104.596,
+              "endTime": 105.012
             },
             {
               "text": "施",
-              "pinyin": "shī"
+              "pinyin": "shī",
+              "startTime": 105.012,
+              "endTime": 105.429
             },
             {
               "text": "；"
@@ -1398,24 +1890,32 @@
           ]
         },
         {
-          "lineStart": 66.196,
-          "lineEnd": 67.351,
+          "lineStart": 105.429,
+          "lineEnd": 107.095,
           "chars": [
             {
               "text": "若",
-              "pinyin": "ruò"
+              "pinyin": "ruò",
+              "startTime": 105.429,
+              "endTime": 105.846
             },
             {
               "text": "复",
-              "pinyin": "fù"
+              "pinyin": "fù",
+              "startTime": 105.846,
+              "endTime": 106.262
             },
             {
               "text": "有",
-              "pinyin": "yǒu"
+              "pinyin": "yǒu",
+              "startTime": 106.262,
+              "endTime": 106.679
             },
             {
               "text": "人",
-              "pinyin": "rén"
+              "pinyin": "rén",
+              "startTime": 106.679,
+              "endTime": 107.095
             },
             {
               "text": "，"
@@ -1423,24 +1923,32 @@
           ]
         },
         {
-          "lineStart": 67.351,
-          "lineEnd": 68.505,
+          "lineStart": 107.095,
+          "lineEnd": 108.761,
           "chars": [
             {
               "text": "于",
-              "pinyin": "yú"
+              "pinyin": "yú",
+              "startTime": 107.095,
+              "endTime": 107.512
             },
             {
               "text": "此",
-              "pinyin": "cǐ"
+              "pinyin": "cǐ",
+              "startTime": 107.512,
+              "endTime": 107.928
             },
             {
               "text": "经",
-              "pinyin": "jīng"
+              "pinyin": "jīng",
+              "startTime": 107.928,
+              "endTime": 108.345
             },
             {
               "text": "中",
-              "pinyin": "zhōng"
+              "pinyin": "zhōng",
+              "startTime": 108.345,
+              "endTime": 108.761
             },
             {
               "text": "，"
@@ -1448,40 +1956,56 @@
           ]
         },
         {
-          "lineStart": 68.505,
-          "lineEnd": 70.814,
+          "lineStart": 108.761,
+          "lineEnd": 112.093,
           "chars": [
             {
               "text": "乃",
-              "pinyin": "nǎi"
+              "pinyin": "nǎi",
+              "startTime": 108.761,
+              "endTime": 109.178
             },
             {
               "text": "至",
-              "pinyin": "zhì"
+              "pinyin": "zhì",
+              "startTime": 109.178,
+              "endTime": 109.594
             },
             {
               "text": "受",
-              "pinyin": "shòu"
+              "pinyin": "shòu",
+              "startTime": 109.594,
+              "endTime": 110.011
             },
             {
               "text": "持",
-              "pinyin": "chí"
+              "pinyin": "chí",
+              "startTime": 110.011,
+              "endTime": 110.427
             },
             {
               "text": "四",
-              "pinyin": "sì"
+              "pinyin": "sì",
+              "startTime": 110.427,
+              "endTime": 110.844
             },
             {
               "text": "句",
-              "pinyin": "jù"
+              "pinyin": "jù",
+              "startTime": 110.844,
+              "endTime": 111.26
             },
             {
               "text": "偈",
-              "pinyin": "jì"
+              "pinyin": "jì",
+              "startTime": 111.26,
+              "endTime": 111.677
             },
             {
               "text": "等",
-              "pinyin": "děng"
+              "pinyin": "děng",
+              "startTime": 111.677,
+              "endTime": 112.093
             },
             {
               "text": "，"
@@ -1489,24 +2013,32 @@
           ]
         },
         {
-          "lineStart": 70.814,
-          "lineEnd": 71.969,
+          "lineStart": 112.093,
+          "lineEnd": 113.759,
           "chars": [
             {
               "text": "为",
-              "pinyin": "wèi"
+              "pinyin": "wèi",
+              "startTime": 112.093,
+              "endTime": 112.51
             },
             {
               "text": "他",
-              "pinyin": "tā"
+              "pinyin": "tā",
+              "startTime": 112.51,
+              "endTime": 112.926
             },
             {
               "text": "人",
-              "pinyin": "rén"
+              "pinyin": "rén",
+              "startTime": 112.926,
+              "endTime": 113.343
             },
             {
               "text": "说",
-              "pinyin": "shuō"
+              "pinyin": "shuō",
+              "startTime": 113.343,
+              "endTime": 113.759
             },
             {
               "text": "，"
@@ -1514,36 +2046,46 @@
           ]
         },
         {
-          "lineStart": 71.969,
-          "lineEnd": 73.124,
+          "lineStart": 113.759,
+          "lineEnd": 115.841,
           "chars": [
             {
               "text": "其",
-              "pinyin": "qí"
+              "pinyin": "qí",
+              "startTime": 113.759,
+              "endTime": 114.176
             },
             {
               "text": "福",
-              "pinyin": "fú"
+              "pinyin": "fú",
+              "startTime": 114.176,
+              "endTime": 114.592
             },
             {
               "text": "甚",
-              "pinyin": "shèn"
+              "pinyin": "shèn",
+              "startTime": 114.592,
+              "endTime": 115.009
             },
             {
               "text": "多",
-              "pinyin": "duō"
+              "pinyin": "duō",
+              "startTime": 115.009,
+              "endTime": 115.425
             },
             {
               "text": "。"
             },
             {
-              "text": "”"
+              "text": "”",
+              "startTime": 115.425,
+              "endTime": 115.842
             }
           ]
         }
       ],
-      "startTime": 60.424,
-      "endTime": 73.124
+      "startTime": 96.682,
+      "endTime": 115.841
     }
   ],
   "audioUrl": "/audio/jingangjing/chapter_13.mp3"
