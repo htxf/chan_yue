@@ -43,8 +43,8 @@ export function useAudioSync(paragraphs, options = {}) {
         hi = mid - 1
       }
     }
-    if (result >= 0 && time < ps[result].endTime) {
-      return ps[result].id
+    if (result >= 0 && time <= ps[result].endTime) {
+      return ps[result].id !== undefined ? ps[result].id : (result + 1)
     }
     return -1
   }

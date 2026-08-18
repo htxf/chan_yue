@@ -17,9 +17,9 @@ defineProps({
   <div class="sutra-body">
     <SutraParagraph
       v-for="(p, i) in paragraphs"
-      :key="p.id"
+      :key="p.id ?? i"
       :paragraph="p"
-      :active="p.id === currentParagraphId"
+      :active="(p.id ?? (i + 1)) === currentParagraphId"
       :index="i"
       :currentTime="currentTime"
       :mode="mode"
