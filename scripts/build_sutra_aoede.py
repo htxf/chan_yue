@@ -17,9 +17,6 @@ if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(os.path.join(PROJECT_ROOT, "scripts"))
-from buddhist_dict import clean_tts_text
-
 POEM_ENV = "d:/Projects/poem_project/.env"
 
 def get_api_key():
@@ -32,9 +29,9 @@ def get_api_key():
                         return line.strip().split("=", 1)[1].strip().strip('"').strip("'")
     return os.environ.get("GEMINI_API_KEY", "")
 
-# 统一使用 Charon 经典深沉古典音色 + Gemini 3.1 Flash TTS
+# 统一锁定为 Aoede 温婉空灵女性音色
 TTS_MODEL = "gemini-3.1-flash-tts-preview"
-TTS_VOICE = "Charon"
+TTS_VOICE = "Aoede"
 TTS_SAMPLE_RATE = 24000
 
 SANCTUARY_PLUS_FILTER = (
@@ -61,30 +58,16 @@ def apply_sanctuary_filter(raw_wav_path: str, out_wav_path: str):
         '-af', SANCTUARY_PLUS_FILTER,
         '-c:a', 'pcm_s16le', tmp.replace('\\', '/')
     ]
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if res.returncode == 0 and os.path.exists(tmp):
+    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if os.path.exists(tmp):
         if os.path.exists(out_wav_path):
             os.remove(out_wav_path)
         os.rename(tmp, out_wav_path)
-    else:
-        import shutil
-        shutil.copy(raw_wav_path, out_wav_path)
 
 def align_by_energy_pauses(audio_path, paragraphs):
-    """
-    通过音频能量包络与停顿检测，将每一个段落和句子精准锚定到真实的语音分段上，
-    彻底消除屏幕滚动与朗读之间的超前/滞后漂移！
-    """
     data, sr = sf.read(audio_path)
     total_dur = len(data) / sr
 
-    # 计算平滑能量包络 (100ms 窗口)
-    win_size = int(sr * 0.1)
-    energy = uniform_filter1d(np.abs(data), size=win_size)
-    peak_e = np.percentile(energy, 95)
-    silence_thresh = max(0.003, peak_e * 0.08)
-
-    # 找出所有段落中的所有行
     flat_lines = []
     for p_idx, p in enumerate(paragraphs):
         for l_idx, l in enumerate(p.get("lines", [])):
@@ -99,13 +82,11 @@ def align_by_energy_pauses(audio_path, paragraphs):
                 "is_sentence_end": text.endswith(("。", "！", "？", "；", "："))
             })
 
-    # 根据每行字数和句尾长停顿分配时间权重
-    # 句尾停顿给予额外的停顿权重，短分句（逗号）给予轻微停顿
     weights = []
     for fl in flat_lines:
         w = fl["char_count"] * 1.0
         if fl["is_sentence_end"]:
-            w += 1.8  # 句尾自然呼吸停顿
+            w += 1.8  # 句末深呼吸停顿
         else:
             w += 0.6  # 逗号轻停顿
         weights.append(w)
@@ -125,7 +106,6 @@ def align_by_energy_pauses(audio_path, paragraphs):
         line["lineStart"] = l_start
         line["lineEnd"] = l_end
 
-        # 字级均匀分布在行内
         chars = line.get("chars", [])
         valid_chars = [c for c in chars if c.get("text", "").strip() and c.get("text") not in "，。！？；：、"]
         c_count = max(1, len(valid_chars))
@@ -139,7 +119,6 @@ def align_by_energy_pauses(audio_path, paragraphs):
 
         cur_time = l_end
 
-    # 更新段落 startTime / endTime
     for idx, p in enumerate(paragraphs):
         p["id"] = idx + 1
         p_lines = p.get("lines", [])
@@ -152,21 +131,20 @@ def align_by_energy_pauses(audio_path, paragraphs):
 
     return total_dur
 
-def build_sutra_track(client, title_name, text_for_tts, json_path, out_mp3_path):
+def synthesize_track(client, title_name, text_for_tts, json_path, out_mp3_path):
     print(f"\n==================================================", flush=True)
-    print(f"📖 正在为【{title_name}】合成 Charon 深沉古典原声...", flush=True)
-    print(f"   字音已全面校准 (含 著衣->zhuó, 多故->duō 等)", flush=True)
+    print(f"🌸 正在为【{title_name}】合成 Aoede 空灵女性原声...", flush=True)
+    print(f"   字音已全面校准 (著衣->zhuó, 多故->duō 一声等)", flush=True)
     print(f"==================================================", flush=True)
 
     prompt = (
-        "请用沉着、平和、清晰、从容的标准普通话朗读以下经文，"
-        "语调自然平稳，字音准确，不急不缓，字字分明：\n\n"
+        "用温和清晰、典雅空灵的语气朗读以下古文经文：\n\n"
         f"{text_for_tts}"
     )
 
     t0 = time.time()
     raw_wav_bytes = None
-    for attempt in range(1, 4):
+    for attempt in range(1, 6):
         try:
             res = client.models.generate_content(
                 model=TTS_MODEL,
@@ -190,15 +168,15 @@ def build_sutra_track(client, title_name, text_for_tts, json_path, out_mp3_path)
                 raw_wav_bytes = pcm_bytes_to_wav(pcm, sample_rate=TTS_SAMPLE_RATE)
                 break
             else:
-                print(f"⚠️ 尝试 {attempt} 未返回音频数据 (FinishReason={cand.finish_reason})，等待 15s 重试...")
-                time.sleep(15)
+                print(f"⚠️ 尝试 {attempt} 未返回数据 (FinishReason={cand.finish_reason})，等待 20s 重试...", flush=True)
+                time.sleep(20)
         except Exception as e:
-            print(f"⚠️ 尝试 {attempt} 发生异常: {e}，等待 15s 重试...")
-            time.sleep(15)
+            print(f"⚠️ 尝试 {attempt} 发生异常: {e}，等待 30s 重试...", flush=True)
+            time.sleep(30)
 
     if not raw_wav_bytes:
-        print(f"❌ 【{title_name}】多次重试失败！")
-        return
+        print(f"❌ 【{title_name}】生成失败！", flush=True)
+        return False
 
     raw_wav = out_mp3_path + ".raw.wav"
     final_wav = out_mp3_path + ".sanctuary.wav"
@@ -228,9 +206,10 @@ def build_sutra_track(client, title_name, text_for_tts, json_path, out_mp3_path)
     if os.path.exists(final_wav):
         os.remove(final_wav)
 
-    print(f"🎉 【{title_name}】生成部署完毕！总时长: {dur:.2f}s, 耗时: {time.time() - t0:.2f}s")
-    print(f"   MP3 文件: {out_mp3_path}")
-    print(f"   时间轴已更新: {json_path}")
+    print(f"🎉 【{title_name}】Aoede 原声生成并部署成功！总时长: {dur:.2f}s, 耗时: {time.time() - t0:.2f}s", flush=True)
+    print(f"   MP3 路径: {out_mp3_path}", flush=True)
+    print(f"   时间轴已更新: {json_path}", flush=True)
+    return True
 
 def main():
     api_key = get_api_key()
@@ -240,7 +219,7 @@ def main():
 
     client = genai.Client(api_key=api_key)
 
-    # 1. 《心经》读音全面校对 (波罗蜜哆故 duō 一声, 诸法空向, 菩提娑婆喝)
+    # 1. 《心经》读音校正 (依波惹波罗蜜哆故 duō 一声)
     xinjing_text = (
         "观自在菩萨，行深波惹波罗蜜多时，照见五蕴皆空，度一切苦厄。"
         "赦利子，色不异空，空不异色，色即是空，空即是色，受想行识，亦复如是。"
@@ -254,7 +233,7 @@ def main():
         "故说波惹波罗蜜多咒，即说咒曰：阶谛阶谛，波罗阶谛，波罗僧阶谛，菩提娑婆喝。"
     )
 
-    # 2. 《金刚经》第一品读音全面校对 (浊衣持钵 zhuó 二声, 意时 yì 四声, 奇树几孤独园, 饭食气 qì)
+    # 2. 《金刚经》第一品读音校正 (浊衣持钵 zhuó 二声, 意时 yì 四声)
     jingang_ch1_text = (
         "如是我闻。意时，佛在赦卫国奇树几孤独园，与大比丘众千两百五十人俱。"
         "尔时，世尊食时，浊衣持钵，入赦卫大城乞食。"
@@ -262,15 +241,8 @@ def main():
         "饭食气，收衣钵，洗足已，敷座而坐。"
     )
 
-    # 3. 《金刚经》第二品读音全面校对 (掌老须菩提 zhǎng, 右膝浊地 zhuó, 愿要欲闻 yào)
-    jingang_ch2_text = (
-        "时，掌老须菩提在大众中即从座起，偏袒右肩，右膝浊地，合掌恭敬而白佛言：“希有！世尊！如来善护念诸菩萨，善付嘱诸菩萨。世尊！善男子、善女人，发阿漏多罗三秒三菩提心，应云何住？云何降服其心？”"
-        "佛言：“善哉，善哉。须菩提！如汝所说，如来善护念诸菩萨，善付嘱诸菩萨。汝今谛听！当为汝说：善男子、善女人，发阿漏多罗三秒三菩提心，应如是住，如是降服其心。”"
-        "“唯然，世尊！愿要欲闻。”"
-    )
-
-    # 依次构建并部署
-    build_sutra_track(
+    # 生成心经
+    synthesize_track(
         client,
         "般若波罗蜜多心经",
         xinjing_text,
@@ -278,30 +250,17 @@ def main():
         os.path.join(PROJECT_ROOT, "public", "audio", "xinjing.mp3")
     )
 
-    print("\n⏳ 冷却等待 15s...", flush=True)
-    time.sleep(15)
+    print("\n⏳ 冷却等待 20s 后生成金刚经第一品...", flush=True)
+    time.sleep(20)
 
-    build_sutra_track(
+    # 生成金刚经第一品
+    synthesize_track(
         client,
         "金刚经 第一品 法会因由分",
         jingang_ch1_text,
         os.path.join(PROJECT_ROOT, "src", "data", "jingangjing", "chapter_1.json"),
         os.path.join(PROJECT_ROOT, "public", "audio", "jingangjing", "chapter_1.mp3")
     )
-
-    print("\n⏳ 冷却等待 15s...", flush=True)
-    time.sleep(15)
-
-    build_sutra_track(
-        client,
-        "金刚经 第二品 善现启请分",
-        jingang_ch2_text,
-        os.path.join(PROJECT_ROOT, "src", "data", "jingangjing", "chapter_2.json"),
-        os.path.join(PROJECT_ROOT, "public", "audio", "jingangjing", "chapter_2.mp3")
-    )
-
-    print("\n==================================================", flush=True)
-    print("✨ 《心经》与《金刚经》第一品、第二品全部完成【统一 Charon 音色 + 统一 1.5x 古刹幽鸣 + 精准发音校正 + 停顿智能对齐】！", flush=True)
 
 if __name__ == "__main__":
     main()
