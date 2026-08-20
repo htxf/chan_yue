@@ -43,8 +43,12 @@ export function useAudioSync(paragraphs, options = {}) {
         hi = mid - 1
       }
     }
-    if (result >= 0 && time <= ps[result].endTime) {
-      return ps[result].id !== undefined ? ps[result].id : (result + 1)
+    if (result >= 0) {
+      // 保持当前段落激活直到下一段开始，防止停顿空隙闪烁或失焦
+      const nextStart = (result + 1 < ps.length) ? ps[result + 1].startTime : (ps[result].endTime + 1.5)
+      if (time < nextStart) {
+        return ps[result].id !== undefined ? ps[result].id : (result + 1)
+      }
     }
     return -1
   }
