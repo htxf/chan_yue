@@ -12,9 +12,13 @@ const props = defineProps({
   progress: Number,
   autoPlay: Boolean,
   isZenMode: Boolean,
+  voice: {
+    type: String,
+    default: 'female'
+  }
 })
 
-const emit = defineEmits(['toggle', 'seek', 'update:autoPlay', 'update:isZenMode'])
+const emit = defineEmits(['toggle', 'seek', 'update:autoPlay', 'update:isZenMode', 'update:voice'])
 
 /** 格式化时间 mm:ss */
 function fmt(sec) {
@@ -78,6 +82,15 @@ function onProgressClick(e) {
     <span class="time-display">{{ timeDisplay }}</span>
     
     <button 
+      class="voice-btn" 
+      @click="emit('update:voice', voice === 'female' ? 'male' : 'female')"
+      :title="voice === 'female' ? '当前音色：清平女声（Zephyr），点击切换为沉稳男声' : '当前音色：沉稳男声（Charon），点击切换为清平女声'"
+    >
+      <span class="voice-icon">{{ voice === 'female' ? '🌸' : '🪵' }}</span>
+      <span>{{ voice === 'female' ? '女声' : '男声' }}</span>
+    </button>
+
+    <button 
       class="zen-btn" 
       @click="handleZenClick"
       title="禅定模式"
@@ -132,10 +145,6 @@ function onProgressClick(e) {
   background: rgba(212, 165, 116, 0.15);
   border-color: var(--gold-muted);
   transform: scale(1.05);
-}
-
-.play-btn:active {
-  transform: scale(0.95);
 }
 
 .play-btn.playing {
@@ -231,6 +240,33 @@ function onProgressClick(e) {
 .zen-btn:hover {
   opacity: 1;
   color: rgba(212, 175, 55, 0.8);
+}
+
+.voice-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-family: 'Noto Serif SC', serif;
+  color: rgba(212, 175, 55, 0.9);
+  transition: all 0.25s ease;
+}
+
+.voice-btn:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.voice-icon {
+  font-size: 11px;
 }
 
 @media (max-width: 640px) {

@@ -38,6 +38,35 @@ let autoPlayTimer = null
 
 const paragraphsRef = computed(() => chapterData.value?.paragraphs || [])
 
+const selectedVoice = ref(localStorage.getItem('chanyue_voice') || 'female')
+
+function getVoiceAudioUrl(rawUrl, voice = selectedVoice.value) {
+  if (!rawUrl) return rawUrl
+  if (rawUrl.endsWith('.mp3')) {
+    const base = rawUrl.slice(0, -4).replace(/_(female|male)$/, '')
+    return `${base}_${voice}.mp3`
+  }
+  return rawUrl
+}
+
+function onVoiceChange(newVoice) {
+  selectedVoice.value = newVoice
+  localStorage.setItem('chanyue_voice', newVoice)
+  const rawUrl = chapterData.value?.audioUrl || bookMeta.value?.audioUrl
+  if (rawUrl) {
+    const targetUrl = getVoiceAudioUrl(rawUrl, newVoice)
+    const wasPlaying = isPlaying.value
+    const prevPct = progress.value
+    loadAudio(targetUrl)
+    if (wasPlaying) {
+      setTimeout(() => {
+        seekByPercent(prevPct)
+        play()
+      }, 150)
+    }
+  }
+}
+
 const {
   currentTime,
   duration,
@@ -55,7 +84,7 @@ const {
   onEnded: () => {
     if (autoPlayNext.value && nextChapter.value) {
       const nextId = nextChapter.value.id || nextChapter.value.chapterId
-      const audioUrl = `/audio/${bookId.value}/${nextId}.mp3`
+      const audioUrl = getVoiceAudioUrl(`/audio/${bookId.value}/${nextId}.mp3`, selectedVoice.value)
       // 零延迟同步接力：在同一个同步栈内切 src + play()
       // 让 OS 保持音频焦点不释放
       playNextTrack(audioUrl)
@@ -163,7 +192,8 @@ async function loadChapterData() {
     
     // Check if the current book has a global audioUrl or chapter-specific
     // Prefer chapter specific audio, fallback to book audio
-    const audioUrl = chapterData.value.audioUrl || bookMeta.value?.audioUrl
+    const rawAudioUrl = chapterData.value.audioUrl || bookMeta.value?.audioUrl
+    const audioUrl = getVoiceAudioUrl(rawAudioUrl)
     if (audioUrl) {
       // 连播模式下 loadAudio 不会覆盖已经在播的 src（因为 URL 已经一致）
       loadAudio(audioUrl)
@@ -308,6 +338,8 @@ function handleToggle() {
           :duration="duration"
           :isPlaying="isPlaying"
           :progress="progress"
+          :voice="selectedVoice"
+          @update:voice="onVoiceChange"
           v-model:autoPlay="autoPlayNext"
           v-model:isZenMode="isZenMode"
           @toggle="handleToggle"
