@@ -32,13 +32,21 @@ const activeLineIndex = computed(() => {
   )
 })
 
-/* 当段落激活或激活行变化时，丝滑滚动到屏幕中央 */
+let lastScrolledLine = -1
+
+/* 仅在激活行真正前进变化时丝滑居中滚动，绝不在停顿或段落过渡时反向回滚 */
 watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
-  if (props.mode !== 'listening' || !isActive) return
+  if (props.mode !== 'listening' || !isActive) {
+    lastScrolledLine = -1
+    return
+  }
   
-  await nextTick()
-  const el = (lineIdx >= 0 && lineRefs.value[lineIdx]) ? lineRefs.value[lineIdx] : paragraphEl.value
-  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (lineIdx >= 0 && lineIdx !== lastScrolledLine) {
+    lastScrolledLine = lineIdx
+    await nextTick()
+    const el = lineRefs.value[lineIdx]
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 })
 </script>
 
