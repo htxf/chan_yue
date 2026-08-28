@@ -130,7 +130,7 @@ def synthesize_voice(client, voice_name: str, text: str, out_mp3: str) -> bool:
     return False
 
 def align_json_to_audio_bursts(audio_path: str, json_path: str):
-    print(f"📐 正在运行动态声学波形与字级物理映射...", flush=True)
+    print(f"📐 正在运行全局最优声学波形与行级动态规划对齐...", flush=True)
     data, sr = sf.read(audio_path)
     if data.ndim == 2:
         data = data.mean(axis=1)
@@ -160,62 +160,103 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
     with open(json_path, "r", encoding="utf-8") as f:
         doc = json.load(f)
 
-    valid_chars = []
+    lines = []
     for p in doc.get("paragraphs", []):
         for l in p.get("lines", []):
-            for c in l.get("chars", []):
-                if c.get("text", "").strip() and c.get("text") not in "，。！？；：、“”‘’『』《》〈〉":
-                    valid_chars.append(c)
+            chars = [c for c in l.get("chars", []) if c.get("text", "").strip() and c.get("text") not in "，。！？；：、“”‘’『』《》〈〉"]
+            if chars:
+                lines.append((l, chars))
 
-    total_burst_time = sum(b_et - b_st for b_st, b_et in bursts)
-    time_per_char = total_burst_time / max(1, len(valid_chars))
+    N = len(lines)
+    M = len(bursts)
 
-    char_idx = 0
-    for b_idx, (b_st, b_et) in enumerate(bursts):
-        b_time = b_et - b_st
-        
-        if b_idx == len(bursts) - 1:
-            chars_in_burst = len(valid_chars) - char_idx
-        else:
-            chars_in_burst = int(round(b_time / time_per_char))
-            
-        chars_in_burst = min(chars_in_burst, len(valid_chars) - char_idx)
-        
-        assigned_chars = valid_chars[char_idx : char_idx + chars_in_burst]
-        if not assigned_chars:
+    total_chars = sum(len(c) for _, c in lines)
+    total_speech_time = sum(b[1] - b[0] for b in bursts)
+    target_rate = total_speech_time / max(1, total_chars)
+
+    # 动态规划全局对齐：支持 N>=M 或 N<M 的最优单调划分
+    dp = np.full((N + 1, M + 1), float('inf'))
+    parent = {}
+    dp[0][0] = 0.0
+
+    for j in range(1, M + 1):
+        for i in range(1, N + 1):
+            k_chars = 0
+            for k in range(i - 1, -1, -1):
+                k_chars += len(lines[k][1])
+                b_dur = bursts[j-1][1] - bursts[j-1][0]
+                cost = (b_dur - k_chars * target_rate) ** 2
+                if dp[k][j-1] + cost < dp[i][j]:
+                    dp[i][j] = dp[k][j-1] + cost
+                    parent[(i, j)] = (k, j-1)
+
+    if dp[N][M] == float('inf'):
+        dp = np.full((N + 1, M + 1), float('inf'))
+        parent = {}
+        dp[0][0] = 0.0
+        for i in range(1, N + 1):
+            l_chars = len(lines[i-1][1])
+            for j in range(1, M + 1):
+                for k in range(j - 1, -1, -1):
+                    b_dur = sum(bursts[b_idx][1] - bursts[b_idx][0] for b_idx in range(k, j))
+                    cost = (b_dur - l_chars * target_rate) ** 2
+                    if dp[i-1][k] + cost < dp[i][j]:
+                        dp[i][j] = dp[i-1][k] + cost
+                        parent[(i, j)] = (i-1, k)
+
+    curr = (N, M)
+    matches = []
+    while curr != (0, 0):
+        prev = parent.get(curr, (0, 0))
+        matches.append((list(range(prev[0], curr[0])), list(range(prev[1], curr[1]))))
+        curr = prev
+    matches.reverse()
+
+    for l_idxs, b_idxs in matches:
+        if not l_idxs or not b_idxs:
             continue
-            
-        actual_time_per_char = b_time / len(assigned_chars)
-        c_t = b_st
-        for c in assigned_chars:
-            c["startTime"] = round(c_t, 3)
-            c["endTime"] = round(c_t + actual_time_per_char, 3)
-            c_t += actual_time_per_char
-            
-        char_idx += chars_in_burst
+        m_burst_time = sum(bursts[b][1] - bursts[b][0] for b in b_idxs)
+        m_chars = [c for l_idx in l_idxs for c in lines[l_idx][1]]
+        if not m_chars:
+            continue
+
+        char_dur = m_burst_time / len(m_chars)
+        c_idx = 0
+        for b in b_idxs:
+            b_dur = bursts[b][1] - bursts[b][0]
+            b_chars_cnt = int(round(b_dur / char_dur))
+            b_chars_cnt = min(b_chars_cnt, len(m_chars) - c_idx)
+            if b == b_idxs[-1]:
+                b_chars_cnt = len(m_chars) - c_idx
+
+            assigned = m_chars[c_idx : c_idx + b_chars_cnt]
+            if not assigned:
+                continue
+
+            act_dur = b_dur / len(assigned)
+            c_t = bursts[b][0]
+            for c in assigned:
+                c["startTime"] = round(c_t, 3)
+                c["endTime"] = round(c_t + act_dur, 3)
+                c_t += act_dur
+            c_idx += b_chars_cnt
+
+        for l_idx in l_idxs:
+            l_obj, l_chars = lines[l_idx]
+            l_obj["lineStart"] = l_chars[0]["startTime"]
+            l_obj["lineEnd"] = l_chars[-1]["endTime"]
 
     for p_idx, p in enumerate(doc.get("paragraphs", [])):
         p["id"] = p_idx + 1
-        for l in p.get("lines", []):
-            line_valid_chars = [c for c in l.get("chars", []) if c in valid_chars and "startTime" in c]
-            if line_valid_chars:
-                l["lineStart"] = line_valid_chars[0]["startTime"]
-                l["lineEnd"] = line_valid_chars[-1]["endTime"]
-            # Clean up old timestamps from punctuation
-            for c in l.get("chars", []):
-                if c not in valid_chars:
-                    c.pop("startTime", None)
-                    c.pop("endTime", None)
-
-        p_valid_lines = [l for l in p.get("lines", []) if "lineStart" in l]
-        if p_valid_lines:
-            p["startTime"] = p_valid_lines[0]["lineStart"]
-            p["endTime"] = p_valid_lines[-1]["lineEnd"]
+        p_lines = [l for l in p.get("lines", []) if "lineStart" in l]
+        if p_lines:
+            p["startTime"] = p_lines[0]["lineStart"]
+            p["endTime"] = p_lines[-1]["lineEnd"]
 
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ 时间轴动态校准完成！总发声段: {len(bursts)}, 匹配有效字数: {len(valid_chars)}, 音频时长: {len(data)/sr:.2f}s")
+    print(f"✅ 全局最优动态规划时间轴校准完成！总发声段: {M}, 经文行数: {N}, 音频时长: {len(data)/sr:.2f}s")
 
 def build_chapter(book_id: str, chapter_id: str):
     api_key = get_api_key()

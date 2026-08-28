@@ -27,9 +27,26 @@ const paragraphEl = ref(null)
 const activeLineIndex = computed(() => {
   if (props.mode !== 'listening') return -1
   const t = props.currentTime
-  return props.paragraph.lines.findIndex(
-    (line) => t >= line.lineStart && t < line.lineEnd
-  )
+  const lines = props.paragraph?.lines
+  if (!lines || lines.length === 0) return -1
+  
+  let lo = 0, hi = lines.length - 1, result = -1
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1
+    if (lines[mid].lineStart <= t) {
+      result = mid
+      lo = mid + 1
+    } else {
+      hi = mid - 1
+    }
+  }
+  if (result >= 0) {
+    const nextStart = (result + 1 < lines.length) ? lines[result + 1].lineStart : (lines[result].lineEnd + 2.0)
+    if (t < nextStart) {
+      return result
+    }
+  }
+  return -1
 })
 
 let lastScrolledLine = -1
