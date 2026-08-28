@@ -56,9 +56,11 @@ PHONETIC_REPLACEMENTS = [
     ("祇树给孤独园", "奇树几孤独园"), # qí shù jǐ
     ("饭食讫", "饭食气"),         # qì 四声
     ("长老须菩提", "掌老须菩提"), # zhǎng 三声
-    ("右膝着地", "右膝浊地"),     # zhuó 二声
+    ("右膝着地", "右膝浊地"),     # zhuó
     ("愿乐欲闻", "愿要欲闻"),     # yào 四声
-    ("降伏其心", "降服其心"),     # xiáng fú
+    ("降伏", "降服"),             # xiáng fú
+    ("应云何住", "英云何住"),     # yīng, 阻断大模型自动纠错为“云何应住”
+    ("应如是住", "英如是住"),     # yīng
 ]
 
 SANCTUARY_PLUS_FILTER = (
@@ -128,7 +130,7 @@ def synthesize_voice(client, voice_name: str, text: str, out_mp3: str) -> bool:
     return False
 
 def align_json_to_audio_bursts(audio_path: str, json_path: str):
-    print(f"📐 正在运行 1:1 声学物理爆发点检测与时间轴校准...", flush=True)
+    print(f"📐 正在运行动态声学波形与字级物理映射...", flush=True)
     data, sr = sf.read(audio_path)
     if data.ndim == 2:
         data = data.mean(axis=1)
@@ -139,7 +141,7 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
     times = np.arange(len(energy)) * 0.01
 
     energy_smooth = uniform_filter1d(energy, size=20)
-    thresh = np.percentile(energy_smooth, 26)
+    thresh = np.percentile(energy_smooth, 15)
 
     speech = energy_smooth > thresh
     bursts = []
@@ -152,44 +154,68 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
             b_start = t
         elif not is_sp and in_burst:
             in_burst = False
-            if t - b_start >= 0.30:
-                bursts.append((round(b_start, 2), round(t, 2)))
+            if t - b_start >= 0.20:
+                bursts.append((round(b_start, 3), round(t, 3)))
 
     with open(json_path, "r", encoding="utf-8") as f:
         doc = json.load(f)
 
-    paragraphs = doc["paragraphs"]
-    burst_idx = 0
+    valid_chars = []
+    for p in doc.get("paragraphs", []):
+        for l in p.get("lines", []):
+            for c in l.get("chars", []):
+                if c.get("text", "").strip() and c.get("text") not in "，。！？；：、“”‘’『』《》〈〉":
+                    valid_chars.append(c)
 
-    for p_idx, p in enumerate(paragraphs):
+    total_burst_time = sum(b_et - b_st for b_st, b_et in bursts)
+    time_per_char = total_burst_time / max(1, len(valid_chars))
+
+    char_idx = 0
+    for b_idx, (b_st, b_et) in enumerate(bursts):
+        b_time = b_et - b_st
+        
+        if b_idx == len(bursts) - 1:
+            chars_in_burst = len(valid_chars) - char_idx
+        else:
+            chars_in_burst = int(round(b_time / time_per_char))
+            
+        chars_in_burst = min(chars_in_burst, len(valid_chars) - char_idx)
+        
+        assigned_chars = valid_chars[char_idx : char_idx + chars_in_burst]
+        if not assigned_chars:
+            continue
+            
+        actual_time_per_char = b_time / len(assigned_chars)
+        c_t = b_st
+        for c in assigned_chars:
+            c["startTime"] = round(c_t, 3)
+            c["endTime"] = round(c_t + actual_time_per_char, 3)
+            c_t += actual_time_per_char
+            
+        char_idx += chars_in_burst
+
+    for p_idx, p in enumerate(doc.get("paragraphs", [])):
         p["id"] = p_idx + 1
-        lines = p.get("lines", [])
-        if not lines: continue
+        for l in p.get("lines", []):
+            line_valid_chars = [c for c in l.get("chars", []) if c in valid_chars and "startTime" in c]
+            if line_valid_chars:
+                l["lineStart"] = line_valid_chars[0]["startTime"]
+                l["lineEnd"] = line_valid_chars[-1]["endTime"]
+            # Clean up old timestamps from punctuation
+            for c in l.get("chars", []):
+                if c not in valid_chars:
+                    c.pop("startTime", None)
+                    c.pop("endTime", None)
 
-        for l in lines:
-            if burst_idx < len(bursts):
-                b_st, b_et = bursts[burst_idx]
-                l["lineStart"] = round(b_st, 3)
-                l["lineEnd"] = round(b_et, 3)
-
-                chars = l.get("chars", [])
-                valid_chars = [c for c in chars if c.get("text", "").strip() and c.get("text") not in "，。！？；：、"]
-                c_dur = (b_et - b_st) / max(1, len(valid_chars))
-                c_t = b_st
-                for c in chars:
-                    if c.get("text", "").strip() and c.get("text") not in "，。！？；：、":
-                        c["startTime"] = round(c_t, 3)
-                        c["endTime"] = round(c_t + c_dur, 3)
-                        c_t += c_dur
-                burst_idx += 1
-
-        p["startTime"] = lines[0]["lineStart"]
-        p["endTime"] = lines[-1]["lineEnd"]
+        p_valid_lines = [l for l in p.get("lines", []) if "lineStart" in l]
+        if p_valid_lines:
+            p["startTime"] = p_valid_lines[0]["lineStart"]
+            p["endTime"] = p_valid_lines[-1]["lineEnd"]
 
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ 时间轴校准完成！总行数: {burst_idx}, 音频时长: {len(data)/sr:.2f}s")
+    print(f"✅ 时间轴动态校准完成！总发声段: {len(bursts)}, 匹配有效字数: {len(valid_chars)}, 音频时长: {len(data)/sr:.2f}s")
 
 def build_chapter(book_id: str, chapter_id: str):
     api_key = get_api_key()
