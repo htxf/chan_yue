@@ -59,8 +59,18 @@ PHONETIC_REPLACEMENTS = [
     ("右膝着地", "右膝浊地"),     # zhuó
     ("愿乐欲闻", "愿要欲闻"),     # yào 四声
     ("降伏", "降服"),             # xiáng fú
-    ("应云何住", "英云何住"),     # yīng, 阻断大模型自动纠错为“云何应住”
-    ("应如是住", "英如是住"),     # yīng
+    ("应云何", "英云何"),         # yīng, 阻断大模型自动纠错为“云何应”
+    ("应如是", "英如是"),         # yīng
+    ("应无所住", "英无所住"),     # yīng
+    ("但应如所教住", "但英如所教住"), # yīng
+    ("可思量不", "可思量否"),     # fǒu
+    ("见如来不", "见如来否"),     # fǒu
+    ("身相", "身向"),             # xiàng
+    ("诸相非相", "诸向非向"),     # xiàng
+    ("所有相", "所有向"),         # xiàng
+    ("不住于相", "不住于向"),     # xiàng
+    ("不住相", "不住向"),         # xiàng
+    ("无住相", "无住向"),         # xiàng
 ]
 
 SANCTUARY_PLUS_FILTER = (
@@ -82,7 +92,8 @@ def synthesize_voice(client, voice_name: str, text: str, out_mp3: str) -> bool:
 
     print(f"🎙️ 正在合成【{voice_name}】-> {out_mp3}...", flush=True)
 
-    for attempt in range(1, 4):
+    import re
+    for attempt in range(1, 6):
         try:
             res = client.models.generate_content(
                 model="gemini-3.1-flash-tts-preview",
@@ -122,11 +133,14 @@ def synthesize_voice(client, voice_name: str, text: str, out_mp3: str) -> bool:
                 print(f"   ✅ 合成完成: {out_mp3}", flush=True)
                 return True
             else:
-                print(f"   ⚠️ 尝试 {attempt} 返回空，等待 15s...", flush=True)
-                time.sleep(15)
+                print(f"   ⚠️ 尝试 {attempt} 返回空，等待 20s...", flush=True)
+                time.sleep(20)
         except Exception as e:
-            print(f"   ⚠️ 尝试 {attempt} 异常: {e}，等待 25s...", flush=True)
-            time.sleep(25)
+            err_str = str(e)
+            match = re.search(r"retry in (\d+\.?\d*)s", err_str) or re.search(r"retryDelay': '(\d+)s", err_str)
+            wait_time = int(float(match.group(1))) + 5 if match else 65
+            print(f"   ⚠️ 尝试 {attempt} 命中配额限制: 需等待 {wait_time}s 后重试...", flush=True)
+            time.sleep(wait_time)
     return False
 
 def align_json_to_audio_bursts(audio_path: str, json_path: str):
@@ -298,11 +312,11 @@ def build_chapter(book_id: str, chapter_id: str):
     print(f"=======================================================")
 
     # 1. 生成女声 (Zephyr)
-    synthesize_voice(client, "Zephyr", fixed_text, female_mp3)
-    time.sleep(15)
+    ok_f = synthesize_voice(client, "Zephyr", fixed_text, female_mp3)
+    time.sleep(20)
 
     # 2. 生成男声 (Charon)
-    synthesize_voice(client, "Charon", fixed_text, male_mp3)
+    ok_m = synthesize_voice(client, "Charon", fixed_text, male_mp3)
 
     # 3. 部署默认 MP3
     if os.path.exists(female_mp3):
@@ -310,8 +324,11 @@ def build_chapter(book_id: str, chapter_id: str):
             f_out.write(f_in.read())
 
     # 4. 1:1 声学物理爆发点对齐
-    align_json_to_audio_bursts(female_mp3, json_path)
-    print(f"🎉 【{book_id} / {chapter_id}】全套母带与对齐就绪！\n")
+    if ok_f or os.path.exists(female_mp3):
+        align_json_to_audio_bursts(female_mp3, json_path)
+        print(f"🎉 【{book_id} / {chapter_id}】全套母带与对齐就绪！\n")
+    else:
+        print(f"❌ 【{book_id} / {chapter_id}】合成失败，跳过对齐！\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
