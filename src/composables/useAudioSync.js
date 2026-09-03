@@ -53,10 +53,14 @@ export function useAudioSync(paragraphs, options = {}) {
     return -1
   }
 
+  let _isVoiceSwitching = false
+
   // ---- rAF 循环 ----
   function tick() {
-    currentTime.value = audio.currentTime
-    currentParagraphId.value = findCurrentParagraph(audio.currentTime)
+    if (!_isVoiceSwitching) {
+      currentTime.value = audio.currentTime
+      currentParagraphId.value = findCurrentParagraph(audio.currentTime)
+    }
     rafId = requestAnimationFrame(tick)
   }
 
@@ -196,22 +200,72 @@ export function useAudioSync(paragraphs, options = {}) {
    * 无缝切换音色：精准保留当前播放秒数，顺畅接续念诵
    */
   function switchVoiceTrack(url) {
-    if (audio.src.endsWith(url)) return
-    const targetTime = audio.currentTime
-    const wasPlaying = isPlaying.value
+    if (!url) return
+    const currentSrc = audio.src ? audio.src.split('?')[0] : ''
+    if (currentSrc.endsWith(url)) return
 
-    function onLoaded() {
-      audio.removeEventListener('loadedmetadata', onLoaded)
-      audio.currentTime = targetTime
-      currentTime.value = targetTime
-      currentParagraphId.value = findCurrentParagraph(targetTime)
-      if (wasPlaying) {
-        safePlay()
+    // 获取当前精准秒数（优先取 audio.currentTime，兜底 currentTime.value）
+    const targetTime = Math.max(0, audio.currentTime || currentTime.value || 0)
+    const wasPlaying = isPlaying.value || !audio.paused
+
+    _isVoiceSwitching = true
+    _intendPlaying = wasPlaying
+
+    // 立即冻结当前秒数与高亮段落，避免换源瞬时归零闪烁
+    currentTime.value = targetTime
+    currentParagraphId.value = findCurrentParagraph(targetTime)
+
+    let seekDone = false
+    const doSeek = () => {
+      if (seekDone) return
+      if (targetTime > 0) {
+        try {
+          const maxSeek = (audio.duration && !isNaN(audio.duration)) ? Math.max(0, audio.duration - 0.2) : targetTime
+          audio.currentTime = Math.min(targetTime, maxSeek)
+          seekDone = true
+        } catch (e) {
+          console.warn('Seek error during voice switch:', e)
+        }
       }
     }
 
-    audio.addEventListener('loadedmetadata', onLoaded)
+    const onCanPlay = () => {
+      audio.removeEventListener('canplay', onCanPlay)
+      doSeek()
+      if (wasPlaying && audio.paused) {
+        safePlay()
+      }
+      setTimeout(() => {
+        _isVoiceSwitching = false
+      }, 250)
+    }
+
+    const onSeeked = () => {
+      audio.removeEventListener('seeked', onSeeked)
+      _isVoiceSwitching = false
+    }
+
+    audio.addEventListener('canplay', onCanPlay, { once: true })
+    audio.addEventListener('seeked', onSeeked, { once: true })
+
+    // 安全保护：1.5 秒后强行解除冻结，防止某些极端环境不触发事件
+    setTimeout(() => {
+      if (_isVoiceSwitching) {
+        doSeek()
+        _isVoiceSwitching = false
+      }
+    }, 1500)
+
+    // 切源并加载
     audio.src = url
+    audio.load()
+
+    // 关键：在当前点击事件（用户手势活跃上下文）中同步调用 safePlay()
+    // 确保移动端浏览器（iOS Safari / Android Chrome）维持媒体自动播放许可
+    if (wasPlaying) {
+      safePlay()
+    }
+
     setupMediaSession()
   }
 

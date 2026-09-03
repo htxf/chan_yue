@@ -43,17 +43,6 @@ function getVoiceAudioUrl(rawUrl, voice = selectedVoice.value) {
   return rawUrl
 }
 
-function onVoiceChange(newVoice) {
-  selectedVoice.value = newVoice
-  localStorage.setItem('chanyue_voice', newVoice)
-  const rawUrl = chapterData.value?.audioUrl || bookMeta.value?.audioUrl
-  if (rawUrl) {
-    const targetUrl = getVoiceAudioUrl(rawUrl, newVoice)
-    // 无缝接续：在当前播放秒数继续念诵
-    switchVoiceTrack(targetUrl)
-  }
-}
-
 const {
   currentTime,
   duration,
@@ -75,6 +64,17 @@ const {
   onNext: () => goToNextChapter(),
   onPrev: () => goToPrevChapter()
 })
+
+function onVoiceChange(newVoice) {
+  selectedVoice.value = newVoice
+  localStorage.setItem('chanyue_voice', newVoice)
+  const rawUrl = chapterData.value?.audioUrl || bookMeta.value?.audioUrl
+  if (rawUrl) {
+    const targetUrl = getVoiceAudioUrl(rawUrl, newVoice)
+    // 无缝接续：在当前播放秒数继续念诵
+    switchVoiceTrack(targetUrl)
+  }
+}
 
 const isTopbarHidden = ref(false)
 let lastScrollY = 0
