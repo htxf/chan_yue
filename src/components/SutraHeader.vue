@@ -9,6 +9,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  isMultiChapter: {
+    type: Boolean,
+    default: false,
+  },
   isTitleActive: {
     type: Boolean,
     default: false,
@@ -35,20 +39,19 @@ const rawTitleText = computed(() => {
 </script>
 
 <template>
-  <header class="sutra-header" :class="{ 'is-subsequent': !isFirstChapter }">
-    <!-- 第一品 / 卷首：展示全套经名大标题、译者、第一品名 -->
-    <template v-if="isFirstChapter">
+  <header class="sutra-header" :class="{ 'is-subsequent': isMultiChapter && !isFirstChapter }">
+    <!-- 情况一：多章节经典的第一品（如《金刚经》卷首：全经总题 -> 译署署名 -> 第一品品题） -->
+    <template v-if="isMultiChapter && isFirstChapter">
       <div class="ornament">◈</div>
-      <h1 class="sutra-title">
+      
+      <!-- 1. 全经总题 -->
+      <h2 class="book-grand-title">
         <ruby v-for="(char, i) in nTitle" :key="`t-${i}`">
           {{ char.text }}<rt v-if="char.pinyin">{{ char.pinyin }}</rt>
         </ruby>
-      </h1>
-      <h2 v-if="nSubtitle.length" class="sutra-subtitle">
-        <ruby v-for="(char, i) in nSubtitle" :key="`s-${i}`">
-          {{ char.text }}<rt v-if="char.pinyin">{{ char.pinyin }}</rt>
-        </ruby>
       </h2>
+
+      <!-- 2. 译署署名（紧随全经总题之后，大藏经正统排版规范） -->
       <p v-if="nAuthor.length" class="sutra-author">
         <ruby v-for="(char, i) in nAuthor" :key="`a-${i}`">
           <template v-if="char.text !== ' '">{{ char.text }}</template>
@@ -56,10 +59,21 @@ const rawTitleText = computed(() => {
           <rt v-if="char.pinyin">{{ char.pinyin }}</rt>
         </ruby>
       </p>
+
+      <!-- 3. 第一品品题（作为当前持诵主标题，统一享受烛火金晕） -->
+      <h1 
+        v-if="nSubtitle.length" 
+        class="sutra-title chapter-hero-title first-chapter-hero"
+        :class="{ 'is-title-glowing': isTitleActive }"
+      >
+        <ruby v-for="(char, i) in nSubtitle" :key="`s-${i}`">
+          {{ char.text }}<rt v-if="char.pinyin">{{ char.pinyin }}</rt>
+        </ruby>
+      </h1>
     </template>
 
-    <!-- 第二品及以后：品名提升为主标题，经名缩减为上方雅致徽章 -->
-    <template v-else>
+    <!-- 情况二：多章节经典的后续品目（第二品至第三十二品） -->
+    <template v-else-if="isMultiChapter && !isFirstChapter">
       <div class="book-badge">
         <span class="badge-dot">◈</span>
         <span class="badge-name">{{ rawTitleText }}</span>
@@ -72,6 +86,23 @@ const rawTitleText = computed(() => {
       </h1>
     </template>
 
+    <!-- 情况三：单卷经典（如《心经》：全经总题 -> 译署署名，不重复堆叠） -->
+    <template v-else>
+      <div class="ornament">◈</div>
+      <h1 class="sutra-title chapter-hero-title" :class="{ 'is-title-glowing': isTitleActive }">
+        <ruby v-for="(char, i) in (nSubtitle.length ? nSubtitle : nTitle)" :key="`x-${i}`">
+          {{ char.text }}<rt v-if="char.pinyin">{{ char.pinyin }}</rt>
+        </ruby>
+      </h1>
+      <p v-if="nAuthor.length" class="sutra-author single-sutra-author">
+        <ruby v-for="(char, i) in nAuthor" :key="`xa-${i}`">
+          <template v-if="char.text !== ' '">{{ char.text }}</template>
+          <span v-else>&nbsp;&nbsp;</span>
+          <rt v-if="char.pinyin">{{ char.pinyin }}</rt>
+        </ruby>
+      </p>
+    </template>
+
     <div class="divider">
       <span class="divider-dot"></span>
       <span class="divider-line"></span>
@@ -82,7 +113,7 @@ const rawTitleText = computed(() => {
 
 <style scoped>
 .sutra-header {
-  padding: 60px 20px 40px;
+  padding: 56px 20px 36px;
   text-align: center;
   animation: headerFadeIn 1.2s ease both;
 }
@@ -91,6 +122,41 @@ const rawTitleText = computed(() => {
   padding: 44px 20px 28px;
 }
 
+.ornament {
+  font-size: 18px;
+  color: var(--gold);
+  opacity: 0.45;
+  margin-bottom: 14px;
+  letter-spacing: 14px;
+}
+
+/* 卷首全经总题 */
+.book-grand-title {
+  font-family: 'Noto Serif SC', 'SimSun', serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: 8px;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+  line-height: 1.8;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.book-grand-title ruby { margin-right: 4px; }
+.book-grand-title rt {
+  font-family: var(--font-pinyin);
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--text-primary);
+  opacity: 0.8;
+  padding-bottom: 2px;
+  letter-spacing: 0;
+}
+
+/* 经名上方微缩胶囊徽章（第二品及以后） */
 .book-badge {
   display: inline-flex;
   align-items: center;
@@ -112,71 +178,54 @@ const rawTitleText = computed(() => {
   opacity: 0.6;
 }
 
+/* 本品品题 / 核心主标题 */
 .chapter-hero-title {
+  font-family: 'Noto Serif SC', 'SimSun', serif;
+  font-weight: 900;
   font-size: 30px;
   letter-spacing: 8px;
   color: var(--gold);
-}
-
-.ornament {
-  font-size: 20px;
-  color: var(--gold);
-  opacity: 0.4;
-  margin-bottom: 16px;
-  letter-spacing: 16px;
-}
-
-.sutra-title {
-  font-family: 'Noto Serif SC', 'SimSun', serif;
-  font-weight: 900;
-  font-size: 36px;
-  letter-spacing: 12px;
-  color: var(--text-primary);
   margin: 0 0 16px;
   line-height: 1.8;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 2px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sutra-title ruby { margin-right: 6px; }
-
-.sutra-subtitle {
-  font-family: 'Noto Serif SC', 'KaiTi', serif;
-  font-weight: 500;
-  font-size: 22px;
-  letter-spacing: 8px;
-  color: var(--text-primary);
-  margin: 0 0 16px;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  opacity: 0.9;
+.first-chapter-hero {
+  margin-top: 20px;
 }
 
-.sutra-subtitle ruby { margin-right: 4px; }
+.chapter-hero-title ruby { margin-right: 6px; }
 
-.sutra-title rt, .sutra-subtitle rt {
+.chapter-hero-title rt {
   font-family: var(--font-pinyin);
   font-size: 13px;
   font-weight: 400;
-  color: var(--text-primary);
+  color: var(--gold);
   opacity: 0.85;
   padding-bottom: 2px;
   letter-spacing: 0;
 }
 
+/* 译署署名 */
 .sutra-author {
   font-family: 'Noto Serif SC', 'KaiTi', serif;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-muted);
-  letter-spacing: 4px;
+  letter-spacing: 3.5px;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: flex-end;
   gap: 2px;
+  opacity: 0.85;
+}
+
+.single-sutra-author {
+  margin-top: 14px;
 }
 
 .sutra-author ruby { margin-right: 2px; }
@@ -185,24 +234,25 @@ const rawTitleText = computed(() => {
   font-family: var(--font-pinyin);
   font-size: 10px;
   color: var(--text-muted);
-  opacity: 1;
+  opacity: 0.9;
   padding-bottom: 2px;
   letter-spacing: 0;
 }
 
+/* 烛火金晕高亮（朗读品题时） */
 .is-title-glowing {
   color: var(--gold) !important;
-  text-shadow: 0 0 14px rgba(212, 165, 116, 0.75), 0 0 35px rgba(212, 165, 116, 0.4) !important;
+  text-shadow: 0 0 16px rgba(212, 165, 116, 0.85), 0 0 36px rgba(212, 165, 116, 0.45) !important;
   transform: scale(1.02);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 分隔微符 */
 .divider {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-top: 32px;
+  margin-top: 28px;
 }
 
 .divider-line {
@@ -219,13 +269,14 @@ const rawTitleText = computed(() => {
 }
 
 @keyframes headerFadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(-16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 640px) {
-  .sutra-title { font-size: 26px; letter-spacing: 6px; }
-  .sutra-subtitle { font-size: 18px; letter-spacing: 4px; }
-  .sutra-header { padding: 40px 16px 28px; }
+  .sutra-header { padding: 36px 16px 24px; }
+  .book-grand-title { font-size: 22px; letter-spacing: 5px; }
+  .chapter-hero-title { font-size: 24px; letter-spacing: 5px; }
+  .first-chapter-hero { margin-top: 16px; }
 }
 </style>

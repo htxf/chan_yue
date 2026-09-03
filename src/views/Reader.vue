@@ -346,8 +346,9 @@ function handleToggle() {
         <SutraHeader
           :title="bookMeta.title"
           :subtitle="chapterData.title"
-          :author="bookMeta.author"
+          :author="bookMeta.author || chapterData.author"
           :isFirstChapter="chapterId === 'chapter_1' || !chapterId"
+          :isMultiChapter="Boolean(bookMeta?.chapters && bookMeta.chapters.length > 1)"
           :isTitleActive="isPlaying && currentTime < (chapterData.paragraphs?.[0]?.startTime || 3.0)"
         />
 
