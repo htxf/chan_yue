@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAudioSync } from '../composables/useAudioSync'
 import catalog from '../data/catalog.json'
@@ -18,8 +18,36 @@ const isLoading = ref(false)
 const isChapterDrawerOpen = ref(false)
 const isTimerModalOpen = ref(false)
 
-// 章节列表
+// 章节列表与简名
 const chaptersList = computed(() => bookMeta.value?.chapters || [])
+const bookShortName = computed(() => {
+  return selectedBookId.value === 'xinjing' ? '般若心经' : '金刚经'
+})
+
+// 跑马灯状态检测（自适应容器溢出）
+const titleTrackRef = ref(null)
+const titleInnerRef = ref(null)
+const isTitleOverflowing = ref(false)
+const scrollDistance = ref(0)
+
+function checkTitleOverflow() {
+  nextTick(() => {
+    if (titleTrackRef.value && titleInnerRef.value) {
+      const diff = titleInnerRef.value.scrollWidth - titleTrackRef.value.clientWidth
+      if (diff > 4) {
+        isTitleOverflowing.value = true
+        scrollDistance.value = diff + 12
+      } else {
+        isTitleOverflowing.value = false
+        scrollDistance.value = 0
+      }
+    }
+  })
+}
+
+watch([selectedBookId, selectedChapterId, chapterData], () => {
+  checkTitleOverflow()
+})
 
 // 当前段落数组
 const paragraphsRef = computed(() => chapterData.value?.paragraphs || [])
@@ -285,24 +313,34 @@ function goToReader() {
 onMounted(async () => {
   await loadBookMeta()
   await loadChapterData(false)
+  checkTitleOverflow()
+  window.addEventListener('resize', checkTitleOverflow)
 })
 
 onUnmounted(() => {
   if (sleepTimerInterval) clearInterval(sleepTimerInterval)
+  window.removeEventListener('resize', checkTitleOverflow)
 })
 </script>
 
 <template>
   <div class="zen-station-viewport">
-    <!-- 经名与品目简明呈现（紧凑温润，点击唤起选卷抽屉，不再空耗大段垂直虚空） -->
+    <!-- 经名与品目微徽章（去除修饰性◈，精简经名，支持溢出平滑跑马灯） -->
     <section class="zen-title-section" @click="isChapterDrawerOpen = true">
-      <div class="title-interactive-badge">
-        <span class="badge-ornament">◈</span>
-        <h2 class="badge-book-title">{{ extractText(bookMeta?.title) }}</h2>
-        <span v-if="chaptersList.length > 1" class="badge-sep">·</span>
-        <span v-if="chaptersList.length > 1" class="badge-ch-title">{{ extractText(chapterData?.title) }}</span>
-        <span v-else class="badge-author">（{{ extractText(bookMeta?.author) || '唐·玄奘译' }}）</span>
-        <svg class="badge-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+      <div 
+        class="title-interactive-badge" 
+        :title="`${bookShortName} · ${chaptersList.length > 1 ? extractText(chapterData?.title) : (extractText(bookMeta?.author) || '唐·玄奘译')}`"
+        :style="{ '--scroll-dist': `-${scrollDistance}px` }"
+      >
+        <div ref="titleTrackRef" class="marquee-track" :class="{ 'is-scrolling': isTitleOverflowing }">
+          <div ref="titleInnerRef" class="marquee-inner">
+            <h2 class="badge-book-title">{{ bookShortName }}</h2>
+            <span class="badge-sep">·</span>
+            <span v-if="chaptersList.length > 1" class="badge-ch-title">{{ extractText(chapterData?.title) }}</span>
+            <span v-else class="badge-author">{{ extractText(bookMeta?.author) || '唐·玄奘译' }}</span>
+          </div>
+        </div>
+        <svg class="badge-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
           <path d="M6 9l6 6 6-6"/>
         </svg>
       </div>
@@ -439,7 +477,11 @@ onUnmounted(() => {
                 <span class="header-ornament">◈</span>
                 <h3>经 卷 选 择</h3>
               </div>
-              <button class="dialog-close-btn" @click="isChapterDrawerOpen = false">×</button>
+              <button class="dialog-close-btn" @click="isChapterDrawerOpen = false" aria-label="关闭">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
             </div>
 
             <!-- 经书切换标签（胶囊式） -->
@@ -528,7 +570,7 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 18px;
+  padding: 6px 16px;
   border-radius: 9999px;
   background: rgba(22, 22, 30, 0.65);
   border: 1px solid rgba(212, 165, 116, 0.22);
@@ -536,7 +578,7 @@ onUnmounted(() => {
   cursor: pointer;
   backdrop-filter: blur(12px);
   transition: all 0.25s ease;
-  max-width: 95%;
+  max-width: 92vw;
 }
 
 .title-interactive-badge:hover {
@@ -546,19 +588,53 @@ onUnmounted(() => {
   box-shadow: 0 4px 16px rgba(212, 165, 116, 0.12);
 }
 
-.badge-ornament {
-  color: var(--gold);
-  font-size: 11px;
-  opacity: 0.8;
+/* 跑马灯视轨与动效 */
+.marquee-track {
+  overflow: hidden;
+  max-width: 250px;
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 480px) {
+  .marquee-track {
+    max-width: 380px;
+  }
+}
+
+.marquee-track.is-scrolling {
+  mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+}
+
+.marquee-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.marquee-track.is-scrolling .marquee-inner {
+  animation: zenMarqueeScroll 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+}
+
+@keyframes zenMarqueeScroll {
+  0%, 25% {
+    transform: translateX(0);
+  }
+  75%, 100% {
+    transform: translateX(var(--scroll-dist, 0px));
+  }
 }
 
 .badge-book-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 14.5px;
   font-family: 'Noto Serif SC', serif;
   color: var(--gold);
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   white-space: nowrap;
 }
 
@@ -572,8 +648,6 @@ onUnmounted(() => {
   font-family: 'Noto Serif SC', 'KaiTi', serif;
   color: var(--text-primary);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   letter-spacing: 1px;
 }
 

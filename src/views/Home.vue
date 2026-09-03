@@ -105,12 +105,14 @@ function goToBook(item) {
         </div>
       </section>
 
-      <!-- 底部索经印章微触点（方案 A：居中端庄，古籍印章之美） -->
+      <!-- 底部索经微触点（动作语义：统一放大镜图标，精准亲密性） -->
       <div class="home-search-seal-wrap">
         <button class="home-search-seal" @click="isSearchOpen = true" title="跨经全文检索 (Cmd/Ctrl+K)">
-          <span class="seal-ornament">◈</span>
+          <svg class="seal-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
           <span class="seal-text">索 经</span>
-          <span class="seal-ornament">◈</span>
         </button>
       </div>
     </main>
@@ -215,25 +217,25 @@ function goToBook(item) {
   font-size: 11px;
 }
 
-/* 底部索经印章微触点（方案 A） */
+/* 底部索经微触点（精准亲密性与动作语义） */
 .home-search-seal-wrap {
   display: flex;
   justify-content: center;
-  margin: 28px 0 12px;
+  margin: 20px 0 28px;
 }
 
 .home-search-seal {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 22px;
+  gap: 7px;
+  padding: 6px 20px;
   border-radius: 9999px;
   background: rgba(22, 22, 28, 0.65);
   border: 1px solid rgba(212, 165, 116, 0.22);
   color: var(--gold);
   font-family: 'Noto Serif SC', serif;
   font-size: 12.5px;
-  letter-spacing: 4px;
+  letter-spacing: 2.5px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -243,13 +245,14 @@ function goToBook(item) {
 .home-search-seal:hover {
   background: rgba(212, 165, 116, 0.14);
   border-color: rgba(212, 165, 116, 0.55);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(212, 165, 116, 0.18);
 }
 
-.seal-ornament {
-  font-size: 11px;
-  opacity: 0.6;
+.seal-action-icon {
+  opacity: 0.85;
+  color: var(--gold);
+  flex-shrink: 0;
 }
 
 .seal-text {
@@ -260,7 +263,7 @@ function goToBook(item) {
 .sutra-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
 }
 
