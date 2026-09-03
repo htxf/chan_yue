@@ -1,10 +1,20 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import catalog from '../data/catalog.json'
 import { useRouter } from 'vue-router'
+import SearchModal from '../components/SearchModal.vue'
+import ZenAudioStation from '../components/ZenAudioStation.vue'
 
 const router = useRouter()
 const lastRead = ref(null)
+
+// 首页双生视界：'reading' (阅卷·藏经) | 'listening' (听诵·禅修)
+const activeTab = ref(localStorage.getItem('chanyue_home_tab') || 'reading')
+watch(activeTab, (val) => {
+  localStorage.setItem('chanyue_home_tab', val)
+})
+
+const isSearchOpen = ref(false)
 
 onMounted(() => {
   try {
@@ -29,12 +39,31 @@ function goToBook(item) {
     <!-- 顶部静穆阁标 -->
     <header class="home-header">
       <div class="ornament">◈</div>
-      <h1 class="title">经 书 阁</h1>
-      <p class="subtitle">禅思无界 · 阅心有道</p>
+      <h1 class="title">{{ activeTab === 'reading' ? '经 书 阁' : '禅 听 台' }}</h1>
+      <p class="subtitle">{{ activeTab === 'reading' ? '禅思无界 · 阅心有道' : '闭目凝神 · 息妄显真' }}</p>
+
+      <!-- 双生视界切换 -->
+      <div class="home-tab-switcher">
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'reading' }"
+          @click="activeTab = 'reading'"
+        >
+          <span>阅卷 · 藏经</span>
+        </button>
+        <span class="tab-sep">/</span>
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'listening' }"
+          @click="activeTab = 'listening'"
+        >
+          <span>听诵 · 禅修</span>
+        </button>
+      </div>
     </header>
 
-    <!-- 静谧经卷名录（独立清雅禅台，分割清晰明朗） -->
-    <main class="sutra-list">
+    <!-- 模式一：静谧经卷名录（独立清雅禅台，分割清晰明朗） -->
+    <main v-if="activeTab === 'reading'" class="sutra-list">
       <section 
         v-for="(item, idx) in catalog" 
         :key="item.id" 
@@ -75,12 +104,29 @@ function goToBook(item) {
           <span class="action-arrow">→</span>
         </div>
       </section>
+
+      <!-- 底部索经印章微触点（方案 A：居中端庄，古籍印章之美） -->
+      <div class="home-search-seal-wrap">
+        <button class="home-search-seal" @click="isSearchOpen = true" title="跨经全文检索 (Cmd/Ctrl+K)">
+          <span class="seal-ornament">◈</span>
+          <span class="seal-text">索 经</span>
+          <span class="seal-ornament">◈</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- 模式二：独立禅听修持随身听 -->
+    <main v-else class="zen-station-area">
+      <ZenAudioStation />
     </main>
 
     <!-- 底部清净小记 -->
     <footer class="home-footer">
       <p>息妄显真 · 随缘自适</p>
     </footer>
+
+    <!-- 全藏索经弹窗 -->
+    <SearchModal v-model:visible="isSearchOpen" />
   </div>
 </template>
 
@@ -125,8 +171,88 @@ function goToBook(item) {
   color: var(--text-muted);
   font-size: 13px;
   letter-spacing: 4px;
-  margin: 0;
+  margin: 0 0 16px;
   opacity: 0.8;
+}
+
+/* 顶部双生视界切换开关 */
+.home-tab-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  background: rgba(22, 22, 28, 0.45);
+  border: 1px solid rgba(212, 165, 116, 0.16);
+  backdrop-filter: blur(8px);
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12.5px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: all 0.25s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  color: var(--gold);
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+}
+
+.tab-sep {
+  color: rgba(212, 165, 116, 0.25);
+  font-size: 11px;
+}
+
+/* 底部索经印章微触点（方案 A） */
+.home-search-seal-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 28px 0 12px;
+}
+
+.home-search-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 22px;
+  border-radius: 9999px;
+  background: rgba(22, 22, 28, 0.65);
+  border: 1px solid rgba(212, 165, 116, 0.22);
+  color: var(--gold);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12.5px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.home-search-seal:hover {
+  background: rgba(212, 165, 116, 0.14);
+  border-color: rgba(212, 165, 116, 0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.18);
+}
+
+.seal-ornament {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.seal-text {
+  font-weight: 500;
 }
 
 /* 经卷卡片列表（独立禅境展台） */
@@ -134,6 +260,10 @@ function goToBook(item) {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+}
+
+.zen-station-area {
   width: 100%;
 }
 
