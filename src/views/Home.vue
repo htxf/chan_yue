@@ -15,463 +15,312 @@ onMounted(() => {
   } catch (e) {}
 })
 
-function goToReader(id, chapterId = 'chapter_1') {
-  router.push(`/${id}/${chapterId}`)
+function goToBook(item) {
+  if (lastRead.value && lastRead.value.bookId === item.id) {
+    router.push(`/${item.id}/${lastRead.value.chapterId || 'chapter_1'}`)
+  } else {
+    router.push(`/${item.id}/chapter_1`)
+  }
 }
 </script>
 
 <template>
   <div class="home-container">
-    <!-- 顶部紧凑禅意阁标 -->
+    <!-- 顶部静穆阁标 -->
     <header class="home-header">
       <div class="ornament">◈</div>
       <h1 class="title">经 书 阁</h1>
       <p class="subtitle">禅思无界 · 阅心有道</p>
     </header>
 
-    <!-- 续读浮舟 (极简微缩接续条) -->
-    <div 
-      v-if="lastRead" 
-      class="resume-banner"
-      @click="goToReader(lastRead.bookId, lastRead.chapterId)"
-    >
-      <div class="resume-left">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="resume-icon" width="14" height="14">
-          <path d="M12 3a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9s9-4.03 9-9a9 9 0 0 0-9-9z" opacity="0.3"/>
-          <path d="M12 7c-2 2.5-3 5-3 7a3 3 0 0 0 6 0c0-2-1-4.5-3-7z"/>
-        </svg>
-        <span class="resume-tag">接续持诵</span>
-        <span class="resume-divider">·</span>
-        <h3 class="resume-title">《{{ lastRead.bookTitle }}》{{ lastRead.chapterTitle }}</h3>
-      </div>
-      <div class="resume-action">
-        <span>进入</span>
-        <span class="action-arrow">→</span>
-      </div>
-    </div>
-
-    <!-- 古雅紧凑经册列表 (首屏完全收纳，不遮挡、不截断) -->
-    <div class="catalog-grid">
+    <!-- 静谧经卷名录（文人墨意 · 空灵留白） -->
+    <main class="sutra-list">
       <div 
         v-for="(item, idx) in catalog" 
         :key="item.id" 
-        class="book-card"
-        @click="goToReader(item.id)"
+        class="sutra-entry-wrap"
       >
-        <!-- 左侧：微缩线装古经册封面封皮 (Antique Sutra Tome) -->
-        <div class="tome-cover">
-          <div class="tome-spine">
-            <span class="tome-stitch"></span>
-            <span class="tome-stitch"></span>
-            <span class="tome-stitch"></span>
-            <span class="tome-stitch"></span>
-          </div>
-          <div class="tome-label">
-            <span>{{ item.name }}</span>
-          </div>
-        </div>
+        <section 
+          class="sutra-entry" 
+          @click="goToBook(item)"
+        >
+          <!-- 经名大字 -->
+          <h2 class="sutra-name">
+            {{ item.name }}
+          </h2>
 
-        <!-- 右侧：经卷提要与持诵导流 -->
-        <div class="card-content">
-          <div class="content-header">
-            <div class="title-group">
-              <h2 class="book-title">{{ item.name }}</h2>
-              <span class="seal-mark">◈ 藏经</span>
-            </div>
-            <span class="edition-tag">
-              {{ item.id === 'jingangjing' ? '32分全 · 双音色' : '全文纯享 · 双音色' }}
-            </span>
-          </div>
-
-          <!-- 核心法要名句 -->
-          <p class="book-verse">
-            “{{ item.coverText }}”
+          <!-- 印心要语真言 -->
+          <p class="sutra-verse">
+            {{ item.coverText }}
           </p>
 
-          <!-- 底栏修持指引 -->
-          <div class="card-bottom">
-            <span class="scroll-tag">卷之{{ idx === 0 ? '上' : '下' }} · 鸠摩罗什/玄奘译</span>
-            <div class="action-link">
-              <span>翻阅持诵</span>
-              <span class="action-arrow">→</span>
-            </div>
+          <!-- 续读指引（静谧内嵌，无需巨大横幅） -->
+          <div 
+            v-if="lastRead && lastRead.bookId === item.id" 
+            class="resume-whisper"
+          >
+            <span class="whisper-dot">●</span>
+            <span>上次持诵至 {{ lastRead.chapterTitle }}</span>
+            <span class="whisper-arrow">· 继续持诵 →</span>
           </div>
+
+          <!-- 悬浮进入微光 -->
+          <div class="entry-enter-hint">
+            <span>翻阅入静</span>
+            <span class="hint-arrow">→</span>
+          </div>
+        </section>
+
+        <!-- 经卷间雅致微点断隔 -->
+        <div v-if="idx < catalog.length - 1" class="entry-divider">
+          <span class="divider-line"></span>
+          <span class="divider-gem">◈</span>
+          <span class="divider-line"></span>
         </div>
       </div>
-    </div>
+    </main>
+
+    <!-- 底部清净小记 -->
+    <footer class="home-footer">
+      <p>息妄显真 · 随缘自适</p>
+    </footer>
   </div>
 </template>
 
 <style scoped>
 .home-container {
   min-height: 100vh;
-  padding: 32px 18px 48px;
-  max-width: 620px;
+  padding: 48px 24px 60px;
+  max-width: 580px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
-/* 顶部阁标紧凑收敛 */
+/* 顶部阁标 */
 .home-header {
   text-align: center;
-  margin-bottom: 20px;
-  animation: fadeIn 0.8s ease both;
+  margin-bottom: 40px;
+  animation: fadeIn 1.2s ease both;
 }
 
 .ornament {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--gold);
-  opacity: 0.55;
-  margin-bottom: 4px;
-  letter-spacing: 8px;
+  opacity: 0.6;
+  margin-bottom: 8px;
+  letter-spacing: 12px;
 }
 
 .title {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 25px;
+  font-family: 'Noto Serif SC', 'SimSun', serif;
+  font-size: 30px;
   color: var(--text-primary);
-  margin: 0 0 5px;
-  letter-spacing: 7px;
-  font-weight: 900;
+  margin: 0 0 10px;
+  letter-spacing: 10px;
+  font-weight: 700;
+  text-shadow: 0 0 24px rgba(212, 165, 116, 0.15);
 }
 
 .subtitle {
   font-family: 'Noto Serif SC', 'KaiTi', serif;
   color: var(--text-muted);
-  font-size: 13px;
-  letter-spacing: 3px;
-}
-
-/* ===== 极简微缩续读浮舟 ===== */
-.resume-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 10px 16px;
-  background: rgba(212, 165, 116, 0.05);
-  border: 1px solid rgba(212, 165, 116, 0.22);
-  border-radius: 12px;
-  backdrop-filter: blur(20px);
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.45);
-  animation: slideUp 0.5s ease backwards;
-}
-
-.resume-banner:hover {
-  background: rgba(212, 165, 116, 0.1);
-  border-color: rgba(212, 165, 116, 0.45);
-  transform: translateY(-1px);
-}
-
-.resume-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  flex: 1;
-}
-
-.resume-icon {
-  color: var(--gold);
-  flex-shrink: 0;
-}
-
-.resume-tag {
-  font-size: 11.5px;
-  color: var(--gold);
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.resume-divider {
-  color: var(--gold-muted);
-  opacity: 0.4;
-  font-size: 11px;
-}
-
-.resume-title {
+  font-size: 14px;
+  letter-spacing: 5px;
   margin: 0;
-  font-size: 12.5px;
-  color: var(--text-primary);
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  opacity: 0.8;
 }
 
-.resume-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  color: var(--gold);
-  padding: 4px 12px;
-  border-radius: 9999px;
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.28);
-  font-family: 'Noto Serif SC', serif;
-  letter-spacing: 1px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.resume-banner:hover .resume-action {
-  background: rgba(212, 165, 116, 0.2);
-  border-color: var(--gold);
-}
-
-.resume-banner:hover .action-arrow {
-  transform: translateX(3px);
-}
-
-.action-arrow {
-  transition: transform 0.2s ease;
-}
-
-/* ===== 紧凑古雅经册卡片 ===== */
-.catalog-grid {
+/* 经卷名录 */
+.sutra-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  width: 100%;
 }
 
-.book-card {
+.sutra-entry-wrap {
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  background: rgba(18, 18, 26, 0.72);
-  border: 1px solid rgba(212, 165, 116, 0.18);
-  border-radius: 14px;
-  padding: 14px 16px;
+}
+
+/* 单部经卷纯净交互区 */
+.sutra-entry {
+  width: 100%;
+  text-align: center;
+  padding: 28px 20px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.6s ease backwards;
-}
-
-.book-card:nth-child(1) { animation-delay: 0.1s; }
-.book-card:nth-child(2) { animation-delay: 0.2s; }
-
-.book-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(212, 165, 116, 0.45);
-  box-shadow: 0 14px 30px -6px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 165, 116, 0.08);
-}
-
-/* 左侧：微缩线装古籍封面 (Mini Tome Cover) */
-.tome-cover {
-  width: 76px;
-  height: 104px;
-  background: #15141a;
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 5px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 3px 4px 14px rgba(0, 0, 0, 0.65);
-}
-
-.tome-spine {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 14px;
-  border-right: 1px dashed rgba(212, 165, 116, 0.28);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   align-items: center;
-  padding: 6px 0;
+  position: relative;
+  background: transparent;
 }
 
-.tome-stitch {
-  width: 1.5px;
-  height: 8px;
-  background: rgba(212, 165, 116, 0.4);
-  border-radius: 1px;
+.sutra-entry:hover {
+  background: rgba(212, 165, 116, 0.03);
 }
 
-.tome-label {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  background: #f5efe6;
-  color: #1a1612;
-  border: 1px solid #c8bba6;
-  border-radius: 2px;
-  padding: 6px 3px;
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 900;
-  font-size: 10.5px;
-  letter-spacing: 2px;
-  margin-left: 10px;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.45);
-}
-
-/* 右侧内容区域 */
-.card-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.content-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.title-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.book-title {
-  margin: 0;
-  font-family: 'Noto Serif SC', serif;
-  font-size: 15.5px;
-  color: var(--text-primary);
-  letter-spacing: 1px;
+/* 经名：典雅修长的宋体大字，带自然字距 */
+.sutra-name {
+  margin: 0 0 14px;
+  font-family: 'Noto Serif SC', 'SimSun', serif;
+  font-size: 24px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #e8e2d8;
+  letter-spacing: 6px;
+  transition: all 0.35s ease;
+  line-height: 1.5;
 }
 
-.seal-mark {
-  font-family: 'Noto Serif SC', 'KaiTi', serif;
-  font-size: 9.5px;
-  color: #c94a38;
-  border: 1px solid #c94a38;
-  padding: 1px 4px;
-  border-radius: 2px;
-  letter-spacing: 0.5px;
-  opacity: 0.85;
-  flex-shrink: 0;
-}
-
-.edition-tag {
-  font-size: 10px;
+.sutra-entry:hover .sutra-name {
   color: var(--gold);
-  font-family: 'Noto Serif SC', serif;
-  background: rgba(212, 165, 116, 0.08);
-  border: 1px solid rgba(212, 165, 116, 0.25);
-  padding: 2px 7px;
-  border-radius: 9999px;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  text-shadow: 0 0 18px rgba(212, 165, 116, 0.65), 0 0 36px rgba(212, 165, 116, 0.25);
+  transform: translateY(-2px);
 }
 
-.book-verse {
+/* 印心真言名句 */
+.sutra-verse {
   margin: 0;
   font-family: 'Noto Serif SC', 'KaiTi', serif;
+  color: var(--gold-dim);
+  font-size: 15px;
+  letter-spacing: 3px;
+  line-height: 1.6;
+  opacity: 0.85;
+  transition: color 0.3s ease;
+}
+
+.sutra-entry:hover .sutra-verse {
   color: var(--gold);
-  font-size: 13px;
-  line-height: 1.5;
-  letter-spacing: 1.5px;
-  opacity: 0.92;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 2px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(212, 165, 116, 0.08);
-}
-
-.scroll-tag {
-  font-size: 11px;
-  color: var(--text-muted);
-  opacity: 0.65;
-  font-family: 'Noto Serif SC', serif;
-  letter-spacing: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.action-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--gold);
-  font-size: 12px;
-  font-family: 'Noto Serif SC', serif;
-  letter-spacing: 1.5px;
-  opacity: 0.82;
-  flex-shrink: 0;
-  transition: all 0.25s ease;
-}
-
-.book-card:hover .action-link {
   opacity: 1;
 }
 
-.book-card:hover .action-arrow {
-  transform: translateX(3px);
+/* 续读低语（极其克制融入） */
+.resume-whisper {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: var(--gold);
+  opacity: 0.8;
+  letter-spacing: 1px;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  background: rgba(212, 165, 116, 0.08);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  transition: all 0.25s ease;
+}
+
+.sutra-entry:hover .resume-whisper {
+  opacity: 1;
+  background: rgba(212, 165, 116, 0.16);
+  border-color: rgba(212, 165, 116, 0.4);
+}
+
+.whisper-dot {
+  font-size: 8px;
+  color: #c94a38;
+  opacity: 0.9;
+}
+
+.whisper-arrow {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* 进入提示微光 */
+.entry-enter-hint {
+  margin-top: 16px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 3px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.35s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sutra-entry:hover .entry-enter-hint {
+  opacity: 0.6;
+  color: var(--gold);
+  transform: translateY(0);
+}
+
+/* 经卷断隔金线 */
+.entry-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 280px;
+  margin: 16px 0;
+  opacity: 0.35;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.6), transparent);
+}
+
+.divider-gem {
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0;
+}
+
+/* 底部清净字 */
+.home-footer {
+  text-align: center;
+  margin-top: 40px;
+  font-family: 'Noto Serif SC', 'KaiTi', serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.35;
+  letter-spacing: 4px;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 640px) {
   .home-container {
-    padding: 24px 14px 40px;
+    padding: 36px 20px 48px;
+  }
+  .home-header {
+    margin-bottom: 28px;
   }
   .title {
-    font-size: 22px;
-    letter-spacing: 6px;
+    font-size: 26px;
+    letter-spacing: 8px;
   }
-  .tome-cover {
-    width: 68px;
-    height: 94px;
+  .sutra-name {
+    font-size: 21px;
+    letter-spacing: 4px;
   }
-  .tome-label {
-    font-size: 9.5px;
+  .sutra-verse {
+    font-size: 14px;
+    letter-spacing: 2px;
   }
-  .book-title {
-    font-size: 14.5px;
+  .sutra-entry {
+    padding: 22px 16px;
   }
-  .book-verse {
-    font-size: 12.5px;
+  .entry-enter-hint {
+    display: none;
   }
 }
 </style>
