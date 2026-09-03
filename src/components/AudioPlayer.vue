@@ -11,14 +11,13 @@ const props = defineProps({
   isPlaying: Boolean,
   progress: Number,
   autoPlay: Boolean,
-  isZenMode: Boolean,
   voice: {
     type: String,
     default: 'female'
   }
 })
 
-const emit = defineEmits(['toggle', 'seek', 'update:autoPlay', 'update:isZenMode', 'update:voice'])
+const emit = defineEmits(['toggle', 'seek', 'update:autoPlay', 'update:voice'])
 
 /** 格式化时间 mm:ss */
 function fmt(sec) {
@@ -29,14 +28,6 @@ function fmt(sec) {
 }
 
 const timeDisplay = computed(() => `${fmt(props.currentTime)} / ${fmt(props.duration)}`)
-
-function handleZenClick() {
-  const nextZenState = !props.isZenMode
-  emit('update:isZenMode', nextZenState)
-  if (nextZenState && !props.isPlaying) {
-    emit('toggle')
-  }
-}
 
 /** 进度条点击 seek */
 function onProgressClick(e) {
@@ -98,19 +89,6 @@ function onProgressClick(e) {
         <path d="M12 4v3"/>
       </svg>
       <span>{{ voice === 'female' ? '女声' : '男声' }}</span>
-    </button>
-
-    <button 
-      class="zen-btn" 
-      @click="handleZenClick"
-      title="禅定模式"
-    >
-      <!-- 禅定：空灵水墨圆相图标 -->
-      <svg class="zen-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-        <circle cx="12" cy="12" r="8" stroke-dasharray="4 3" opacity="0.6"/>
-        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
-      </svg>
-      <span>禅定</span>
     </button>
 
     <button 
@@ -269,29 +247,6 @@ function onProgressClick(e) {
   background: rgba(212, 165, 116, 0.08);
 }
 
-.zen-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-family: 'Noto Serif SC', serif;
-  color: var(--text-muted);
-  opacity: 0.85;
-  transition: all 0.25s ease;
-}
-
-.zen-btn:hover {
-  opacity: 1;
-  color: var(--gold);
-  background: rgba(212, 165, 116, 0.08);
-}
-
 .voice-btn {
   flex-shrink: 0;
   display: inline-flex;
@@ -331,7 +286,7 @@ function onProgressClick(e) {
     font-size: 11px;
     min-width: 62px;
   }
-  .voice-btn, .zen-btn, .auto-play-btn {
+  .voice-btn, .auto-play-btn {
     font-size: 11px;
     padding: 3px 6px;
     gap: 2px;
