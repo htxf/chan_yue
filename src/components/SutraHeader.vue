@@ -9,6 +9,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  isTitleActive: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const normalize = (val) => {
@@ -61,7 +65,7 @@ const rawTitleText = computed(() => {
         <span class="badge-name">{{ rawTitleText }}</span>
         <span class="badge-dot">◈</span>
       </div>
-      <h1 class="sutra-title chapter-hero-title">
+      <h1 class="sutra-title chapter-hero-title" :class="{ 'is-title-glowing': isTitleActive }">
         <ruby v-for="(char, i) in (nSubtitle.length ? nSubtitle : nTitle)" :key="`ch-${i}`">
           {{ char.text }}<rt v-if="char.pinyin">{{ char.pinyin }}</rt>
         </ruby>
@@ -184,6 +188,13 @@ const rawTitleText = computed(() => {
   opacity: 1;
   padding-bottom: 2px;
   letter-spacing: 0;
+}
+
+.is-title-glowing {
+  color: var(--gold) !important;
+  text-shadow: 0 0 14px rgba(212, 165, 116, 0.75), 0 0 35px rgba(212, 165, 116, 0.4) !important;
+  transform: scale(1.02);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .divider {

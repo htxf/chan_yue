@@ -96,8 +96,26 @@ const {
   onPrev: () => goToPrevChapter()
 })
 
+const isTopbarHidden = ref(false)
+let lastScrollY = 0
+
+function handleWindowScroll() {
+  const currentY = window.scrollY
+  if (currentY > 120 && currentY > lastScrollY + 15) {
+    isTopbarHidden.value = true
+  } else if (currentY < lastScrollY - 15 || currentY < 80) {
+    isTopbarHidden.value = false
+  }
+  lastScrollY = currentY
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleWindowScroll, { passive: true })
+})
+
 onUnmounted(() => {
   if (autoPlayTimer) clearTimeout(autoPlayTimer)
+  window.removeEventListener('scroll', handleWindowScroll)
 })
 
 // --- Interaction & UI Hide Logic ---
@@ -210,6 +228,17 @@ async function loadChapterData() {
     // 等待 Vue 渲染出新 DOM 的高度
     await nextTick()
     window.scrollTo({ top: 0 })
+
+    // 记录最近一次持诵进度供首页“续读浮舟”一键直达
+    try {
+      localStorage.setItem('chanyue_last_read', JSON.stringify({
+        bookId: bookId.value,
+        chapterId: chId,
+        chapterTitle: extractText(chapterData.value?.title),
+        bookTitle: extractText(bookMeta.value?.title),
+        time: Date.now()
+      }))
+    } catch (e) {}
   } catch (err) {
     console.error('Failed to load chapter data', err)
   } finally {
@@ -247,36 +276,53 @@ function handleToggle() {
 <template>
   <div class="reader-wrapper min-h-screen w-full bg-[var(--bg-primary)] pb-36 md:pb-32">
     
-    <!-- Top Controls -->
+    <!-- Top Controls (自适应智能微缩浮动顶栏) -->
     <div 
-      class="fixed top-5 left-5 right-5 z-[100] flex justify-between pointer-events-none transition-opacity duration-500 ease-out"
-      :class="isLoading ? 'opacity-0' : 'opacity-100'"
+      class="fixed top-4 left-4 right-4 md:top-5 md:left-6 md:right-6 z-[100] flex justify-between pointer-events-none transition-all duration-500 ease-out"
+      :class="[
+        isLoading ? 'opacity-0' : '',
+        isTopbarHidden ? 'opacity-25 hover:opacity-100 -translate-y-2' : 'opacity-100 translate-y-0'
+      ]"
     >
-      <button class="pointer-events-auto flex items-center gap-2 md:gap-3 font-serif text-sm text-gray-500 hover:text-amber-200/80 transition-colors duration-300" @click.stop="goBack">
-        <span class="text-xl md:text-base">〈</span> <span class="hidden md:inline">返回书阁</span>
+      <button class="pointer-events-auto flex items-center gap-1.5 md:gap-2 font-serif text-xs md:text-sm text-amber-200/70 hover:text-amber-200 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-amber-900/30 hover:border-amber-700/50 shadow-lg shadow-black/40 transition-all duration-300" @click.stop="goBack">
+        <span class="text-sm">〈</span> <span>返回书阁</span>
       </button>
-      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="pointer-events-auto flex items-center gap-2 md:gap-3 font-serif text-sm text-gray-500 hover:text-amber-200/80 transition-colors duration-300" @click.stop="toggleDrawer">
-        <span class="hidden md:inline">目录</span> <span class="text-xl md:text-base">☰</span>
+      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="pointer-events-auto flex items-center gap-1.5 md:gap-2 font-serif text-xs md:text-sm text-amber-200/70 hover:text-amber-200 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-amber-900/30 hover:border-amber-700/50 shadow-lg shadow-black/40 transition-all duration-300" @click.stop="toggleDrawer">
+        <span>经卷目录</span> <span class="text-sm">☰</span>
       </button>
     </div>
 
-    <!-- Chapter Drawer -->
+    <!-- Chapter Drawer (器物级经卷目录抽屉) -->
     <transition name="slide-right">
       <div v-if="showDrawer" class="drawer-overlay" @click.stop="toggleDrawer">
         <div class="drawer-content" @click.stop>
           <div class="drawer-header">
-            <h3>目录</h3>
+            <div class="drawer-title-box">
+              <h3>经卷目录</h3>
+              <p class="drawer-subtitle">{{ bookMeta?.title }} · 共 {{ bookMeta?.chapters?.length }} 品</p>
+            </div>
             <button class="close-btn" @click="toggleDrawer">×</button>
           </div>
           <div class="drawer-body">
             <div 
-              v-for="chapter in bookMeta.chapters" 
+              v-for="(chapter, idx) in bookMeta.chapters" 
               :key="chapter.id || chapter.chapterId"
               class="chapter-item"
               :class="{ active: (chapter.id || chapter.chapterId) === chapterId }"
               @click="selectChapter(chapter.id || chapter.chapterId)"
             >
-              {{ chapter.title }}
+              <div class="ch-left">
+                <span class="ch-num">{{ String(idx + 1).padStart(2, '0') }}</span>
+                <span class="ch-title">{{ chapter.title }}</span>
+              </div>
+              <span v-if="bookId === 'jingangjing' && idx < 8" class="badge-audio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19 12a7 7 0 0 0-14 0" opacity="0.6"/>
+                </svg>
+                双音色
+              </span>
+              <span v-else class="badge-text">墨读</span>
             </div>
           </div>
         </div>
@@ -295,6 +341,7 @@ function handleToggle() {
           :subtitle="chapterData.title"
           :author="bookMeta.author"
           :isFirstChapter="chapterId === 'chapter_1' || !chapterId"
+          :isTitleActive="isPlaying && currentTime < (chapterData.paragraphs?.[0]?.startTime || 3.0)"
         />
 
         <ModeSelector v-model:mode="mode" />
@@ -424,28 +471,40 @@ function handleToggle() {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 280px;
-  background: #111;
-  border-left: 1px solid rgba(212, 175, 55, 0.2);
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  width: 320px;
+  max-width: calc(100vw - 40px);
+  background: rgba(14, 14, 20, 0.97);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border-left: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
 }
 
 .drawer-header {
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.12);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.drawer-header h3 {
-  margin: 0;
+.drawer-title-box h3 {
+  margin: 0 0 4px;
   color: var(--gold);
   font-family: 'Noto Serif SC', serif;
-  letter-spacing: 4px;
-  font-size: 18px;
+  letter-spacing: 3px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.drawer-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'Noto Serif SC', 'KaiTi', serif;
+  letter-spacing: 1px;
 }
 
 .close-btn {
@@ -454,31 +513,89 @@ function handleToggle() {
   color: var(--text-muted);
   font-size: 24px;
   cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: var(--gold);
 }
 
 .drawer-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 0;
+  padding: 8px 0;
 }
 
 .chapter-item {
-  padding: 16px 24px;
+  padding: 13px 20px;
   color: var(--text-primary);
   font-family: 'Noto Serif SC', serif;
   cursor: pointer;
-  transition: background 0.2s;
-  letter-spacing: 2px;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-left: 3px solid transparent;
 }
 
 .chapter-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(212, 165, 116, 0.06);
+  color: var(--gold);
 }
 
 .chapter-item.active {
   color: var(--gold);
-  background: rgba(212, 175, 55, 0.1);
-  border-left: 3px solid var(--gold);
+  background: rgba(212, 165, 116, 0.12);
+  border-left-color: var(--gold);
+}
+
+.ch-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.ch-num {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--gold);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.ch-title {
+  font-size: 14px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-audio {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-family: 'Noto Serif SC', serif;
+  background: rgba(212, 165, 116, 0.08);
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  color: var(--gold);
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.badge-text {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  padding: 2px 6px;
+  flex-shrink: 0;
 }
 
 /* Transitions */

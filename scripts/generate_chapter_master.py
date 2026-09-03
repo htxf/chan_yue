@@ -47,8 +47,10 @@ PHONETIC_REPLACEMENTS = [
     ("诸法空相", "诸法空向"),     # xiàng 四声
     ("无明尽", "无明进"),         # jìn 四声
     ("老死尽", "老死进"),         # jìn 四声
-    ("阿耨多罗", "阿漏多罗"),     # ā nòu
+    ("阿耨多罗", "阿诺多罗"),     # ā nuò/nòu 梵汉对音，严格鼻辅音 N
     ("三藐", "三秒"),             # sān miǎo
+    ("耶？", "耶。"),             # 消除疑问尾音上扬变调，保持平稳持诵
+    ("耶?", "耶。"),
     # 金刚经
     ("著衣持钵", "浊衣持钵"),     # zhuó 二声
     ("着衣持钵", "浊衣持钵"),     # zhuó 二声
@@ -206,6 +208,11 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
         doc = json.load(f)
 
     lines = []
+    # 提取品题作为第 0 行纳入声学对齐
+    title_chars = [c for c in doc.get("title", []) if c.get("text", "").strip() and c.get("text") not in "，。！？；：、“”‘’『』《》〈〉"]
+    if title_chars:
+        lines.append(({"isTitle": True}, title_chars))
+
     for p in doc.get("paragraphs", []):
         for l in p.get("lines", []):
             chars = [c for c in l.get("chars", []) if c.get("text", "").strip() and c.get("text") not in "，。！？；：、“”‘’『』《》〈〉"]
@@ -261,8 +268,12 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
                     c["startTime"] = round(c_time, 3)
                     c["endTime"] = round(c_time + char_dur, 3)
                     c_time += char_dur
-                line_obj["lineStart"] = l_chars[0]["startTime"]
-                line_obj["lineEnd"] = l_chars[-1]["endTime"]
+                if line_obj.get("isTitle"):
+                    doc["titleStart"] = l_chars[0]["startTime"]
+                    doc["titleEnd"] = l_chars[-1]["endTime"]
+                else:
+                    line_obj["lineStart"] = l_chars[0]["startTime"]
+                    line_obj["lineEnd"] = l_chars[-1]["endTime"]
     else:
         # 极罕见情况：爆发段多于文本行，按字数比例在 burst 间分配
         c_idx = 0
@@ -319,14 +330,21 @@ def build_chapter(book_id: str, chapter_id: str):
     with open(json_path, "r", encoding="utf-8") as f:
         doc = json.load(f)
 
-    # 提取纯文本并进行发音校准
+    # 提取品题与纯文本
+    title_chars = doc.get("title", [])
+    title_txt = "".join(c.get("text", "") for c in title_chars) if title_chars else ""
+
     raw_lines = []
     for p in doc.get("paragraphs", []):
         for l in p.get("lines", []):
             line_txt = "".join(c.get("text", "") for c in l.get("chars", []))
             raw_lines.append(line_txt)
 
-    full_text = "".join(raw_lines)
+    if title_txt:
+        full_text = f"{title_txt}。\n\n" + "".join(raw_lines)
+    else:
+        full_text = "".join(raw_lines)
+
     fixed_text = apply_phonetic_fixes(full_text)
 
     # 准备输出目录与文件路径
