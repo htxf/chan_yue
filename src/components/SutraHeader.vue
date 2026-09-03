@@ -113,20 +113,20 @@ const rawTitleText = computed(() => {
 
 <style scoped>
 .sutra-header {
-  padding: 56px 20px 36px;
+  padding: 88px 20px 36px;
   text-align: center;
   animation: headerFadeIn 1.2s ease both;
 }
 
 .sutra-header.is-subsequent {
-  padding: 44px 20px 28px;
+  padding: 80px 20px 32px;
 }
 
 .ornament {
   font-size: 18px;
   color: var(--gold);
   opacity: 0.45;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   letter-spacing: 14px;
 }
 
@@ -274,7 +274,8 @@ const rawTitleText = computed(() => {
 }
 
 @media (max-width: 640px) {
-  .sutra-header { padding: 36px 16px 24px; }
+  .sutra-header { padding: 76px 16px 28px; }
+  .sutra-header.is-subsequent { padding: 70px 16px 24px; }
   .book-grand-title { font-size: 22px; letter-spacing: 5px; }
   .chapter-hero-title { font-size: 24px; letter-spacing: 5px; }
   .first-chapter-hero { margin-top: 16px; }

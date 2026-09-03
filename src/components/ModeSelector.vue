@@ -48,8 +48,8 @@ const modes = [
 .mode-selector {
   display: flex;
   justify-content: center;
-  gap: 4px;
-  padding: 0 20px 24px;
+  gap: 6px;
+  padding: 0 20px 36px;
   animation: fadeIn 1s ease 0.5s both;
 }
 
