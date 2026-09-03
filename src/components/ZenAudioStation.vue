@@ -46,7 +46,13 @@ function cyclePlayMode() {
   const isMulti = chaptersList.value.length > 1
   const modes = isMulti ? ['sequence', 'single', 'repeat-one'] : ['single', 'repeat-one']
   const idx = modes.indexOf(playMode.value)
-  playMode.value = modes[(idx + 1) % modes.length]
+  const nextMode = modes[(idx + 1) % modes.length]
+  playMode.value = nextMode
+
+  // 联动逻辑：切到“单品听诵”，自动重置定时为“播完即止”（清除分钟定时冲突）
+  if (nextMode === 'single') {
+    setSleepTimer(-1)
+  }
 }
 
 const playModeLabel = computed(() => {
@@ -71,6 +77,11 @@ const timerOptions = [
 
 function selectTimerOption(val) {
   setSleepTimer(val)
+  // 联动逻辑：若当前是“单品听诵”，而用户设定了具体分钟定时（15/30/45/60），
+  // 自动将模式提升为连续播放（心经转循环持诵，金刚经转连播全卷），确保能连续播放满设定的时长！
+  if (val > 0 && playMode.value === 'single') {
+    playMode.value = chaptersList.value.length > 1 ? 'sequence' : 'repeat-one'
+  }
   isTimerModalOpen.value = false
 }
 
@@ -99,6 +110,9 @@ function setSleepTimer(val) {
 }
 
 const timerSummaryText = computed(() => {
+  if (playMode.value === 'single') {
+    return '播完即止'
+  }
   if (sleepTimerMinutes.value === -1) return '播完即止'
   if (sleepTimerRemaining.value > 0) {
     const m = Math.floor(sleepTimerRemaining.value / 60)
@@ -472,7 +486,7 @@ onUnmounted(() => {
                 v-for="opt in timerOptions"
                 :key="opt.value"
                 class="timer-chip-btn"
-                :class="{ active: sleepTimerMinutes === opt.value }"
+                :class="{ active: (playMode === 'single' && opt.value === -1) || (playMode !== 'single' && sleepTimerMinutes === opt.value) }"
                 @click="selectTimerOption(opt.value)"
               >
                 {{ opt.label }}

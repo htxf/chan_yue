@@ -35,12 +35,12 @@ function goToBook(item) {
 </script>
 
 <template>
-  <div class="home-container" :class="{ 'is-listening-mode': activeTab === 'listening' }">
-    <!-- 顶部静穆阁标 -->
+  <div class="home-container">
+    <!-- 顶部静穆阁标（固定锚定，双生视界切换零跳动） -->
     <header class="home-header">
       <div class="ornament">◈</div>
-      <h1 class="title">{{ activeTab === 'reading' ? '经 书 阁' : '禅 听 台' }}</h1>
-      <p class="subtitle">{{ activeTab === 'reading' ? '禅思无界 · 阅心有道' : '闭目凝神 · 息妄显真' }}</p>
+      <h1 class="title">经 书 阁</h1>
+      <p class="subtitle">禅思无界 · 阅心有道</p>
 
       <!-- 双生视界切换 -->
       <div class="home-tab-switcher">
@@ -133,44 +133,19 @@ function goToBook(item) {
 <style scoped>
 .home-container {
   min-height: 100vh;
-  padding: 40px 20px 48px;
+  padding: 36px 20px 40px;
   max-width: 580px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
 }
 
-.home-container.is-listening-mode {
-  padding: 24px 20px 32px;
-  justify-content: center;
-  gap: 14px;
-  min-height: 100vh;
-}
-
-.home-container.is-listening-mode .home-header {
-  margin-bottom: 4px;
-}
-
-.home-container.is-listening-mode .title {
-  font-size: 24px;
-  margin-bottom: 4px;
-  letter-spacing: 6px;
-}
-
-.home-container.is-listening-mode .subtitle {
-  margin-bottom: 12px;
-  font-size: 12px;
-}
-
-.home-container.is-listening-mode .home-footer {
-  margin-top: 12px;
-}
-
-/* 顶部阁标 */
+/* 顶部阁标（固定锚定，双生视界切换零晃动） */
 .home-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  width: 100%;
   animation: fadeIn 1.2s ease both;
 }
 
