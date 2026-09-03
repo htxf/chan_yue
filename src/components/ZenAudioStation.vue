@@ -77,12 +77,12 @@ const timerOptions = [
 
 function selectTimerOption(val) {
   setSleepTimer(val)
-  // 联动逻辑：若当前是“单品听诵”，而用户设定了具体分钟定时（15/30/45/60），
-  // 自动将模式提升为连续播放（心经转循环持诵，金刚经转连播全卷），确保能连续播放满设定的时长！
-  if (val > 0 && playMode.value === 'single') {
-    playMode.value = chaptersList.value.length > 1 ? 'sequence' : 'repeat-one'
-  }
   isTimerModalOpen.value = false
+}
+
+function onTimerBtnClick() {
+  if (playMode.value === 'single') return
+  isTimerModalOpen.value = true
 }
 
 function setSleepTimer(val) {
@@ -94,6 +94,10 @@ function setSleepTimer(val) {
   if (val > 0) {
     sleepTimerRemaining.value = val * 60
     sleepTimerInterval = setInterval(() => {
+      // 方案 A 纯粹修持时长：只有在真正播放（isPlaying）时才消耗倒计时！
+      // 未点播放或中途暂停时，倒计时绝对冻结，实打实听满设定时长
+      if (!isPlaying.value) return
+
       sleepTimerRemaining.value--
       if (sleepTimerRemaining.value === 8) {
         fadeOutAndStop(8000)
@@ -348,12 +352,13 @@ onUnmounted(() => {
 
         <span class="tune-sep">·</span>
 
-        <!-- 禅修定时设定 -->
+        <!-- 禅修定时设定（单品听诵模式下天然播完即止，禁用点击防止逻辑错乱） -->
         <button 
           class="tune-btn" 
-          :class="{ active: sleepTimerMinutes !== 0 }" 
-          @click="isTimerModalOpen = true"
-          title="设定禅修定时"
+          :class="{ 'is-disabled': playMode === 'single', active: playMode !== 'single' && sleepTimerMinutes !== 0 }" 
+          :disabled="playMode === 'single'"
+          @click="onTimerBtnClick"
+          :title="playMode === 'single' ? '单品听诵播完本品自动停止，无需定时' : '设定禅修定时'"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
             <circle cx="12" cy="12" r="10"/>
@@ -629,8 +634,17 @@ onUnmounted(() => {
   transition: all 0.2s ease;
 }
 
-.tune-btn:hover {
+.tune-btn:hover:not(:disabled) {
   color: var(--text-primary);
+}
+
+.tune-btn.is-disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tune-btn.is-disabled:hover {
+  color: var(--text-muted);
 }
 
 .tune-btn.active {
