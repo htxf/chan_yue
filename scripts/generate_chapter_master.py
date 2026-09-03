@@ -84,6 +84,7 @@ PHONETIC_REPLACEMENTS = [
     ("著我人", "浊我人"),         # zhuó
     ("不应取", "不英取"),         # yīng
     ("法尚应舍", "法尚英舍"),     # yīng
+    ("不也", "否也"),             # fǒu yě 佛经古音正读
     ("四句偈", "四句记"),         # jì 四声
     ("为他人说", "位他人说"),     # wèi 四声
     ("其福胜彼", "其福圣彼"),     # shèng 四声
@@ -174,7 +175,7 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
     thresh = np.percentile(energy_smooth, 15)
 
     speech = energy_smooth > thresh
-    bursts = []
+    raw_bursts = []
     in_burst = False
     b_start = 0
 
@@ -184,8 +185,22 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
             b_start = t
         elif not is_sp and in_burst:
             in_burst = False
-            if t - b_start >= 0.20:
-                bursts.append((round(b_start, 3), round(t, 3)))
+            if t - b_start >= 0.15:
+                raw_bursts.append([round(b_start, 3), round(t, 3)])
+
+    # 合并辅音闭塞与微小换气（< 0.28s），防止整句被碎切
+    bursts = []
+    for b in raw_bursts:
+        if not bursts:
+            bursts.append(b)
+        else:
+            if b[0] - bursts[-1][1] < 0.28:
+                bursts[-1][1] = b[1]
+            else:
+                bursts.append(b)
+
+    # 剔除 < 0.20s 的孤立杂音抖动
+    bursts = [b for b in bursts if b[1] - b[0] >= 0.20]
 
     with open(json_path, "r", encoding="utf-8") as f:
         doc = json.load(f)
@@ -204,77 +219,77 @@ def align_json_to_audio_bursts(audio_path: str, json_path: str):
     total_speech_time = sum(b[1] - b[0] for b in bursts)
     target_rate = total_speech_time / max(1, total_chars)
 
-    # 动态规划全局对齐：支持 N>=M 或 N<M 的最优单调划分
-    dp = np.full((N + 1, M + 1), float('inf'))
-    parent = {}
-    dp[0][0] = 0.0
-
-    for j in range(1, M + 1):
-        for i in range(1, N + 1):
-            k_chars = 0
-            for k in range(i - 1, -1, -1):
-                k_chars += len(lines[k][1])
-                b_dur = bursts[j-1][1] - bursts[j-1][0]
-                cost = (b_dur - k_chars * target_rate) ** 2
-                if dp[k][j-1] + cost < dp[i][j]:
-                    dp[i][j] = dp[k][j-1] + cost
-                    parent[(i, j)] = (k, j-1)
-
-    if dp[N][M] == float('inf'):
+    if N >= M:
+        # N 行聚类到 M 个独立连续爆发段，DP 划分
         dp = np.full((N + 1, M + 1), float('inf'))
-        parent = {}
+        parent = np.zeros((N + 1, M + 1), dtype=int)
         dp[0][0] = 0.0
-        for i in range(1, N + 1):
-            l_chars = len(lines[i-1][1])
-            for j in range(1, M + 1):
-                for k in range(j - 1, -1, -1):
-                    b_dur = sum(bursts[b_idx][1] - bursts[b_idx][0] for b_idx in range(k, j))
-                    cost = (b_dur - l_chars * target_rate) ** 2
-                    if dp[i-1][k] + cost < dp[i][j]:
-                        dp[i][j] = dp[i-1][k] + cost
-                        parent[(i, j)] = (i-1, k)
 
-    curr = (N, M)
-    matches = []
-    while curr != (0, 0):
-        prev = parent.get(curr, (0, 0))
-        matches.append((list(range(prev[0], curr[0])), list(range(prev[1], curr[1]))))
-        curr = prev
-    matches.reverse()
+        for j in range(1, M + 1):
+            b_dur = bursts[j-1][1] - bursts[j-1][0]
+            for i in range(1, N + 1):
+                k_chars = 0
+                for k in range(i - 1, -1, -1):
+                    k_chars += len(lines[k][1])
+                    expected_dur = k_chars * target_rate
+                    cost = (b_dur - expected_dur) ** 2
+                    if dp[k][j-1] + cost < dp[i][j]:
+                        dp[i][j] = dp[k][j-1] + cost
+                        parent[i][j] = k
 
-    for l_idxs, b_idxs in matches:
-        if not l_idxs or not b_idxs:
-            continue
-        m_burst_time = sum(bursts[b][1] - bursts[b][0] for b in b_idxs)
-        m_chars = [c for l_idx in l_idxs for c in lines[l_idx][1]]
-        if not m_chars:
-            continue
+        curr_i = N
+        line_groups = []
+        for j in range(M, 0, -1):
+            prev_i = parent[curr_i][j]
+            line_groups.append(list(range(prev_i, curr_i)))
+            curr_i = prev_i
+        line_groups.reverse()
 
-        char_dur = m_burst_time / len(m_chars)
-        c_idx = 0
-        for b in b_idxs:
-            b_dur = bursts[b][1] - bursts[b][0]
-            b_chars_cnt = int(round(b_dur / char_dur))
-            b_chars_cnt = min(b_chars_cnt, len(m_chars) - c_idx)
-            if b == b_idxs[-1]:
-                b_chars_cnt = len(m_chars) - c_idx
-
-            assigned = m_chars[c_idx : c_idx + b_chars_cnt]
-            if not assigned:
+        for j, (b_st, b_et) in enumerate(bursts):
+            grp = line_groups[j]
+            grp_chars = [c for line_idx in grp for c in lines[line_idx][1]]
+            if not grp_chars:
                 continue
 
-            act_dur = b_dur / len(assigned)
-            c_t = bursts[b][0]
-            for c in assigned:
-                c["startTime"] = round(c_t, 3)
-                c["endTime"] = round(c_t + act_dur, 3)
-                c_t += act_dur
-            c_idx += b_chars_cnt
+            b_dur = b_et - b_st
+            char_dur = b_dur / len(grp_chars)
+            c_time = b_st
 
-        for l_idx in l_idxs:
-            l_obj, l_chars = lines[l_idx]
-            l_obj["lineStart"] = l_chars[0]["startTime"]
-            l_obj["lineEnd"] = l_chars[-1]["endTime"]
+            for line_idx in grp:
+                line_obj, l_chars = lines[line_idx]
+                for c in l_chars:
+                    c["startTime"] = round(c_time, 3)
+                    c["endTime"] = round(c_time + char_dur, 3)
+                    c_time += char_dur
+                line_obj["lineStart"] = l_chars[0]["startTime"]
+                line_obj["lineEnd"] = l_chars[-1]["endTime"]
+    else:
+        # 极罕见情况：爆发段多于文本行，按字数比例在 burst 间分配
+        c_idx = 0
+        for b_idx, (b_st, b_et) in enumerate(bursts):
+            b_time = b_et - b_st
+            if b_idx == M - 1:
+                chars_in_burst = total_chars - c_idx
+            else:
+                chars_in_burst = int(round(b_time / target_rate))
+            chars_in_burst = min(chars_in_burst, total_chars - c_idx)
+
+            all_valid_chars = [c for _, chars in lines for c in chars]
+            assigned = all_valid_chars[c_idx : c_idx + chars_in_burst]
+            if assigned:
+                act_dur = b_time / len(assigned)
+                c_t = b_st
+                for c in assigned:
+                    c["startTime"] = round(c_t, 3)
+                    c["endTime"] = round(c_t + act_dur, 3)
+                    c_t += act_dur
+            c_idx += chars_in_burst
+
+        for l_obj, l_chars in lines:
+            valid_ts = [c for c in l_chars if "startTime" in c]
+            if valid_ts:
+                l_obj["lineStart"] = valid_ts[0]["startTime"]
+                l_obj["lineEnd"] = valid_ts[-1]["endTime"]
 
     for p_idx, p in enumerate(doc.get("paragraphs", [])):
         p["id"] = p_idx + 1
