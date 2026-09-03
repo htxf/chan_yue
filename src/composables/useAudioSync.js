@@ -193,6 +193,29 @@ export function useAudioSync(paragraphs, options = {}) {
   }
 
   /**
+   * 无缝切换音色：精准保留当前播放秒数，顺畅接续念诵
+   */
+  function switchVoiceTrack(url) {
+    if (audio.src.endsWith(url)) return
+    const targetTime = audio.currentTime
+    const wasPlaying = isPlaying.value
+
+    function onLoaded() {
+      audio.removeEventListener('loadedmetadata', onLoaded)
+      audio.currentTime = targetTime
+      currentTime.value = targetTime
+      currentParagraphId.value = findCurrentParagraph(targetTime)
+      if (wasPlaying) {
+        safePlay()
+      }
+    }
+
+    audio.addEventListener('loadedmetadata', onLoaded)
+    audio.src = url
+    setupMediaSession()
+  }
+
+  /**
    * 零延迟同步接力 —— 连播核心
    * 
    * 在 onEnded 的同步执行栈内调用，
@@ -283,6 +306,7 @@ export function useAudioSync(paragraphs, options = {}) {
     seekByPercent,
     updateMediaSession,
     playNextTrack,
+    switchVoiceTrack,
     fadeOutAndStop,
   }
 }

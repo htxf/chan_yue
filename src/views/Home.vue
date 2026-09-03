@@ -2,11 +2,9 @@
 import { ref, onMounted } from 'vue'
 import catalog from '../data/catalog.json'
 import { useRouter } from 'vue-router'
-import SearchModal from '../components/SearchModal.vue'
 
 const router = useRouter()
 const lastRead = ref(null)
-const isSearchOpen = ref(false)
 
 onMounted(() => {
   try {
@@ -28,17 +26,6 @@ function goToBook(item) {
 
 <template>
   <div class="home-container">
-    <!-- 右上角藏经索字微标 -->
-    <div class="home-top-bar">
-      <button class="home-search-btn" @click="isSearchOpen = true" title="跨经全文检索 (Cmd/Ctrl+K)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
-          <circle cx="11" cy="11" r="7"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <span>索经</span>
-      </button>
-    </div>
-
     <!-- 顶部静穆阁标 -->
     <header class="home-header">
       <div class="ornament">◈</div>
@@ -94,51 +81,18 @@ function goToBook(item) {
     <footer class="home-footer">
       <p>息妄显真 · 随缘自适</p>
     </footer>
-
-    <!-- 全藏索经弹窗 -->
-    <SearchModal v-model:visible="isSearchOpen" />
   </div>
 </template>
 
 <style scoped>
 .home-container {
   min-height: 100vh;
-  padding: 24px 20px 48px;
+  padding: 40px 20px 48px;
   max-width: 580px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-/* 顶部索经微触点 */
-.home-top-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
-}
-
-.home-search-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: 9999px;
-  background: rgba(22, 22, 28, 0.65);
-  border: 1px solid rgba(212, 165, 116, 0.2);
-  color: var(--gold);
-  font-family: 'Noto Serif SC', serif;
-  font-size: 12px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  backdrop-filter: blur(8px);
-}
-
-.home-search-btn:hover {
-  background: rgba(212, 165, 116, 0.14);
-  border-color: rgba(212, 165, 116, 0.45);
-  transform: translateY(-1px);
 }
 
 /* 顶部阁标 */
