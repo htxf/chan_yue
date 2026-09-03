@@ -278,17 +278,24 @@ function handleToggle() {
     
     <!-- Top Controls (自适应智能微缩浮动顶栏) -->
     <div 
-      class="fixed top-4 left-4 right-4 md:top-5 md:left-6 md:right-6 z-[100] flex justify-between pointer-events-none transition-all duration-500 ease-out"
+      class="fixed top-3.5 left-4 right-4 md:top-5 md:left-6 md:right-6 z-[100] flex justify-between pointer-events-none transition-all duration-500 ease-out"
       :class="[
         isLoading ? 'opacity-0' : '',
-        isTopbarHidden ? 'opacity-25 hover:opacity-100 -translate-y-2' : 'opacity-100 translate-y-0'
+        isTopbarHidden ? 'opacity-20 hover:opacity-100 -translate-y-2' : 'opacity-100 translate-y-0'
       ]"
     >
-      <button class="pointer-events-auto flex items-center gap-2 font-serif text-xs md:text-sm text-amber-100/75 hover:text-amber-100 px-4 py-2 rounded-full bg-black/60 backdrop-blur-xl border border-amber-600/30 hover:border-amber-500/50 shadow-lg shadow-black/50 tracking-wider transition-all duration-300 active:scale-95" @click.stop="goBack">
-        <span class="text-xs opacity-70">〈</span> <span>返回书阁</span>
+      <button class="nav-top-btn" @click.stop="goBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12" class="nav-btn-icon">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        <span class="nav-btn-text">返回书阁</span>
       </button>
-      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="pointer-events-auto flex items-center gap-2 font-serif text-xs md:text-sm text-amber-100/75 hover:text-amber-100 px-4 py-2 rounded-full bg-black/60 backdrop-blur-xl border border-amber-600/30 hover:border-amber-500/50 shadow-lg shadow-black/50 tracking-wider transition-all duration-300 active:scale-95" @click.stop="toggleDrawer">
-        <span>经卷目录</span> <span class="text-xs opacity-70">☰</span>
+
+      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="nav-top-btn" @click.stop="toggleDrawer">
+        <span class="nav-btn-text">经卷目录</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12" class="nav-btn-icon">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
       </button>
     </div>
 
@@ -452,6 +459,58 @@ function handleToggle() {
 .zen-breathing-container.is-paused {
   animation-duration: 12s;
   filter: opacity(0.7) brightness(0.8);
+}
+
+/* Top Navigation Buttons */
+.nav-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  background: rgba(18, 18, 24, 0.78);
+  border: 1px solid rgba(212, 165, 116, 0.28);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #ebdcc8;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 1px;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-top-btn:hover {
+  background: rgba(28, 28, 38, 0.9);
+  border-color: rgba(212, 165, 116, 0.55);
+  color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.nav-top-btn:active {
+  transform: scale(0.96);
+}
+
+.nav-btn-icon {
+  color: var(--gold);
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.nav-btn-text {
+  display: inline-block;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .nav-top-btn {
+    padding: 7px 15px;
+    font-size: 12px;
+    gap: 5px;
+  }
 }
 
 /* Drawer */
