@@ -43,7 +43,8 @@ watch(playMode, (val) => {
 })
 
 function cyclePlayMode() {
-  const modes = ['sequence', 'single', 'repeat-one']
+  const isMulti = chaptersList.value.length > 1
+  const modes = isMulti ? ['sequence', 'single', 'repeat-one'] : ['single', 'repeat-one']
   const idx = modes.indexOf(playMode.value)
   playMode.value = modes[(idx + 1) % modes.length]
 }
@@ -51,7 +52,7 @@ function cyclePlayMode() {
 const playModeLabel = computed(() => {
   if (playMode.value === 'repeat-one') return '循环持诵'
   if (playMode.value === 'single') return '单品听诵'
-  return '连播全卷'
+  return chaptersList.value.length > 1 ? '连播全卷' : '单品听诵'
 })
 
 // 禅修定时 (分钟): 0(不限), 15, 30, 45, 60, -1(播完本品)
@@ -61,10 +62,10 @@ let sleepTimerInterval = null
 
 const timerOptions = [
   { label: '不限定时', value: 0 },
-  { label: '15分钟 (一炷香)', value: 15 },
-  { label: '30分钟 (半小时)', value: 30 },
-  { label: '45分钟 (定心眠)', value: 45 },
-  { label: '60分钟 (一支香)', value: 60 },
+  { label: '15 分钟', value: 15 },
+  { label: '30 分钟', value: 30 },
+  { label: '45 分钟', value: 45 },
+  { label: '60 分钟', value: 60 },
   { label: '播完本品即止', value: -1 },
 ]
 
@@ -167,22 +168,6 @@ function extractText(val) {
   return String(val)
 }
 
-// 当前经文段落高亮大字
-const currentLineText = computed(() => {
-  if (!chapterData.value?.paragraphs || chapterData.value.paragraphs.length === 0) {
-    return '静心沉气 · 随音入定'
-  }
-  if (currentParagraphId.value !== -1) {
-    const p = chapterData.value.paragraphs.find(item => item.id === currentParagraphId.value)
-    if (p) {
-      const rawText = extractText(p.content || p.text || p.words)
-      if (rawText) return rawText
-    }
-  }
-  const firstP = chapterData.value.paragraphs[0]
-  return extractText(firstP?.content || firstP?.text) || '静心沉气 · 随音入定'
-})
-
 // 章节索引与前后切品
 const currentChapterIdx = computed(() => {
   return chaptersList.value.findIndex(ch => (ch.id || ch.chapterId) === selectedChapterId.value)
@@ -213,6 +198,9 @@ async function switchBook(bookId) {
   localStorage.setItem('chanyue_listen_book', bookId)
   localStorage.setItem('chanyue_listen_chapter', 'chapter_1')
   await loadBookMeta()
+  if (chaptersList.value.length <= 1 && playMode.value === 'sequence') {
+    playMode.value = 'single'
+  }
   await loadChapterData(false)
 }
 
@@ -301,18 +289,13 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 中腹：空灵沉静的大字闭目视界（彻底去除多余大方块边框，空生万物） -->
+    <!-- 中腹：空灵沉静的大字闭目视界（大字经名与品目，无乱码，无多余占位短语） -->
     <section class="zen-sacred-center">
       <div class="sacred-seal">◈</div>
       <h2 class="sacred-book-title">{{ extractText(bookMeta?.title) }}</h2>
       <p class="sacred-chapter-title">
-        {{ chaptersList.length > 1 ? extractText(chapterData?.title) : (bookMeta?.author || '唐三藏法师玄奘奉诏译') }}
+        {{ chaptersList.length > 1 ? extractText(chapterData?.title) : (extractText(bookMeta?.author) || '唐·玄奘法师译') }}
       </p>
-
-      <!-- 当前诵读金句微光呼吸流转（纯粹大字浮于虚空，伴随声音轻柔呼吸） -->
-      <div class="sacred-verse-glow" :class="{ 'is-playing': isPlaying }">
-        <p class="sacred-verse-text">“{{ currentLineText }}”</p>
-      </div>
     </section>
 
     <!-- 底部：专业随身听底座（保留手感极佳的大播放键组，上方融入极简调谐一行） -->
@@ -933,8 +916,7 @@ onUnmounted(() => {
 }
 
 .sheet-ch-item.active {
-  background: rgba(212, 165, 116, 0.16);
-  border-left: 3px solid var(--gold);
+  background: rgba(212, 165, 116, 0.14);
 }
 
 .ch-meta {

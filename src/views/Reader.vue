@@ -554,7 +554,6 @@ function handleToggle() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-left: 3px solid transparent;
 }
 
 .chapter-item:hover {
@@ -565,7 +564,6 @@ function handleToggle() {
 .chapter-item.active {
   color: var(--gold);
   background: rgba(212, 165, 116, 0.12);
-  border-left-color: var(--gold);
 }
 
 .ch-left {
