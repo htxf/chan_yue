@@ -10,8 +10,8 @@ defineProps({
 const emit = defineEmits(['update:mode'])
 
 const modes = [
-  { key: 'reading', label: '阅读', icon: '📖' },
-  { key: 'listening', label: '禅听', icon: '🔔' },
+  { key: 'reading', label: '阅读' },
+  { key: 'listening', label: '禅听' },
 ]
 </script>
 
@@ -25,7 +25,20 @@ const modes = [
       :class="{ active: mode === m.key }"
       @click="emit('update:mode', m.key)"
     >
-      <span class="mode-icon">{{ m.icon }}</span>
+      <span class="mode-icon">
+        <!-- 阅读：经卷书册图标 -->
+        <svg v-if="m.key === 'reading'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          <line x1="8" y1="7" x2="16" y2="7" />
+          <line x1="8" y1="11" x2="14" y2="11" />
+        </svg>
+        <!-- 禅听：引磬钟音图标 -->
+        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      </span>
       <span class="mode-label">{{ m.label }}</span>
     </button>
   </nav>

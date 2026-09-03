@@ -50,8 +50,23 @@ const activeLineIndex = computed(() => {
 })
 
 let lastScrolledLine = -1
+let userTouchTimer = null
+let isUserTouching = false
 
-/* 仅在激活行真正前进变化时丝滑居中滚动，绝不在停顿或段落过渡时反向回滚 */
+function onUserTouchActivity() {
+  isUserTouching = true
+  if (userTouchTimer) clearTimeout(userTouchTimer)
+  userTouchTimer = setTimeout(() => {
+    isUserTouching = false
+  }, 3500)
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('touchstart', onUserTouchActivity, { passive: true })
+  window.addEventListener('wheel', onUserTouchActivity, { passive: true })
+}
+
+/* 仅在激活行真正前进变化时丝滑居中滚动，用户手动翻阅时智能防打架 */
 watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   if (props.mode !== 'listening' || !isActive) {
     lastScrolledLine = -1
@@ -60,9 +75,12 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   
   if (lineIdx >= 0 && lineIdx !== lastScrolledLine) {
     lastScrolledLine = lineIdx
-    await nextTick()
-    const el = lineRefs.value[lineIdx]
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    // 用户正在触摸翻阅时，暂停自动强行回拉，避免打架
+    if (!isUserTouching) {
+      await nextTick()
+      const el = lineRefs.value[lineIdx]
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
   }
 })
 </script>
@@ -142,11 +160,11 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   opacity: 0.35;
 }
 
-/* 当前激活行：缓缓亮起 + 柔光 */
+/* 当前激活行：缓缓亮起 + 双层烛火微光暖晕 */
 .sutra-line.line-active {
   opacity: 1;
-  text-shadow: 0 0 16px rgba(212, 165, 116, 0.45),
-               0 0 32px rgba(212, 165, 116, 0.15);
+  text-shadow: 0 0 10px rgba(212, 165, 116, 0.65),
+               0 0 28px rgba(212, 165, 116, 0.22);
 }
 
 /* ===== 字符样式 ===== */
@@ -158,13 +176,13 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   letter-spacing: 2px;
 }
 
-/* 禅听模式激活行：字色提亮为金色 */
+/* 禅听模式激活行：字色提亮为温暖金砂 */
 .sutra-line.line-active .sutra-char {
   color: var(--gold);
   transition: color 0.8s ease-in-out;
 }
 
-/* 禅听模式非激活行：字色回归中性 */
+/* 禅听模式非激活行：字色回归深邃中性 */
 .sutra-line.line-dim .sutra-char {
   color: var(--text-muted);
   transition: color 0.8s ease-in-out;
@@ -189,13 +207,22 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   opacity: 0.6;
 }
 
+/* 标点光学微排印：收紧过宽空白，更具雕版印刷致密感 */
 .sutra-punct {
   font-family: 'Noto Serif SC', 'SimSun', serif;
-  font-size: 28px;
+  font-size: 24px;
   color: var(--text-muted);
+  opacity: 0.65;
+  margin: 0 -2px;
   display: inline-flex;
   align-items: flex-end;
   padding-bottom: 2px;
+  transition: opacity 0.8s ease-in-out, color 0.8s ease-in-out;
+}
+
+.sutra-line.line-active .sutra-punct {
+  color: var(--gold-muted);
+  opacity: 0.85;
 }
 
 

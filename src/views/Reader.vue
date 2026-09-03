@@ -245,7 +245,7 @@ function handleToggle() {
 </script>
 
 <template>
-  <div class="reader-wrapper min-h-screen w-full bg-[#1a1a1a]">
+  <div class="reader-wrapper min-h-screen w-full bg-[var(--bg-primary)] pb-36 md:pb-32">
     
     <!-- Top Controls -->
     <div 
@@ -294,6 +294,7 @@ function handleToggle() {
           :title="bookMeta.title"
           :subtitle="chapterData.title"
           :author="bookMeta.author"
+          :isFirstChapter="chapterId === 'chapter_1' || !chapterId"
         />
 
         <ModeSelector v-model:mode="mode" />
@@ -512,10 +513,6 @@ function handleToggle() {
 }
 
 .audio-player-fixed {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
+  z-index: 100;
 }
 </style>
