@@ -276,26 +276,18 @@ onUnmounted(() => {
 
 <template>
   <div class="zen-station-viewport">
-    <!-- 顶部：沉静典雅的经题微印章（点击可纵向自如挑选经卷与品目，无臃肿横向小滑块） -->
-    <div class="sutra-header-bar" @click="isChapterDrawerOpen = true">
-      <div class="sutra-select-pill">
-        <span class="pill-ornament">◈</span>
-        <span class="pill-title">{{ extractText(bookMeta?.title) }}</span>
-        <span v-if="chaptersList.length > 1" class="pill-divider">·</span>
-        <span v-if="chaptersList.length > 1" class="pill-chapter">{{ extractText(chapterData?.title) }}</span>
-        <svg class="pill-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+    <!-- 经名与品目简明呈现（紧凑温润，点击唤起选卷抽屉，不再空耗大段垂直虚空） -->
+    <section class="zen-title-section" @click="isChapterDrawerOpen = true">
+      <div class="title-interactive-badge">
+        <span class="badge-ornament">◈</span>
+        <h2 class="badge-book-title">{{ extractText(bookMeta?.title) }}</h2>
+        <span v-if="chaptersList.length > 1" class="badge-sep">·</span>
+        <span v-if="chaptersList.length > 1" class="badge-ch-title">{{ extractText(chapterData?.title) }}</span>
+        <span v-else class="badge-author">（{{ extractText(bookMeta?.author) || '唐·玄奘译' }}）</span>
+        <svg class="badge-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
           <path d="M6 9l6 6 6-6"/>
         </svg>
       </div>
-    </div>
-
-    <!-- 中腹：空灵沉静的大字闭目视界（大字经名与品目，无乱码，无多余占位短语） -->
-    <section class="zen-sacred-center">
-      <div class="sacred-seal">◈</div>
-      <h2 class="sacred-book-title">{{ extractText(bookMeta?.title) }}</h2>
-      <p class="sacred-chapter-title">
-        {{ chaptersList.length > 1 ? extractText(chapterData?.title) : (extractText(bookMeta?.author) || '唐·玄奘法师译') }}
-      </p>
     </section>
 
     <!-- 底部：专业随身听底座（保留手感极佳的大播放键组，上方融入极简调谐一行） -->
@@ -418,208 +410,171 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 弹窗一：经卷与品目选择抽屉（竖向纵列 32 品，纵向滑动自如，无限扩展） -->
-    <transition name="drawer-fade">
-      <div v-if="isChapterDrawerOpen" class="modal-overlay" @click.self="isChapterDrawerOpen = false">
-        <div class="modal-sheet">
-          <div class="sheet-header">
-            <div class="sheet-title-box">
-              <h3>经 卷 选 择</h3>
-              <p>请点选经典与品目</p>
-            </div>
-            <button class="sheet-close" @click="isChapterDrawerOpen = false">×</button>
-          </div>
-
-          <!-- 经书切换标签 -->
-          <div class="sheet-book-tabs">
-            <button 
-              v-for="item in catalog" 
-              :key="item.id" 
-              class="book-tab-btn" 
-              :class="{ active: selectedBookId === item.id }"
-              @click="switchBook(item.id)"
-            >
-              {{ item.id === 'xinjing' ? '心经' : '金刚经' }}
-            </button>
-          </div>
-
-          <!-- 纵向品目列表 -->
-          <div class="sheet-chapter-list">
-            <div 
-              v-for="(ch, idx) in chaptersList" 
-              :key="ch.id || ch.chapterId"
-              class="sheet-ch-item"
-              :class="{ active: (ch.id || ch.chapterId) === selectedChapterId }"
-              @click="changeChapter(ch.id || ch.chapterId, isPlaying)"
-            >
-              <div class="ch-meta">
-                <span class="ch-idx-num">{{ String(idx + 1).padStart(2, '0') }}</span>
-                <span class="ch-name">{{ ch.title }}</span>
+    <!-- 弹窗一：经卷与品目选择（Teleport至body，全屏纯净磨砂，响应式胶囊卡片，告别生硬固定黑框） -->
+    <Teleport to="body">
+      <transition name="zen-modal-fade">
+        <div v-if="isChapterDrawerOpen" class="zen-modal-backdrop" @click.self="isChapterDrawerOpen = false">
+          <div class="zen-dialog-box chapter-dialog">
+            <div class="dialog-header">
+              <div class="dialog-title-wrap">
+                <span class="header-ornament">◈</span>
+                <h3>经 卷 选 择</h3>
               </div>
-              <span v-if="(ch.id || ch.chapterId) === selectedChapterId" class="ch-playing-badge">当前诵读</span>
+              <button class="dialog-close-btn" @click="isChapterDrawerOpen = false">×</button>
+            </div>
+
+            <!-- 经书切换标签（胶囊式） -->
+            <div class="dialog-book-capsules">
+              <button 
+                v-for="item in catalog" 
+                :key="item.id" 
+                class="book-capsule-btn" 
+                :class="{ active: selectedBookId === item.id }"
+                @click="switchBook(item.id)"
+              >
+                {{ item.id === 'xinjing' ? '心经' : '金刚经' }}
+              </button>
+            </div>
+
+            <!-- 纵向品目列表 -->
+            <div class="dialog-chapter-list">
+              <div 
+                v-for="(ch, idx) in chaptersList" 
+                :key="ch.id || ch.chapterId"
+                class="dialog-ch-item"
+                :class="{ active: (ch.id || ch.chapterId) === selectedChapterId }"
+                @click="changeChapter(ch.id || ch.chapterId, isPlaying)"
+              >
+                <div class="ch-meta">
+                  <span class="ch-idx-num">{{ String(idx + 1).padStart(2, '0') }}</span>
+                  <span class="ch-name">{{ ch.title }}</span>
+                </div>
+                <span v-if="(ch.id || ch.chapterId) === selectedChapterId" class="ch-playing-badge">当前诵读</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </Teleport>
 
-    <!-- 弹窗二：禅修定时轻雅气泡（单点即定，无需繁琐键盘输入） -->
-    <transition name="drawer-fade">
-      <div v-if="isTimerModalOpen" class="modal-overlay" @click.self="isTimerModalOpen = false">
-        <div class="timer-sheet">
-          <div class="timer-sheet-header">
-            <span class="sheet-ornament">◈</span>
-            <h4>禅 修 定 时</h4>
-            <p>定时停止前 8 秒音量平滑渐弱淡出</p>
+    <!-- 弹窗二：禅修定时轻雅气泡（Teleport至body，纯净胶囊轻触即定，无多余技术说明废话） -->
+    <Teleport to="body">
+      <transition name="zen-modal-fade">
+        <div v-if="isTimerModalOpen" class="zen-modal-backdrop" @click.self="isTimerModalOpen = false">
+          <div class="zen-dialog-box timer-dialog">
+            <div class="dialog-header timer-header-center">
+              <span class="header-ornament">◈</span>
+              <h3>禅 修 定 时</h3>
+            </div>
+
+            <div class="timer-chips-grid">
+              <button
+                v-for="opt in timerOptions"
+                :key="opt.value"
+                class="timer-chip-btn"
+                :class="{ active: sleepTimerMinutes === opt.value }"
+                @click="selectTimerOption(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+
+            <button class="dialog-cancel-btn" @click="isTimerModalOpen = false">取消</button>
           </div>
-
-          <div class="timer-option-grid">
-            <button
-              v-for="opt in timerOptions"
-              :key="opt.value"
-              class="timer-opt-chip"
-              :class="{ active: sleepTimerMinutes === opt.value }"
-              @click="selectTimerOption(opt.value)"
-            >
-              <span>{{ opt.label }}</span>
-            </button>
-          </div>
-
-          <button class="timer-sheet-cancel" @click="isTimerModalOpen = false">取消</button>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
-/* 一屏沉浸容器：彻底消灭向下滚动 */
+/* 一屏沉浸容器：紧凑无缝，黄金居中 */
 .zen-station-viewport {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: calc(100vh - 190px);
+  align-items: center;
   gap: 16px;
-  animation: fadeIn 0.6s ease both;
+  width: 100%;
+  animation: fadeIn 0.5s ease both;
 }
 
-/* 顶部：经题印章选择器 */
-.sutra-header-bar {
+/* 经名与品目简明呈现（紧凑精致，点击唤起选卷抽屉） */
+.zen-title-section {
   display: flex;
   justify-content: center;
-  margin-top: 4px;
+  width: 100%;
 }
 
-.sutra-select-pill {
+.title-interactive-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 16px;
+  gap: 8px;
+  padding: 6px 18px;
   border-radius: 9999px;
   background: rgba(22, 22, 30, 0.65);
   border: 1px solid rgba(212, 165, 116, 0.22);
   color: var(--text-primary);
-  font-family: 'Noto Serif SC', serif;
-  font-size: 13px;
-  letter-spacing: 1.5px;
   cursor: pointer;
   backdrop-filter: blur(12px);
   transition: all 0.25s ease;
-  max-width: 92%;
+  max-width: 95%;
 }
 
-.sutra-select-pill:hover {
-  border-color: rgba(212, 165, 116, 0.5);
-  background: rgba(212, 165, 116, 0.1);
+.title-interactive-badge:hover {
+  border-color: rgba(212, 165, 116, 0.55);
+  background: rgba(212, 165, 116, 0.12);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(212, 165, 116, 0.12);
 }
 
-.pill-ornament {
+.badge-ornament {
   color: var(--gold);
   font-size: 11px;
+  opacity: 0.8;
 }
 
-.pill-title {
-  font-weight: 600;
+.badge-book-title {
+  margin: 0;
+  font-size: 15px;
+  font-family: 'Noto Serif SC', serif;
   color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 2px;
   white-space: nowrap;
 }
 
-.pill-divider {
+.badge-sep {
   color: rgba(212, 165, 116, 0.4);
+  font-size: 13px;
 }
 
-.pill-chapter {
+.badge-ch-title {
+  font-size: 13.5px;
+  font-family: 'Noto Serif SC', 'KaiTi', serif;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 1px;
 }
 
-.pill-arrow {
+.badge-author {
+  font-size: 12px;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.badge-arrow {
   color: var(--gold);
   opacity: 0.7;
   flex-shrink: 0;
   margin-left: 2px;
+  transition: transform 0.2s ease;
 }
 
-/* 中腹：空生万物的神圣留白大字 */
-.zen-sacred-center {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 16px 12px;
-  min-height: 180px;
-}
-
-.sacred-seal {
-  font-size: 14px;
-  color: var(--gold);
-  opacity: 0.5;
-  letter-spacing: 6px;
-  margin-bottom: 6px;
-}
-
-.sacred-book-title {
-  margin: 0 0 6px;
-  font-size: 24px;
-  font-family: 'Noto Serif SC', serif;
-  color: var(--text-primary);
-  letter-spacing: 6px;
-  font-weight: 700;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
-}
-
-.sacred-chapter-title {
-  margin: 0 0 20px;
-  font-size: 14px;
-  font-family: 'Noto Serif SC', 'KaiTi', serif;
-  color: var(--gold-dim);
-  letter-spacing: 2px;
-}
-
-.sacred-verse-glow {
-  max-width: 480px;
-  padding: 8px 16px;
-  transition: all 0.5s ease;
-}
-
-.sacred-verse-text {
-  margin: 0;
-  font-size: 16px;
-  font-family: 'Noto Serif SC', 'KaiTi', serif;
-  color: var(--text-muted);
-  line-height: 1.85;
-  letter-spacing: 2px;
-  transition: all 0.35s ease;
-}
-
-.sacred-verse-glow.is-playing .sacred-verse-text {
-  color: var(--gold);
-  text-shadow: 0 0 20px rgba(212, 165, 116, 0.45);
+.title-interactive-badge:hover .badge-arrow {
+  transform: translateY(1px);
 }
 
 /* 底部：专业随身听底座 */
@@ -808,33 +763,36 @@ onUnmounted(() => {
   transform: translateX(3px);
 }
 
-/* 模态遮罩 */
-.modal-overlay {
+/* 全局磨砂浮层模态框（响应式、全屏通透无黑框） */
+.zen-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(12px);
-  z-index: 200;
+  z-index: 99999;
+  background: rgba(8, 8, 12, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
-  align-items: flex-end;
   justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
-/* 经卷选择抽屉 */
-.modal-sheet {
-  background: rgba(18, 18, 26, 0.95);
-  border-top: 1px solid rgba(212, 165, 116, 0.25);
-  border-radius: 24px 24px 0 0;
+.zen-dialog-box {
   width: 100%;
-  max-width: 580px;
-  max-height: 75vh;
+  max-width: 440px;
+  background: rgba(22, 22, 28, 0.94);
+  border: 1px solid rgba(212, 165, 116, 0.28);
+  border-radius: 22px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 32px rgba(212, 165, 116, 0.08);
+  padding: 22px 20px 24px;
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 32px;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8);
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
-.sheet-header {
+.dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -843,57 +801,84 @@ onUnmounted(() => {
   border-bottom: 1px solid rgba(212, 165, 116, 0.12);
 }
 
-.sheet-title-box h3 {
-  margin: 0 0 2px;
-  font-size: 17px;
+.dialog-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-ornament {
+  font-size: 13px;
+  color: var(--gold);
+  opacity: 0.8;
+}
+
+.dialog-title-wrap h3,
+.timer-header-center h3 {
+  margin: 0;
+  font-size: 16px;
   font-family: 'Noto Serif SC', serif;
   color: var(--gold);
   letter-spacing: 3px;
+  font-weight: 600;
 }
 
-.sheet-title-box p {
-  margin: 0;
-  font-size: 11.5px;
-  color: var(--text-muted);
+.timer-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.12);
 }
 
-.sheet-close {
+.dialog-close-btn {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 26px;
+  font-size: 24px;
   cursor: pointer;
   line-height: 1;
+  padding: 0 4px;
+  transition: color 0.2s ease;
 }
 
-.sheet-book-tabs {
+.dialog-close-btn:hover {
+  color: var(--text-primary);
+}
+
+/* 经卷切换药丸 */
+.dialog-book-capsules {
   display: flex;
   gap: 10px;
   margin-bottom: 14px;
 }
 
-.book-tab-btn {
+.book-capsule-btn {
   flex: 1;
-  padding: 8px;
-  border-radius: 10px;
+  padding: 7px 12px;
+  border-radius: 9999px;
   background: rgba(212, 165, 116, 0.06);
   border: 1px solid rgba(212, 165, 116, 0.2);
   color: var(--text-muted);
   font-family: 'Noto Serif SC', serif;
-  font-size: 13px;
+  font-size: 12.5px;
+  letter-spacing: 1.5px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.book-tab-btn.active {
+.book-capsule-btn.active {
   background: rgba(212, 165, 116, 0.18);
   border-color: rgba(212, 165, 116, 0.6);
   color: var(--gold);
   font-weight: 600;
 }
 
-.sheet-chapter-list {
-  flex: 1;
+/* 章节纵向滚动清单 */
+.dialog-chapter-list {
+  max-height: 52vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -901,21 +886,21 @@ onUnmounted(() => {
   padding-right: 4px;
 }
 
-.sheet-ch-item {
+.dialog-ch-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 14px;
+  padding: 10px 14px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.sheet-ch-item:hover {
+.dialog-ch-item:hover {
   background: rgba(212, 165, 116, 0.08);
 }
 
-.sheet-ch-item.active {
+.dialog-ch-item.active {
   background: rgba(212, 165, 116, 0.14);
 }
 
@@ -927,12 +912,12 @@ onUnmounted(() => {
 
 .ch-idx-num {
   font-family: monospace;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-muted);
-  width: 22px;
+  width: 20px;
 }
 
-.sheet-ch-item.active .ch-idx-num {
+.dialog-ch-item.active .ch-idx-num {
   color: var(--gold);
   font-weight: bold;
 }
@@ -943,7 +928,7 @@ onUnmounted(() => {
   color: var(--text-primary);
 }
 
-.sheet-ch-item.active .ch-name {
+.dialog-ch-item.active .ch-name {
   color: var(--gold);
   font-weight: 600;
 }
@@ -958,76 +943,45 @@ onUnmounted(() => {
   border: 1px solid rgba(212, 165, 116, 0.3);
 }
 
-/* 定时气泡小面板 */
-.timer-sheet {
-  background: rgba(18, 18, 26, 0.96);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 20px;
-  width: calc(100% - 32px);
-  max-width: 440px;
-  margin-bottom: 24px;
-  padding: 24px 20px;
+/* 定时弹窗（胶囊微盘） */
+.timer-dialog {
+  max-width: 360px;
   text-align: center;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
 }
 
-.timer-sheet-header {
-  margin-bottom: 18px;
-}
-
-.sheet-ornament {
-  font-size: 13px;
-  color: var(--gold);
-  opacity: 0.6;
-}
-
-.timer-sheet-header h4 {
-  margin: 4px 0;
-  font-size: 17px;
-  font-family: 'Noto Serif SC', serif;
-  color: var(--gold);
-  letter-spacing: 3px;
-}
-
-.timer-sheet-header p {
-  margin: 0;
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-
-.timer-option-grid {
+.timer-chips-grid {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
 }
 
-.timer-opt-chip {
+.timer-chip-btn {
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: 9999px;
   background: rgba(212, 165, 116, 0.06);
   border: 1px solid rgba(212, 165, 116, 0.18);
   color: var(--text-primary);
   font-family: 'Noto Serif SC', serif;
   font-size: 13px;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.timer-opt-chip:hover {
+.timer-chip-btn:hover {
+  background: rgba(212, 165, 116, 0.14);
   border-color: rgba(212, 165, 116, 0.45);
-  background: rgba(212, 165, 116, 0.12);
 }
 
-.timer-opt-chip.active {
+.timer-chip-btn.active {
   background: rgba(212, 165, 116, 0.22);
   border-color: rgba(212, 165, 116, 0.65);
   color: var(--gold);
   font-weight: 600;
 }
 
-.timer-sheet-cancel {
+.dialog-cancel-btn {
   background: none;
   border: none;
   color: var(--text-muted);
@@ -1035,21 +989,27 @@ onUnmounted(() => {
   font-family: 'Noto Serif SC', serif;
   cursor: pointer;
   padding: 6px;
+  transition: color 0.2s ease;
 }
 
-.timer-sheet-cancel:hover {
+.dialog-cancel-btn:hover {
   color: var(--text-primary);
 }
 
-/* 过渡动效 */
-.drawer-fade-enter-active,
-.drawer-fade-leave-active {
-  transition: opacity 0.25s ease;
+/* 模态动效 */
+.zen-modal-fade-enter-active,
+.zen-modal-fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-.drawer-fade-enter-from,
-.drawer-fade-leave-to {
+.zen-modal-fade-enter-from,
+.zen-modal-fade-leave-to {
   opacity: 0;
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes fadeIn {

@@ -142,13 +142,14 @@ function goToBook(item) {
 }
 
 .home-container.is-listening-mode {
-  padding: 16px 16px 20px;
-  justify-content: space-between;
+  padding: 24px 20px 32px;
+  justify-content: center;
+  gap: 14px;
   min-height: 100vh;
 }
 
 .home-container.is-listening-mode .home-header {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .home-container.is-listening-mode .title {
@@ -158,12 +159,12 @@ function goToBook(item) {
 }
 
 .home-container.is-listening-mode .subtitle {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 12px;
 }
 
 .home-container.is-listening-mode .home-footer {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 /* 顶部阁标 */
