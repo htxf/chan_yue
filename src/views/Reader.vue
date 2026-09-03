@@ -361,11 +361,11 @@ function handleToggle() {
           :mode="mode"
         >
           <template #footer>
-            <div class="mt-24 mb-8 flex justify-between items-center text-gray-500 font-serif text-sm tracking-widest px-4 max-w-lg mx-auto">
+            <div class="mt-24 mb-8 flex justify-between items-center text-amber-100/70 font-serif text-sm tracking-widest px-4 max-w-lg mx-auto">
               <button 
                 v-if="prevChapter" 
                 @click.stop="selectChapter(prevChapter.id || prevChapter.chapterId)"
-                class="hover:text-amber-500 transition-colors duration-300 flex items-center gap-2"
+                class="hover:text-amber-400 transition-colors duration-300 flex items-center gap-2"
               >
                 <span>←</span> {{ prevChapter.title || '上一品' }}
               </button>

@@ -204,7 +204,7 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
 
 .sutra-line.line-dim rt {
   color: var(--text-muted);
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 /* 标点光学微排印：收紧过宽空白，更具雕版印刷致密感 */
@@ -212,7 +212,7 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   font-family: 'Noto Serif SC', 'SimSun', serif;
   font-size: 24px;
   color: var(--text-muted);
-  opacity: 0.65;
+  opacity: 0.8;
   margin: 0 -2px;
   display: inline-flex;
   align-items: flex-end;

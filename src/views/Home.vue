@@ -172,23 +172,23 @@ function goToBook(item) {
   font-family: 'Noto Serif SC', serif;
   font-size: 11px;
   color: var(--gold);
-  opacity: 0.75;
+  opacity: 0.9;
   letter-spacing: 1px;
   margin-bottom: 12px;
 }
 
 .meta-ornament {
   font-size: 9px;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .meta-sep {
-  opacity: 0.35;
+  opacity: 0.45;
 }
 
 .meta-tag {
   color: var(--text-muted);
-  opacity: 0.85;
+  opacity: 0.95;
 }
 
 /* 经名：典雅修长的宋体大字 */
@@ -197,7 +197,7 @@ function goToBook(item) {
   font-family: 'Noto Serif SC', 'SimSun', serif;
   font-size: 23px;
   font-weight: 700;
-  color: #e8e2d8;
+  color: #f2ece2;
   letter-spacing: 6px;
   transition: all 0.3s ease;
   line-height: 1.4;
@@ -208,7 +208,7 @@ function goToBook(item) {
   text-shadow: 0 0 18px rgba(212, 165, 116, 0.65);
 }
 
-/* 印心真言名句 */
+/* 印心真言名句（泥金微光，清晰舒雅） */
 .sutra-verse {
   margin: 0;
   font-family: 'Noto Serif SC', 'KaiTi', serif;
@@ -216,7 +216,7 @@ function goToBook(item) {
   font-size: 14.5px;
   letter-spacing: 2.5px;
   line-height: 1.5;
-  opacity: 0.88;
+  opacity: 0.95;
   transition: color 0.3s ease;
 }
 
@@ -234,24 +234,24 @@ function goToBook(item) {
   font-family: 'Noto Serif SC', serif;
   font-size: 12px;
   color: var(--gold);
-  opacity: 0.85;
+  opacity: 0.95;
   letter-spacing: 0.8px;
   padding: 4px 14px;
   border-radius: 9999px;
-  background: rgba(212, 165, 116, 0.08);
-  border: 1px solid rgba(212, 165, 116, 0.22);
+  background: rgba(212, 165, 116, 0.1);
+  border: 1px solid rgba(212, 165, 116, 0.28);
   transition: all 0.25s ease;
 }
 
 .sutra-card:hover .resume-whisper {
-  background: rgba(212, 165, 116, 0.18);
-  border-color: rgba(212, 165, 116, 0.45);
+  background: rgba(212, 165, 116, 0.2);
+  border-color: rgba(212, 165, 116, 0.5);
 }
 
 .whisper-dot {
   font-size: 8px;
-  color: #c94a38;
-  opacity: 0.9;
+  color: #d95340;
+  opacity: 0.95;
 }
 
 .whisper-arrow {
@@ -269,12 +269,12 @@ function goToBook(item) {
   font-size: 11.5px;
   color: var(--gold);
   letter-spacing: 2px;
-  opacity: 0.5;
+  opacity: 0.72;
   transition: all 0.3s ease;
 }
 
 .sutra-card:hover .card-action-bar {
-  opacity: 0.95;
+  opacity: 1;
 }
 
 .sutra-card:hover .action-arrow {
@@ -292,7 +292,7 @@ function goToBook(item) {
   font-family: 'Noto Serif SC', 'KaiTi', serif;
   font-size: 12px;
   color: var(--text-muted);
-  opacity: 0.35;
+  opacity: 0.65;
   letter-spacing: 4px;
 }
 

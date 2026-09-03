@@ -9,14 +9,15 @@
   --bg-surface: rgba(20, 20, 30, 0.6);
 
   /* 文字 */
-  --text-primary: #e8e0d4;
-  --text-muted: rgba(232, 224, 212, 0.4);
+  --text-primary: #f2ece2;
+  --text-secondary: rgba(242, 236, 226, 0.85);
+  --text-muted: rgba(242, 236, 226, 0.68);
 
   /* 琥珀金 - 高亮色系 */
   --gold: #d4a574;
-  --gold-muted: rgba(212, 165, 116, 0.6);
-  --gold-dim: rgba(212, 165, 116, 0.25);
-  --gold-glow: rgba(212, 165, 116, 0.15);
+  --gold-muted: rgba(212, 165, 116, 0.78);
+  --gold-dim: #c5a882;
+  --gold-glow: rgba(212, 165, 116, 0.18);
 
   /* 字体 */
   --font-serif: 'Noto Serif SC', 'SimSun', 'PMingLiU', serif;

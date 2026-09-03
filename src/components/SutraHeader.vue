@@ -213,7 +213,7 @@ const rawTitleText = computed(() => {
 /* 译署署名 */
 .sutra-author {
   font-family: 'Noto Serif SC', 'KaiTi', serif;
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--text-muted);
   letter-spacing: 3.5px;
   margin: 0;
@@ -221,7 +221,7 @@ const rawTitleText = computed(() => {
   justify-content: center;
   align-items: flex-end;
   gap: 2px;
-  opacity: 0.85;
+  opacity: 0.95;
 }
 
 .single-sutra-author {
@@ -232,9 +232,9 @@ const rawTitleText = computed(() => {
 
 .sutra-author rt {
   font-family: var(--font-pinyin);
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--text-muted);
-  opacity: 0.9;
+  opacity: 0.95;
   padding-bottom: 2px;
   letter-spacing: 0;
 }
