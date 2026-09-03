@@ -284,11 +284,11 @@ function handleToggle() {
         isTopbarHidden ? 'opacity-25 hover:opacity-100 -translate-y-2' : 'opacity-100 translate-y-0'
       ]"
     >
-      <button class="pointer-events-auto flex items-center gap-1.5 md:gap-2 font-serif text-xs md:text-sm text-amber-200/70 hover:text-amber-200 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-amber-900/30 hover:border-amber-700/50 shadow-lg shadow-black/40 transition-all duration-300" @click.stop="goBack">
-        <span class="text-sm">〈</span> <span>返回书阁</span>
+      <button class="pointer-events-auto flex items-center gap-2 font-serif text-xs md:text-sm text-amber-100/75 hover:text-amber-100 px-4 py-2 rounded-full bg-black/60 backdrop-blur-xl border border-amber-600/30 hover:border-amber-500/50 shadow-lg shadow-black/50 tracking-wider transition-all duration-300 active:scale-95" @click.stop="goBack">
+        <span class="text-xs opacity-70">〈</span> <span>返回书阁</span>
       </button>
-      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="pointer-events-auto flex items-center gap-1.5 md:gap-2 font-serif text-xs md:text-sm text-amber-200/70 hover:text-amber-200 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-amber-900/30 hover:border-amber-700/50 shadow-lg shadow-black/40 transition-all duration-300" @click.stop="toggleDrawer">
-        <span>经卷目录</span> <span class="text-sm">☰</span>
+      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="pointer-events-auto flex items-center gap-2 font-serif text-xs md:text-sm text-amber-100/75 hover:text-amber-100 px-4 py-2 rounded-full bg-black/60 backdrop-blur-xl border border-amber-600/30 hover:border-amber-500/50 shadow-lg shadow-black/50 tracking-wider transition-all duration-300 active:scale-95" @click.stop="toggleDrawer">
+        <span>经卷目录</span> <span class="text-xs opacity-70">☰</span>
       </button>
     </div>
 
@@ -299,7 +299,7 @@ function handleToggle() {
           <div class="drawer-header">
             <div class="drawer-title-box">
               <h3>经卷目录</h3>
-              <p class="drawer-subtitle">{{ bookMeta?.title }} · 共 {{ bookMeta?.chapters?.length }} 品</p>
+              <p class="drawer-subtitle">{{ extractText(bookMeta?.title) }} · 共 {{ bookMeta?.chapters?.length }} 品</p>
             </div>
             <button class="close-btn" @click="toggleDrawer">×</button>
           </div>

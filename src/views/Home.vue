@@ -42,17 +42,17 @@ function goToReader(id, chapterId = 'chapter_1') {
           </svg>
         </div>
         <div class="resume-info">
-          <span class="resume-tag">继续昨日持诵</span>
+          <span class="resume-tag">◈ 随喜持诵 · 接续昨日进度</span>
           <h3 class="resume-title">《{{ lastRead.bookTitle }}》· {{ lastRead.chapterTitle }}</h3>
         </div>
       </div>
-      <div class="resume-btn">
-        <span>接续</span>
-        <span class="btn-arrow">→</span>
+      <div class="resume-action">
+        <span>接续持诵</span>
+        <span class="action-arrow">→</span>
       </div>
     </div>
 
-    <!-- 古籍藏经卡片流 -->
+    <!-- 古籍藏经卡片流（古籍线装正统规制：书脊居左，题签居右上） -->
     <div class="catalog-grid">
       <div 
         v-for="(item, idx) in catalog" 
@@ -60,7 +60,7 @@ function goToReader(id, chapterId = 'chapter_1') {
         class="book-card"
         @click="goToReader(item.id)"
       >
-        <!-- 线装书脊与暗金缝线 -->
+        <!-- 左侧：线装书脊与暗金缝线 -->
         <div class="book-spine">
           <span class="stitch"></span>
           <span class="stitch"></span>
@@ -68,31 +68,45 @@ function goToReader(id, chapterId = 'chapter_1') {
           <span class="stitch"></span>
         </div>
 
+        <!-- 卡片主体 -->
         <div class="card-body">
-          <div class="card-main">
-            <!-- 竖排宣纸题签条 -->
-            <div class="title-strip">
-              <span class="strip-text">{{ item.name }}</span>
-            </div>
-
-            <!-- 书籍信息与名句 -->
-            <div class="book-meta-box">
-              <div class="meta-top">
+          <div class="card-top-section">
+            <div class="meta-column">
+              <div class="badges-row">
                 <span class="edition-badge">
                   {{ item.id === 'jingangjing' ? '三十二分全 · 1~8品双音色' : '全文纯享 · 沉浸双音色' }}
                 </span>
                 <span class="seal-stamp">◈ 藏经</span>
               </div>
               
-              <blockquote class="book-cover-quote">
-                “{{ item.coverText }}”
-              </blockquote>
+              <!-- 经典核心法要警句（充实经意，消除空旷感） -->
+              <div class="verses-box">
+                <blockquote class="primary-verse">
+                  “{{ item.coverText }}”
+                </blockquote>
+                <p class="secondary-verse">
+                  {{ item.id === 'jingangjing' 
+                    ? '一切有为法，如梦幻泡影，如露亦如电，应作如是观。' 
+                    : '照见五蕴皆空，度一切苦厄。受想行识，亦复如是。' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 右上方：正统线装书象牙白宣纸竖排题签条 -->
+            <div class="title-strip">
+              <span class="strip-text">{{ item.name }}</span>
             </div>
           </div>
 
+          <!-- 底栏持诵操作 -->
           <div class="card-footer">
-            <span class="read-btn">翻阅持诵</span>
-            <span class="arrow">→</span>
+            <div class="footer-left">
+              <span class="book-index-mark">卷之{{ idx === 0 ? '上' : '下' }}</span>
+            </div>
+            <div class="footer-right">
+              <span class="read-btn">翻阅持诵</span>
+              <span class="arrow">→</span>
+            </div>
           </div>
         </div>
       </div>
@@ -143,10 +157,11 @@ function goToReader(id, chapterId = 'chapter_1') {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 36px;
   padding: 14px 20px;
   background: rgba(212, 165, 116, 0.05);
-  border: 1px solid rgba(212, 165, 116, 0.2);
+  border: 1px solid rgba(212, 165, 116, 0.22);
   border-radius: 16px;
   backdrop-filter: blur(20px);
   cursor: pointer;
@@ -157,7 +172,7 @@ function goToReader(id, chapterId = 'chapter_1') {
 
 .resume-banner:hover {
   background: rgba(212, 165, 116, 0.1);
-  border-color: rgba(212, 165, 116, 0.4);
+  border-color: rgba(212, 165, 116, 0.45);
   transform: translateY(-2px);
 }
 
@@ -165,30 +180,36 @@ function goToReader(id, chapterId = 'chapter_1') {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
+  flex: 1;
 }
 
 .resume-icon-box {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.25);
+  border: 1px solid rgba(212, 165, 116, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--gold);
+  flex-shrink: 0;
 }
 
 .resume-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .resume-tag {
   font-size: 11px;
-  color: var(--gold-muted);
+  color: var(--gold);
+  opacity: 0.8;
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .resume-title {
@@ -198,28 +219,39 @@ function goToReader(id, chapterId = 'chapter_1') {
   font-family: 'Noto Serif SC', serif;
   font-weight: 600;
   letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.resume-btn {
+.resume-action {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
   color: var(--gold);
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 9999px;
-  background: rgba(212, 165, 116, 0.08);
-  border: 1px solid rgba(212, 165, 116, 0.25);
+  background: rgba(212, 165, 116, 0.1);
+  border: 1px solid rgba(212, 165, 116, 0.3);
   font-family: 'Noto Serif SC', serif;
-  transition: all 0.2s;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
 }
 
-.resume-banner:hover .btn-arrow {
+.resume-banner:hover .resume-action {
+  background: rgba(212, 165, 116, 0.2);
+  border-color: var(--gold);
+}
+
+.resume-banner:hover .action-arrow {
   transform: translateX(3px);
 }
 
-.btn-arrow {
-  transition: transform 0.2s;
+.action-arrow {
+  transition: transform 0.2s ease;
 }
 
 /* ===== 古籍卡片列表 ===== */
@@ -279,43 +311,29 @@ function goToReader(id, chapterId = 'chapter_1') {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 20px;
 }
 
-.card-main {
+.card-top-section {
   display: flex;
-  gap: 24px;
+  justify-content: space-between;
   align-items: flex-start;
+  gap: 20px;
 }
 
-/* 竖排白宣题签 */
-.title-strip {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  background: #f4eee3;
-  color: #1a1612;
-  border: 1px solid #c9bda8;
-  border-radius: 4px;
-  padding: 12px 6px;
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 900;
-  font-size: 15px;
-  letter-spacing: 3px;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.35);
-  flex-shrink: 0;
-}
-
-.book-meta-box {
+.meta-column {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.meta-top {
+.badges-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .edition-badge {
@@ -340,22 +358,65 @@ function goToReader(id, chapterId = 'chapter_1') {
   opacity: 0.85;
 }
 
-.book-cover-quote {
+.verses-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.primary-verse {
   margin: 0;
   font-family: 'Noto Serif SC', 'KaiTi', serif;
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--gold);
+  font-size: 17px;
   line-height: 1.6;
   letter-spacing: 2px;
+  text-shadow: 0 0 16px rgba(212, 165, 116, 0.2);
+}
+
+.secondary-verse {
+  margin: 0;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 1.5px;
+  opacity: 0.85;
+}
+
+/* 竖排白宣题签（遵循古制居右） */
+.title-strip {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  background: #f5efe6;
+  color: #1e1914;
+  border: 1px solid #d4c5b0;
+  border-radius: 3px;
+  padding: 14px 7px;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 4px;
+  box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
 }
 
 .card-footer {
-  margin-top: 20px;
+  margin-top: 10px;
   padding-top: 14px;
   border-top: 1px solid rgba(212, 165, 116, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.book-index-mark {
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  font-family: 'Noto Serif SC', serif;
+  letter-spacing: 2px;
 }
 
 .read-btn {
@@ -405,16 +466,25 @@ function goToReader(id, chapterId = 'chapter_1') {
   }
   .card-body {
     padding: 20px 18px;
-  }
-  .card-main {
     gap: 16px;
+  }
+  .card-top-section {
+    gap: 12px;
   }
   .title-strip {
     font-size: 13px;
     padding: 10px 5px;
+    letter-spacing: 2.5px;
   }
-  .book-cover-quote {
-    font-size: 13px;
+  .primary-verse {
+    font-size: 15px;
+  }
+  .secondary-verse {
+    font-size: 12px;
+  }
+  .resume-action {
+    padding: 5px 12px;
+    font-size: 11px;
   }
 }
 </style>
