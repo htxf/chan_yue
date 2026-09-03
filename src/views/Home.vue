@@ -35,7 +35,7 @@ function goToBook(item) {
 </script>
 
 <template>
-  <div class="home-container">
+  <div class="home-container" :class="{ 'is-listening-mode': activeTab === 'listening' }">
     <!-- 顶部静穆阁标 -->
     <header class="home-header">
       <div class="ornament">◈</div>
@@ -139,6 +139,31 @@ function goToBook(item) {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.home-container.is-listening-mode {
+  padding: 16px 16px 20px;
+  justify-content: space-between;
+  min-height: 100vh;
+}
+
+.home-container.is-listening-mode .home-header {
+  margin-bottom: 8px;
+}
+
+.home-container.is-listening-mode .title {
+  font-size: 24px;
+  margin-bottom: 4px;
+  letter-spacing: 6px;
+}
+
+.home-container.is-listening-mode .subtitle {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.home-container.is-listening-mode .home-footer {
+  margin-top: 8px;
 }
 
 /* 顶部阁标 */

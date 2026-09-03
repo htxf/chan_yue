@@ -14,6 +14,10 @@ const bookMeta = ref(null)
 const chapterData = ref(null)
 const isLoading = ref(false)
 
+// 弹窗状态
+const isChapterDrawerOpen = ref(false)
+const isTimerModalOpen = ref(false)
+
 // 章节列表
 const chaptersList = computed(() => bookMeta.value?.chapters || [])
 
@@ -38,18 +42,36 @@ watch(playMode, (val) => {
   localStorage.setItem('chanyue_listen_mode', val)
 })
 
-// 禅修定时 (分钟): 0(不限), 15, 30, 45, -1(播完本品)
+function cyclePlayMode() {
+  const modes = ['sequence', 'single', 'repeat-one']
+  const idx = modes.indexOf(playMode.value)
+  playMode.value = modes[(idx + 1) % modes.length]
+}
+
+const playModeLabel = computed(() => {
+  if (playMode.value === 'repeat-one') return '循环持诵'
+  if (playMode.value === 'single') return '单品听诵'
+  return '连播全卷'
+})
+
+// 禅修定时 (分钟): 0(不限), 15, 30, 45, 60, -1(播完本品)
 const sleepTimerMinutes = ref(0)
 const sleepTimerRemaining = ref(0)
 let sleepTimerInterval = null
 
 const timerOptions = [
-  { label: '不限', value: 0 },
-  { label: '15分', value: 15 },
-  { label: '30分', value: 30 },
-  { label: '45分', value: 45 },
-  { label: '播完即止', value: -1 },
+  { label: '不限定时', value: 0 },
+  { label: '15分钟 (一炷香)', value: 15 },
+  { label: '30分钟 (半小时)', value: 30 },
+  { label: '45分钟 (定心眠)', value: 45 },
+  { label: '60分钟 (一支香)', value: 60 },
+  { label: '播完本品即止', value: -1 },
 ]
+
+function selectTimerOption(val) {
+  setSleepTimer(val)
+  isTimerModalOpen.value = false
+}
 
 function setSleepTimer(val) {
   sleepTimerMinutes.value = val
@@ -75,12 +97,14 @@ function setSleepTimer(val) {
   }
 }
 
-const remainingTimerFormatted = computed(() => {
-  if (sleepTimerMinutes.value === -1) return '播完本品即停'
-  if (sleepTimerRemaining.value <= 0) return ''
-  const m = Math.floor(sleepTimerRemaining.value / 60)
-  const s = sleepTimerRemaining.value % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
+const timerSummaryText = computed(() => {
+  if (sleepTimerMinutes.value === -1) return '播完即止'
+  if (sleepTimerRemaining.value > 0) {
+    const m = Math.floor(sleepTimerRemaining.value / 60)
+    const s = sleepTimerRemaining.value % 60
+    return `⏳ ${m}:${s.toString().padStart(2, '0')}`
+  }
+  return '禅修定时'
 })
 
 // --- 初始化 Audio Engine ---
@@ -133,8 +157,6 @@ function fmt(sec) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-const timeDisplay = computed(() => `${fmt(currentTime.value)} / ${fmt(duration.value)}`)
-
 // 辅助函数：提取标题字符串
 function extractText(val) {
   if (!val) return ''
@@ -157,7 +179,6 @@ const currentLineText = computed(() => {
       if (rawText) return rawText
     }
   }
-  // 默认显示首句或经题要语
   const firstP = chapterData.value.paragraphs[0]
   return extractText(firstP?.content || firstP?.text) || '静心沉气 · 随音入定'
 })
@@ -173,14 +194,14 @@ const hasNextChapter = computed(() => currentChapterIdx.value !== -1 && currentC
 function goToPrevChapter() {
   if (hasPrevChapter.value) {
     const target = chaptersList.value[currentChapterIdx.value - 1]
-    changeChapter(target.id || target.chapterId)
+    changeChapter(target.id || target.chapterId, isPlaying.value)
   }
 }
 
 function goToNextChapter(autoPlayNext = false) {
   if (hasNextChapter.value) {
     const target = chaptersList.value[currentChapterIdx.value + 1]
-    changeChapter(target.id || target.chapterId, autoPlayNext)
+    changeChapter(target.id || target.chapterId, autoPlayNext || isPlaying.value)
   }
 }
 
@@ -199,6 +220,7 @@ async function switchBook(bookId) {
 async function changeChapter(chId, autoPlay = false) {
   selectedChapterId.value = chId
   localStorage.setItem('chanyue_listen_chapter', chId)
+  isChapterDrawerOpen.value = false
   await loadChapterData(autoPlay)
 }
 
@@ -265,125 +287,95 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="zen-station-wrapper">
-    <!-- 顶部典籍切选药丸 -->
-    <div class="sutra-selector">
-      <button
-        v-for="item in catalog"
-        :key="item.id"
-        class="sutra-chip"
-        :class="{ active: selectedBookId === item.id }"
-        @click="switchBook(item.id)"
-      >
-        <span class="chip-ornament">◈</span>
-        <span>{{ item.id === 'xinjing' ? '心经' : '金刚经' }}</span>
-      </button>
-    </div>
-
-    <!-- 品目微选择（若是金刚经等多品经典，呈现清雅横滑/选择） -->
-    <div v-if="chaptersList.length > 1" class="chapter-scroll-bar">
-      <button
-        v-for="(ch, idx) in chaptersList"
-        :key="ch.id || ch.chapterId"
-        class="ch-pill"
-        :class="{ active: (ch.id || ch.chapterId) === selectedChapterId }"
-        @click="changeChapter(ch.id || ch.chapterId)"
-      >
-        <span class="ch-idx">{{ String(idx + 1).padStart(2, '0') }}</span>
-        <span>{{ ch.title }}</span>
-      </button>
-    </div>
-
-    <!-- 核心闭目大字沉浸视界 -->
-    <section class="zen-focus-box">
-      <div class="zen-title-wrap">
-        <span class="zen-ornament">◈</span>
-        <h2 class="zen-book-title">{{ extractText(bookMeta?.title) }}</h2>
-        <p v-if="chaptersList.length > 1" class="zen-chapter-title">
-          {{ extractText(chapterData?.title) }}
-        </p>
+  <div class="zen-station-viewport">
+    <!-- 顶部：沉静典雅的经题微印章（点击可纵向自如挑选经卷与品目，无臃肿横向小滑块） -->
+    <div class="sutra-header-bar" @click="isChapterDrawerOpen = true">
+      <div class="sutra-select-pill">
+        <span class="pill-ornament">◈</span>
+        <span class="pill-title">{{ extractText(bookMeta?.title) }}</span>
+        <span v-if="chaptersList.length > 1" class="pill-divider">·</span>
+        <span v-if="chaptersList.length > 1" class="pill-chapter">{{ extractText(chapterData?.title) }}</span>
+        <svg class="pill-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
       </div>
+    </div>
 
-      <!-- 当前念诵经句微光呼吸 -->
-      <div class="zen-verse-card" :class="{ 'is-playing': isPlaying }">
-        <p class="verse-text">
-          “{{ currentLineText }}”
-        </p>
+    <!-- 中腹：空灵沉静的大字闭目视界（彻底去除多余大方块边框，空生万物） -->
+    <section class="zen-sacred-center">
+      <div class="sacred-seal">◈</div>
+      <h2 class="sacred-book-title">{{ extractText(bookMeta?.title) }}</h2>
+      <p class="sacred-chapter-title">
+        {{ chaptersList.length > 1 ? extractText(chapterData?.title) : (bookMeta?.author || '唐三藏法师玄奘奉诏译') }}
+      </p>
+
+      <!-- 当前诵读金句微光呼吸流转（纯粹大字浮于虚空，伴随声音轻柔呼吸） -->
+      <div class="sacred-verse-glow" :class="{ 'is-playing': isPlaying }">
+        <p class="sacred-verse-text">“{{ currentLineText }}”</p>
       </div>
     </section>
 
-    <!-- 进阶修持三大控制区（舒展宽裕，互不挤占） -->
-    <div class="zen-deck">
-      <!-- 控制行 1：持诵流转模式 -->
-      <div class="deck-row">
-        <span class="row-label">持诵流转</span>
-        <div class="row-buttons">
-          <button 
-            class="deck-chip" 
-            :class="{ active: playMode === 'sequence' }"
-            @click="playMode = 'sequence'"
-          >
-            连播全卷
-          </button>
-          <button 
-            class="deck-chip" 
-            :class="{ active: playMode === 'single' }"
-            @click="playMode = 'single'"
-          >
-            单品听诵
-          </button>
-          <button 
-            class="deck-chip" 
-            :class="{ active: playMode === 'repeat-one' }"
-            @click="playMode = 'repeat-one'"
-          >
-            循环持诵
-          </button>
-        </div>
+    <!-- 底部：专业随身听底座（保留手感极佳的大播放键组，上方融入极简调谐一行） -->
+    <div class="zen-player-deck">
+      <!-- 极简器物微调谐栏（只占单行，告别表单堆叠） -->
+      <div class="tuning-bar">
+        <!-- 循环模式切选 -->
+        <button 
+          class="tune-btn" 
+          :class="{ active: playMode === 'repeat-one' }" 
+          @click="cyclePlayMode"
+          title="切换持诵流转模式"
+        >
+          <svg v-if="playMode === 'sequence'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
+            <path d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"/>
+          </svg>
+          <svg v-else-if="playMode === 'single'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
+            <path d="M5 12h13M13 6l6 6-6 6"/>
+          </svg>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
+            <path d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"/>
+            <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+          </svg>
+          <span>{{ playModeLabel }}</span>
+        </button>
+
+        <span class="tune-sep">·</span>
+
+        <!-- 音色无缝接续切换 -->
+        <button 
+          class="tune-btn" 
+          @click="onVoiceChange(selectedVoice === 'female' ? 'male' : 'female')"
+          title="切换持诵法音"
+        >
+          <svg v-if="selectedVoice === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
+            <path d="M12 3a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9s9-4.03 9-9a9 9 0 0 0-9-9z" opacity="0.3"/>
+            <path d="M12 7c-2 2.5-3 5-3 7a3 3 0 0 0 6 0c0-2-1-4.5-3-7z"/>
+          </svg>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
+            <path d="M4 20h16M6 20v-7a6 6 0 0 1 12 0v7M12 4v3"/>
+          </svg>
+          <span>{{ selectedVoice === 'female' ? '莲华女声' : '暮钟男声' }}</span>
+        </button>
+
+        <span class="tune-sep">·</span>
+
+        <!-- 禅修定时设定 -->
+        <button 
+          class="tune-btn" 
+          :class="{ active: sleepTimerMinutes !== 0 }" 
+          @click="isTimerModalOpen = true"
+          title="设定禅修定时"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>{{ timerSummaryText }}</span>
+        </button>
       </div>
 
-      <!-- 控制行 2：禅修/睡前定时 -->
-      <div class="deck-row">
-        <div class="row-label-wrap">
-          <span class="row-label">禅修定时</span>
-          <span v-if="remainingTimerFormatted" class="timer-countdown">⏳ {{ remainingTimerFormatted }}</span>
-        </div>
-        <div class="row-buttons">
-          <button
-            v-for="opt in timerOptions"
-            :key="opt.value"
-            class="deck-chip"
-            :class="{ active: sleepTimerMinutes === opt.value }"
-            @click="setSleepTimer(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- 控制行 3：双法音声线切换 -->
-      <div class="deck-row">
-        <span class="row-label">持诵法音</span>
-        <div class="row-buttons">
-          <button 
-            class="deck-chip" 
-            :class="{ active: selectedVoice === 'female' }"
-            @click="onVoiceChange('female')"
-          >
-            清平女声 · 莲华
-          </button>
-          <button 
-            class="deck-chip" 
-            :class="{ active: selectedVoice === 'male' }"
-            @click="onVoiceChange('male')"
-          >
-            沉稳男声 · 暮钟
-          </button>
-        </div>
-      </div>
-
-      <!-- 进度条区 -->
-      <div class="zen-progress-section">
+      <!-- 进度条区（舒展宽裕） -->
+      <div class="progress-section">
         <div class="progress-track-wrap" @click="onProgressClick">
           <div class="progress-track">
             <div class="progress-fill" :style="{ width: `${progress}%` }"></div>
@@ -396,7 +388,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- 主控制轮盘（大号播放键 + 上下品切换） -->
+      <!-- 用户喜爱的大播放键控制台（原汁原味保留尺寸、手感与呼吸动画） -->
       <div class="zen-master-controls">
         <button 
           class="step-btn" 
@@ -442,253 +434,272 @@ onUnmounted(() => {
         <span class="portal-arrow">→</span>
       </div>
     </div>
+
+    <!-- 弹窗一：经卷与品目选择抽屉（竖向纵列 32 品，纵向滑动自如，无限扩展） -->
+    <transition name="drawer-fade">
+      <div v-if="isChapterDrawerOpen" class="modal-overlay" @click.self="isChapterDrawerOpen = false">
+        <div class="modal-sheet">
+          <div class="sheet-header">
+            <div class="sheet-title-box">
+              <h3>经 卷 选 择</h3>
+              <p>请点选经典与品目</p>
+            </div>
+            <button class="sheet-close" @click="isChapterDrawerOpen = false">×</button>
+          </div>
+
+          <!-- 经书切换标签 -->
+          <div class="sheet-book-tabs">
+            <button 
+              v-for="item in catalog" 
+              :key="item.id" 
+              class="book-tab-btn" 
+              :class="{ active: selectedBookId === item.id }"
+              @click="switchBook(item.id)"
+            >
+              {{ item.id === 'xinjing' ? '心经' : '金刚经' }}
+            </button>
+          </div>
+
+          <!-- 纵向品目列表 -->
+          <div class="sheet-chapter-list">
+            <div 
+              v-for="(ch, idx) in chaptersList" 
+              :key="ch.id || ch.chapterId"
+              class="sheet-ch-item"
+              :class="{ active: (ch.id || ch.chapterId) === selectedChapterId }"
+              @click="changeChapter(ch.id || ch.chapterId, isPlaying)"
+            >
+              <div class="ch-meta">
+                <span class="ch-idx-num">{{ String(idx + 1).padStart(2, '0') }}</span>
+                <span class="ch-name">{{ ch.title }}</span>
+              </div>
+              <span v-if="(ch.id || ch.chapterId) === selectedChapterId" class="ch-playing-badge">当前诵读</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- 弹窗二：禅修定时轻雅气泡（单点即定，无需繁琐键盘输入） -->
+    <transition name="drawer-fade">
+      <div v-if="isTimerModalOpen" class="modal-overlay" @click.self="isTimerModalOpen = false">
+        <div class="timer-sheet">
+          <div class="timer-sheet-header">
+            <span class="sheet-ornament">◈</span>
+            <h4>禅 修 定 时</h4>
+            <p>定时停止前 8 秒音量平滑渐弱淡出</p>
+          </div>
+
+          <div class="timer-option-grid">
+            <button
+              v-for="opt in timerOptions"
+              :key="opt.value"
+              class="timer-opt-chip"
+              :class="{ active: sleepTimerMinutes === opt.value }"
+              @click="selectTimerOption(opt.value)"
+            >
+              <span>{{ opt.label }}</span>
+            </button>
+          </div>
+
+          <button class="timer-sheet-cancel" @click="isTimerModalOpen = false">取消</button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <style scoped>
-.zen-station-wrapper {
-  animation: fadeIn 0.8s ease both;
+/* 一屏沉浸容器：彻底消灭向下滚动 */
+.zen-station-viewport {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  justify-content: space-between;
+  min-height: calc(100vh - 190px);
+  gap: 16px;
+  animation: fadeIn 0.6s ease both;
 }
 
-/* 顶部经卷切换药丸 */
-.sutra-selector {
+/* 顶部：经题印章选择器 */
+.sutra-header-bar {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  margin-top: 4px;
 }
 
-.sutra-chip {
+.sutra-select-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 18px;
+  padding: 5px 16px;
   border-radius: 9999px;
-  background: rgba(22, 22, 28, 0.7);
-  border: 1px solid rgba(212, 165, 116, 0.2);
-  color: var(--text-muted);
+  background: rgba(22, 22, 30, 0.65);
+  border: 1px solid rgba(212, 165, 116, 0.22);
+  color: var(--text-primary);
   font-family: 'Noto Serif SC', serif;
   font-size: 13px;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   cursor: pointer;
+  backdrop-filter: blur(12px);
   transition: all 0.25s ease;
+  max-width: 92%;
 }
 
-.sutra-chip:hover {
-  border-color: rgba(212, 165, 116, 0.45);
-  color: var(--text-primary);
+.sutra-select-pill:hover {
+  border-color: rgba(212, 165, 116, 0.5);
+  background: rgba(212, 165, 116, 0.1);
+  transform: translateY(-1px);
 }
 
-.sutra-chip.active {
-  background: rgba(212, 165, 116, 0.16);
-  border-color: rgba(212, 165, 116, 0.65);
+.pill-ornament {
   color: var(--gold);
+  font-size: 11px;
+}
+
+.pill-title {
   font-weight: 600;
-  box-shadow: 0 0 16px rgba(212, 165, 116, 0.15);
-}
-
-.chip-ornament {
-  font-size: 10px;
-  opacity: 0.6;
-}
-
-/* 章节横滑条（针对金刚经等长篇） */
-.chapter-scroll-bar {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 4px 4px 10px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-behavior: smooth;
-}
-
-.chapter-scroll-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.ch-pill {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  background: rgba(26, 26, 34, 0.6);
-  border: 1px solid rgba(212, 165, 116, 0.15);
-  color: var(--text-muted);
-  font-family: 'Noto Serif SC', serif;
-  font-size: 11.5px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ch-pill:hover {
-  color: var(--text-primary);
-  border-color: rgba(212, 165, 116, 0.35);
-}
-
-.ch-pill.active {
-  background: rgba(212, 165, 116, 0.2);
-  border-color: rgba(212, 165, 116, 0.6);
   color: var(--gold);
+  white-space: nowrap;
 }
 
-.ch-idx {
-  font-family: monospace;
-  font-size: 10px;
+.pill-divider {
+  color: rgba(212, 165, 116, 0.4);
+}
+
+.pill-chapter {
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pill-arrow {
+  color: var(--gold);
   opacity: 0.7;
+  flex-shrink: 0;
+  margin-left: 2px;
 }
 
-/* 沉浸大字闭目视界 */
-.zen-focus-box {
+/* 中腹：空生万物的神圣留白大字 */
+.zen-sacred-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 18px 12px 10px;
+  padding: 16px 12px;
+  min-height: 180px;
 }
 
-.zen-title-wrap {
-  margin-bottom: 20px;
-}
-
-.zen-ornament {
+.sacred-seal {
   font-size: 14px;
   color: var(--gold);
   opacity: 0.5;
   letter-spacing: 6px;
-  display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-.zen-book-title {
+.sacred-book-title {
   margin: 0 0 6px;
-  font-size: 21px;
+  font-size: 24px;
   font-family: 'Noto Serif SC', serif;
   color: var(--text-primary);
-  letter-spacing: 4px;
+  letter-spacing: 6px;
   font-weight: 700;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
-.zen-chapter-title {
-  margin: 0;
-  font-size: 13.5px;
+.sacred-chapter-title {
+  margin: 0 0 20px;
+  font-size: 14px;
   font-family: 'Noto Serif SC', 'KaiTi', serif;
   color: var(--gold-dim);
   letter-spacing: 2px;
 }
 
-.zen-verse-card {
-  padding: 24px 20px;
-  background: rgba(22, 22, 30, 0.45);
-  border: 1px solid rgba(212, 165, 116, 0.14);
-  border-radius: 16px;
-  min-height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.4);
+.sacred-verse-glow {
+  max-width: 480px;
+  padding: 8px 16px;
   transition: all 0.5s ease;
 }
 
-.zen-verse-card.is-playing {
-  border-color: rgba(212, 165, 116, 0.32);
-  background: rgba(28, 28, 38, 0.6);
-  box-shadow: 0 0 28px rgba(212, 165, 116, 0.08), inset 0 0 32px rgba(212, 165, 116, 0.04);
-}
-
-.verse-text {
+.sacred-verse-text {
   margin: 0;
-  font-size: 15.5px;
+  font-size: 16px;
   font-family: 'Noto Serif SC', 'KaiTi', serif;
-  color: var(--text-primary);
+  color: var(--text-muted);
   line-height: 1.85;
   letter-spacing: 2px;
-  text-align: center;
   transition: all 0.35s ease;
 }
 
-.zen-verse-card.is-playing .verse-text {
+.sacred-verse-glow.is-playing .sacred-verse-text {
   color: var(--gold);
-  text-shadow: 0 0 16px rgba(212, 165, 116, 0.35);
+  text-shadow: 0 0 20px rgba(212, 165, 116, 0.45);
 }
 
-/* 控制台底板 */
-.zen-deck {
-  background: rgba(18, 18, 26, 0.7);
-  border: 1px solid rgba(212, 165, 116, 0.16);
-  border-radius: 20px;
-  padding: 20px 20px 24px;
+/* 底部：专业随身听底座 */
+.zen-player-deck {
+  background: rgba(18, 18, 26, 0.75);
+  border: 1px solid rgba(212, 165, 116, 0.18);
+  border-radius: 22px;
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  gap: 14px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
-.deck-row {
+/* 极简调谐一行 */
+.tuning-bar {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.deck-row .row-label-wrap,
-.deck-row .row-label {
-  font-size: 12px;
-  font-family: 'Noto Serif SC', serif;
-  color: var(--text-muted);
-  letter-spacing: 1.5px;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-around;
+  padding: 4px 6px 6px;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.1);
 }
 
-.timer-countdown {
-  font-family: monospace;
-  font-size: 11.5px;
-  color: var(--gold);
-}
-
-.row-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.deck-chip {
-  background: rgba(212, 165, 116, 0.05);
-  border: 1px solid rgba(212, 165, 116, 0.16);
-  border-radius: 9999px;
-  padding: 4px 12px;
-  font-size: 12px;
-  font-family: 'Noto Serif SC', serif;
+.tune-btn {
+  background: none;
+  border: none;
   color: var(--text-muted);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
-.deck-chip:hover {
-  border-color: rgba(212, 165, 116, 0.35);
+.tune-btn:hover {
   color: var(--text-primary);
 }
 
-.deck-chip.active {
-  background: rgba(212, 165, 116, 0.18);
-  border-color: rgba(212, 165, 116, 0.6);
+.tune-btn.active {
   color: var(--gold);
   font-weight: 600;
 }
 
+.tune-sep {
+  color: rgba(212, 165, 116, 0.25);
+  font-size: 12px;
+}
+
 /* 进度条 */
-.zen-progress-section {
+.progress-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 4px;
 }
 
 .progress-track-wrap {
-  padding: 8px 0;
+  padding: 6px 0;
   cursor: pointer;
 }
 
@@ -719,7 +730,7 @@ onUnmounted(() => {
 .progress-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 10.5px;
   font-family: monospace;
   color: var(--text-muted);
 }
@@ -729,15 +740,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  margin-top: 6px;
+  gap: 26px;
 }
 
 .step-btn {
   background: none;
   border: 1px solid rgba(212, 165, 116, 0.2);
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   color: var(--text-muted);
   display: flex;
@@ -748,7 +758,7 @@ onUnmounted(() => {
 }
 
 .step-btn:hover:not(:disabled) {
-  border-color: rgba(212, 165, 116, 0.5);
+  border-color: rgba(212, 165, 116, 0.55);
   color: var(--gold);
   transform: scale(1.05);
 }
@@ -794,10 +804,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 10px;
   color: var(--gold-dim);
   font-family: 'Noto Serif SC', serif;
-  font-size: 12.5px;
+  font-size: 12px;
   letter-spacing: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -816,8 +825,253 @@ onUnmounted(() => {
   transform: translateX(3px);
 }
 
+/* 模态遮罩 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* 经卷选择抽屉 */
+.modal-sheet {
+  background: rgba(18, 18, 26, 0.95);
+  border-top: 1px solid rgba(212, 165, 116, 0.25);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 580px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 32px;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8);
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.12);
+}
+
+.sheet-title-box h3 {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.sheet-title-box p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.sheet-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sheet-book-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.book-tab-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(212, 165, 116, 0.06);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  color: var(--text-muted);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.book-tab-btn.active {
+  background: rgba(212, 165, 116, 0.18);
+  border-color: rgba(212, 165, 116, 0.6);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.sheet-chapter-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.sheet-ch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sheet-ch-item:hover {
+  background: rgba(212, 165, 116, 0.08);
+}
+
+.sheet-ch-item.active {
+  background: rgba(212, 165, 116, 0.16);
+  border-left: 3px solid var(--gold);
+}
+
+.ch-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ch-idx-num {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  width: 22px;
+}
+
+.sheet-ch-item.active .ch-idx-num {
+  color: var(--gold);
+  font-weight: bold;
+}
+
+.ch-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+
+.sheet-ch-item.active .ch-name {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.ch-playing-badge {
+  font-size: 11px;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--gold);
+  background: rgba(212, 165, 116, 0.12);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(212, 165, 116, 0.3);
+}
+
+/* 定时气泡小面板 */
+.timer-sheet {
+  background: rgba(18, 18, 26, 0.96);
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  border-radius: 20px;
+  width: calc(100% - 32px);
+  max-width: 440px;
+  margin-bottom: 24px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+}
+
+.timer-sheet-header {
+  margin-bottom: 18px;
+}
+
+.sheet-ornament {
+  font-size: 13px;
+  color: var(--gold);
+  opacity: 0.6;
+}
+
+.timer-sheet-header h4 {
+  margin: 4px 0;
+  font-size: 17px;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.timer-sheet-header p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.timer-option-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.timer-opt-chip {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(212, 165, 116, 0.06);
+  border: 1px solid rgba(212, 165, 116, 0.18);
+  color: var(--text-primary);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timer-opt-chip:hover {
+  border-color: rgba(212, 165, 116, 0.45);
+  background: rgba(212, 165, 116, 0.12);
+}
+
+.timer-opt-chip.active {
+  background: rgba(212, 165, 116, 0.22);
+  border-color: rgba(212, 165, 116, 0.65);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.timer-sheet-cancel {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-family: 'Noto Serif SC', serif;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.timer-sheet-cancel:hover {
+  color: var(--text-primary);
+}
+
+/* 过渡动效 */
+.drawer-fade-enter-active,
+.drawer-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.drawer-fade-enter-from,
+.drawer-fade-leave-to {
+  opacity: 0;
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
