@@ -5,6 +5,7 @@ import SutraHeader from '../components/SutraHeader.vue'
 import ModeSelector from '../components/ModeSelector.vue'
 import SutraBody from '../components/SutraBody.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
+import SearchModal from '../components/SearchModal.vue'
 import { useAudioSync } from '../composables/useAudioSync.js'
 
 const route = useRoute()
@@ -15,6 +16,7 @@ const chapterData = shallowRef(null)
 const mode = ref(route.query.mode || 'reading')
 const showDrawer = ref(false)
 const isLoading = ref(true)
+const isSearchOpen = ref(false)
 
 function extractText(val) {
   if (!val) return ''
@@ -28,9 +30,56 @@ function extractText(val) {
 const bookId = computed(() => route.params.bookId)
 const chapterId = computed(() => route.params.chapterId || 'chapter_1')
 
-const autoPlayNext = ref(localStorage.getItem('chanyue_autoplay') !== 'false')
-watch(autoPlayNext, (val) => {
-  localStorage.setItem('chanyue_autoplay', val)
+/** 持诵播放模式: 'sequence' (连诵) | 'single' (单品) | 'repeat-one' (单品循环) */
+const playMode = ref(localStorage.getItem('chanyue_playmode') || (localStorage.getItem('chanyue_autoplay') !== 'false' ? 'sequence' : 'single'))
+watch(playMode, (val) => {
+  localStorage.setItem('chanyue_playmode', val)
+  localStorage.setItem('chanyue_autoplay', val === 'sequence')
+})
+
+/** 禅修 / 睡前定时关闭 (分钟): 0(不限), 15, 30, 45, -1(播完本品) */
+const sleepTimerMinutes = ref(0)
+const sleepTimerRemaining = ref(0)
+let sleepTimerInterval = null
+
+const timerOptions = [
+  { label: '不限', value: 0 },
+  { label: '15分', value: 15 },
+  { label: '30分', value: 30 },
+  { label: '45分', value: 45 },
+  { label: '播完即止', value: -1 },
+]
+
+function setSleepTimer(val) {
+  sleepTimerMinutes.value = val
+  if (sleepTimerInterval) {
+    clearInterval(sleepTimerInterval)
+    sleepTimerInterval = null
+  }
+  if (val > 0) {
+    sleepTimerRemaining.value = val * 60
+    sleepTimerInterval = setInterval(() => {
+      sleepTimerRemaining.value--
+      if (sleepTimerRemaining.value === 8) {
+        fadeOutAndStop(8000)
+      }
+      if (sleepTimerRemaining.value <= 0) {
+        clearInterval(sleepTimerInterval)
+        sleepTimerInterval = null
+        sleepTimerMinutes.value = 0
+      }
+    }, 1000)
+  } else {
+    sleepTimerRemaining.value = 0
+  }
+}
+
+const remainingTimerFormatted = computed(() => {
+  if (sleepTimerMinutes.value === -1) return '播完本品即停'
+  if (sleepTimerRemaining.value <= 0) return ''
+  const m = Math.floor(sleepTimerRemaining.value / 60)
+  const s = sleepTimerRemaining.value % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
 })
 
 let autoPlayTimer = null
@@ -79,9 +128,15 @@ const {
   seekByPercent,
   updateMediaSession,
   playNextTrack,
+  fadeOutAndStop,
 } = useAudioSync(paragraphsRef, {
+  getPlayMode: () => playMode.value,
   onEnded: () => {
-    if (autoPlayNext.value && nextChapter.value) {
+    if (sleepTimerMinutes.value === -1) {
+      sleepTimerMinutes.value = 0
+      return
+    }
+    if (playMode.value === 'sequence' && nextChapter.value) {
       const nextId = nextChapter.value.id || nextChapter.value.chapterId
       const audioUrl = getVoiceAudioUrl(`/audio/${bookId.value}/${nextId}.mp3`, selectedVoice.value)
       // 零延迟同步接力：在同一个同步栈内切 src + play()
@@ -238,6 +293,22 @@ async function loadChapterData() {
         time: Date.now()
       }))
     } catch (e) {}
+
+    // 若携带索经定位参数 hl，平滑滚动至对应经文并微光闪烁
+    if (route.query.hl) {
+      setTimeout(() => {
+        const needle = decodeURIComponent(route.query.hl)
+        const allLines = document.querySelectorAll('.sutra-line')
+        for (const el of allLines) {
+          if (el.textContent.includes(needle)) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            el.classList.add('search-jump-flash')
+            setTimeout(() => el.classList.remove('search-jump-flash'), 2500)
+            break
+          }
+        }
+      }, 500)
+    }
   } catch (err) {
     console.error('Failed to load chapter data', err)
   } finally {
@@ -290,12 +361,24 @@ function handleToggle() {
         <span class="nav-btn-text">返回书阁</span>
       </button>
 
-      <button v-if="bookMeta && bookMeta.chapters && bookMeta.chapters.length > 1" class="nav-top-btn" @click.stop="toggleDrawer">
-        <span class="nav-btn-text">经卷目录</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12" class="nav-btn-icon">
-          <path d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
+      <div class="flex items-center gap-2 pointer-events-auto">
+        <!-- 索经 -->
+        <button class="nav-top-btn" @click.stop="isSearchOpen = true" title="跨经全文检索 (Cmd/Ctrl+K)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" class="nav-btn-icon">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="nav-btn-text">索经</span>
+        </button>
+
+        <!-- 经卷目录 / 经卷面板 -->
+        <button v-if="bookMeta" class="nav-top-btn" @click.stop="toggleDrawer">
+          <span class="nav-btn-text">{{ (bookMeta.chapters && bookMeta.chapters.length > 1) ? '经卷目录' : '经卷面板' }}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12" class="nav-btn-icon">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Chapter Drawer (器物级经卷目录抽屉) -->
@@ -304,31 +387,63 @@ function handleToggle() {
         <div class="drawer-content" @click.stop>
           <div class="drawer-header">
             <div class="drawer-title-box">
-              <h3>经卷目录</h3>
-              <p class="drawer-subtitle">{{ extractText(bookMeta?.title) }} · 共 {{ bookMeta?.chapters?.length }} 品</p>
+              <h3>{{ (bookMeta?.chapters && bookMeta?.chapters.length > 1) ? '经卷目录' : '经卷面板' }}</h3>
+              <p class="drawer-subtitle">{{ extractText(bookMeta?.title) }}{{ bookMeta?.chapters?.length > 1 ? ` · 共 ${bookMeta?.chapters?.length} 品` : ' · 全文纯享' }}</p>
             </div>
             <button class="close-btn" @click="toggleDrawer">×</button>
           </div>
           <div class="drawer-body">
-            <div 
-              v-for="(chapter, idx) in bookMeta.chapters" 
-              :key="chapter.id || chapter.chapterId"
-              class="chapter-item"
-              :class="{ active: (chapter.id || chapter.chapterId) === chapterId }"
-              @click="selectChapter(chapter.id || chapter.chapterId)"
-            >
-              <div class="ch-left">
-                <span class="ch-num">{{ String(idx + 1).padStart(2, '0') }}</span>
-                <span class="ch-title">{{ chapter.title }}</span>
+            <!-- 多章节目录列表（如金刚经） -->
+            <template v-if="bookMeta?.chapters && bookMeta?.chapters.length > 1">
+              <div 
+                v-for="(chapter, idx) in bookMeta.chapters" 
+                :key="chapter.id || chapter.chapterId"
+                class="chapter-item"
+                :class="{ active: (chapter.id || chapter.chapterId) === chapterId }"
+                @click="selectChapter(chapter.id || chapter.chapterId)"
+              >
+                <div class="ch-left">
+                  <span class="ch-num">{{ String(idx + 1).padStart(2, '0') }}</span>
+                  <span class="ch-title">{{ chapter.title }}</span>
+                </div>
+                <span v-if="bookId === 'jingangjing' && idx < 8" class="badge-audio">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19 12a7 7 0 0 0-14 0" opacity="0.6"/>
+                  </svg>
+                  双音色
+                </span>
+                <span v-else class="badge-text">墨读</span>
               </div>
-              <span v-if="bookId === 'jingangjing' && idx < 8" class="badge-audio">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M19 12a7 7 0 0 0-14 0" opacity="0.6"/>
-                </svg>
-                双音色
-              </span>
-              <span v-else class="badge-text">墨读</span>
+            </template>
+
+            <!-- 单章节典籍（如心经） -->
+            <div v-else class="drawer-single-desc">
+              <span class="single-ornament">◈</span>
+              <h4>{{ extractText(bookMeta?.title) }}</h4>
+              <p class="single-author">{{ bookMeta?.author || '唐三藏法师玄奘奉诏译' }}</p>
+              <p class="single-summary">全经二百六十言，摄大乘般若之精髓，照见五蕴皆空，度脱一切苦厄。</p>
+            </div>
+          </div>
+
+          <!-- 抽屉底栏：禅修定时区 -->
+          <div class="drawer-footer">
+            <div class="timer-section">
+              <div class="timer-header">
+                <span class="timer-title">◈ 禅修定时</span>
+                <span class="timer-status">{{ remainingTimerFormatted ? `⏳ ${remainingTimerFormatted}` : '不限时长' }}</span>
+              </div>
+              <div class="timer-chips">
+                <button
+                  v-for="opt in timerOptions"
+                  :key="opt.value"
+                  class="timer-chip"
+                  :class="{ active: sleepTimerMinutes === opt.value }"
+                  @click="setSleepTimer(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -395,13 +510,16 @@ function handleToggle() {
           :progress="progress"
           :voice="selectedVoice"
           @update:voice="onVoiceChange"
-          v-model:autoPlay="autoPlayNext"
+          v-model:playMode="playMode"
           @toggle="handleToggle"
           @seek="seekByPercent"
           class="audio-player-fixed"
         />
       </transition>
     </template>
+
+    <!-- 全藏索经弹窗 -->
+    <SearchModal v-model:visible="isSearchOpen" />
   </div>
 </template>
 
@@ -608,6 +726,106 @@ function handleToggle() {
   flex-shrink: 0;
 }
 
+/* 抽屉底栏：禅修定时 */
+.drawer-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(212, 165, 116, 0.14);
+  background: rgba(14, 14, 18, 0.7);
+}
+
+.timer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timer-title {
+  font-size: 12.5px;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+.timer-status {
+  font-size: 11.5px;
+  font-family: monospace;
+  color: var(--text-muted);
+}
+
+.timer-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.timer-chip {
+  background: rgba(212, 165, 116, 0.06);
+  border: 1px solid rgba(212, 165, 116, 0.18);
+  border-radius: 9999px;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timer-chip:hover {
+  border-color: rgba(212, 165, 116, 0.35);
+  color: var(--text-primary);
+}
+
+.timer-chip.active {
+  background: rgba(212, 165, 116, 0.2);
+  border-color: rgba(212, 165, 116, 0.55);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.drawer-single-desc {
+  padding: 40px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.single-ornament {
+  font-size: 16px;
+  color: var(--gold);
+  opacity: 0.6;
+}
+
+.drawer-single-desc h4 {
+  font-size: 18px;
+  color: var(--text-primary);
+  font-family: 'Noto Serif SC', serif;
+  letter-spacing: 3px;
+  margin: 0;
+}
+
+.single-author {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-family: 'Noto Serif SC', serif;
+  margin: 0 0 8px;
+}
+
+.single-summary {
+  font-size: 13px;
+  color: var(--gold-dim);
+  font-family: 'Noto Serif SC', serif;
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
@@ -641,5 +859,15 @@ function handleToggle() {
 
 .audio-player-fixed {
   z-index: 100;
+}
+
+:deep(.search-jump-flash) {
+  border-radius: 8px;
+  animation: searchGlow 2.5s ease-out;
+}
+
+@keyframes searchGlow {
+  0% { background: rgba(212, 165, 116, 0.35); box-shadow: 0 0 20px rgba(212, 165, 116, 0.4); }
+  100% { background: transparent; box-shadow: none; }
 }
 </style>

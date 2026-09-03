@@ -93,6 +93,12 @@ export function useAudioSync(paragraphs, options = {}) {
   audio.addEventListener('ended', () => {
     isPlaying.value = false
     stopLoop()
+    // 检查是否开启单品循环
+    if (options.getPlayMode && options.getPlayMode() === 'repeat-one') {
+      audio.currentTime = 0
+      safePlay()
+      return
+    }
     // 连播由外部通过 playNextTrack 在同步栈内完成
     if (options.onEnded) options.onEnded()
   })
@@ -226,7 +232,35 @@ export function useAudioSync(paragraphs, options = {}) {
     }
   }
 
+  let _fadeTimer = null
+
+  /**
+   * 暮钟式音量平滑渐弱停止 (Sleep Timer Fade-out)
+   * 在指定毫秒内将音量以对数/线性曲线从当前衰减至 0，随后暂停并复原音量基准
+   */
+  function fadeOutAndStop(durationMs = 8000) {
+    if (!isPlaying.value && audio.paused) return
+    if (_fadeTimer) clearInterval(_fadeTimer)
+    const steps = 20
+    const stepTime = Math.max(50, Math.floor(durationMs / steps))
+    const initialVol = audio.volume || 1.0
+    let currentStep = 0
+
+    _fadeTimer = setInterval(() => {
+      currentStep++
+      const factor = Math.max(0, 1 - currentStep / steps)
+      audio.volume = initialVol * factor
+      if (currentStep >= steps || audio.volume <= 0.02) {
+        clearInterval(_fadeTimer)
+        _fadeTimer = null
+        pause()
+        audio.volume = 1.0
+      }
+    }, stepTime)
+  }
+
   onUnmounted(() => {
+    if (_fadeTimer) clearInterval(_fadeTimer)
     _intendPlaying = false
     stopLoop()
     audio.pause()
@@ -249,5 +283,6 @@ export function useAudioSync(paragraphs, options = {}) {
     seekByPercent,
     updateMediaSession,
     playNextTrack,
+    fadeOutAndStop,
   }
 }

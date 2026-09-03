@@ -11,13 +11,17 @@ const props = defineProps({
   isPlaying: Boolean,
   progress: Number,
   autoPlay: Boolean,
+  playMode: {
+    type: String,
+    default: 'sequence' // 'sequence' | 'single' | 'repeat-one'
+  },
   voice: {
     type: String,
     default: 'female'
   }
 })
 
-const emit = defineEmits(['toggle', 'seek', 'update:autoPlay', 'update:voice'])
+const emit = defineEmits(['toggle', 'seek', 'update:autoPlay', 'update:playMode', 'update:voice'])
 
 /** 格式化时间 mm:ss */
 function fmt(sec) {
@@ -28,6 +32,26 @@ function fmt(sec) {
 }
 
 const timeDisplay = computed(() => `${fmt(props.currentTime)} / ${fmt(props.duration)}`)
+
+/** 三态持诵流转: 连诵 -> 单品 -> 循环 -> 连诵 */
+function cyclePlayMode() {
+  const modes = ['sequence', 'single', 'repeat-one']
+  const curIdx = modes.indexOf(props.playMode || 'sequence')
+  const next = modes[(curIdx + 1) % modes.length]
+  emit('update:playMode', next)
+  emit('update:autoPlay', next === 'sequence')
+}
+
+const currentModeInfo = computed(() => {
+  const m = props.playMode || (props.autoPlay ? 'sequence' : 'single')
+  if (m === 'repeat-one') {
+    return { mode: 'repeat-one', label: '循环', title: '当前：单品循环诵读，点击切换为连续连诵' }
+  }
+  if (m === 'single') {
+    return { mode: 'single', label: '单品', title: '当前：单品播完即止，点击切换为单品循环' }
+  }
+  return { mode: 'sequence', label: '连诵', title: '当前：全卷连续诵读，点击切换为单品诵读' }
+})
 
 /** 进度条点击 seek */
 function onProgressClick(e) {
@@ -93,18 +117,31 @@ function onProgressClick(e) {
 
     <button 
       class="auto-play-btn" 
-      :class="autoPlay ? 'is-on' : 'is-off'"
-      @click="emit('update:autoPlay', !autoPlay)"
-      :title="autoPlay ? '自动连播：已开启' : '自动连播：已关闭'"
+      :class="[`is-${currentModeInfo.mode}`]"
+      @click="cyclePlayMode"
+      :title="currentModeInfo.title"
     >
-      <!-- 连播：循环回溯细线图标 -->
-      <svg class="loop-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+      <!-- 连诵图标 (sequence) -->
+      <svg v-if="currentModeInfo.mode === 'sequence'" class="loop-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
         <path d="M17 2l4 4-4 4"/>
         <path d="M3 11v-1a4 4 0 0 1 4-4h14"/>
         <path d="M7 22l-4-4 4-4"/>
         <path d="M21 13v1a4 4 0 0 1-4 4H3"/>
       </svg>
-      <span>{{ autoPlay ? '连播' : '单品' }}</span>
+      <!-- 单品图标 (single) -->
+      <svg v-else-if="currentModeInfo.mode === 'single'" class="loop-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+        <path d="M5 12h13"/>
+        <path d="M13 6l6 6-6 6"/>
+      </svg>
+      <!-- 单品循环图标 (repeat-one) -->
+      <svg v-else class="loop-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+        <path d="M17 2l4 4-4 4"/>
+        <path d="M3 11v-1a4 4 0 0 1 4-4h14"/>
+        <path d="M7 22l-4-4 4-4"/>
+        <path d="M21 13v1a4 4 0 0 1-4 4H3"/>
+        <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+      </svg>
+      <span>{{ currentModeInfo.label }}</span>
     </button>
   </div>
 </template>
@@ -233,18 +270,25 @@ function onProgressClick(e) {
   transition: all 0.25s ease;
 }
 
-.auto-play-btn.is-on {
+.auto-play-btn.is-sequence {
   color: rgba(212, 175, 55, 0.9);
-  background: rgba(212, 175, 55, 0.06);
+  background: rgba(212, 175, 55, 0.08);
 }
 
-.auto-play-btn.is-off {
+.auto-play-btn.is-single {
   color: var(--text-muted);
+}
+
+.auto-play-btn.is-repeat-one {
+  color: #ffca7a;
+  background: rgba(212, 165, 116, 0.16);
+  border: 1px solid rgba(212, 165, 116, 0.35);
+  box-shadow: 0 0 10px rgba(212, 165, 116, 0.2);
 }
 
 .auto-play-btn:hover {
   color: var(--text-primary);
-  background: rgba(212, 165, 116, 0.08);
+  background: rgba(212, 165, 116, 0.12);
 }
 
 .voice-btn {
