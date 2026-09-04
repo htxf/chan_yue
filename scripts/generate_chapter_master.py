@@ -39,36 +39,62 @@ def get_api_key():
                         return line.strip().split("=", 1)[1].strip().strip('"').strip("'")
     return os.environ.get("GEMINI_API_KEY", "")
 
-# 严谨古汉语及梵音字音强制校正词典（与屏幕拼音注音 100% 同步）
+# 严谨古汉语及梵音字音强制校正词典（全量历史总账，与屏幕拼音注音 100% 同步）
 PHONETIC_REPLACEMENTS = [
-    # 心经
-    ("波罗蜜多故", "波罗蜜哆故"), # duō 一声
-    ("菩提萨婆诃", "菩提萨婆诃"), # sà 四声
+    # ─── 《心经》核心梵音与多音字 ───
+    ("般若波罗蜜多心经", "波惹波罗蜜多心经"),
+    ("般若波罗蜜多", "波惹波罗蜜多"),
+    ("般若", "波惹"),             # bō rě 古梵音正读，杜绝普通话 bān ruò
+    ("菩提萨埵", "菩提萨朵"),     # sà duǒ，杜绝大模型误读为 chuí（锤）
+    ("萨埵", "萨朵"),             # duǒ
+    ("揭谛揭谛", "阶帝阶帝"),     # jiē dì，杜绝升调 jié
+    ("波罗揭谛", "波罗阶帝"),
+    ("波罗僧揭谛", "波罗僧阶帝"),
+    ("菩提萨婆诃", "菩提萨婆呵"), # sà pó hē，杜绝误读为 kē（棵）
+    ("萨婆诃", "萨婆呵"),
+    ("舍利子", "设利子"),         # shè lì zǐ 人名尊称四声，杜绝三声 shě
     ("诸法空相", "诸法空向"),     # xiàng 四声
     ("无明尽", "无明进"),         # jìn 四声
     ("老死尽", "老死进"),         # jìn 四声
-    ("阿耨多罗", "阿诺多罗"),     # ā nuò/nòu 梵汉对音，严格鼻辅音 N
+    ("受想行识", "受想形识"),     # xíng shí
+    ("心无挂碍", "心无挂艾"),     # ài
+    ("无挂碍故", "无挂艾故"),
+    ("阿耨多罗", "阿诺多罗"),     # ā nuò 梵汉对音，严格鼻辅音 N，杜绝 L 漏音
     ("三藐", "三秒"),             # sān miǎo
     ("耶？", "耶。"),             # 消除疑问尾音上扬变调，保持平稳持诵
     ("耶?", "耶。"),
-    # 金刚经
-    ("著衣持钵", "浊衣持钵"),     # zhuó 二声
-    ("着衣持钵", "浊衣持钵"),     # zhuó 二声
+
+    # ─── 《金刚经》问答句式、尊名与名相 ───
+    ("应云何住", "英云何住"),     # yīng，阻断大模型自动纠错为“云何应住”
+    ("应如是住", "英如是住"),     # yīng
+    ("应无所住", "英无所住"),     # yīng
+    ("但应如所教住", "但英如所教住"),
+    ("不应取", "不英取"),
+    ("法尚应舍", "法尚英舍"),
+    ("应云何", "英云何"),
+    ("不也", "否也"),             # fǒu yě 佛经古音正读，杜绝 bù yě
+    ("千二百五十人", "一千二百五十人"), # 保证平稳完整念诵
     ("一时", "意时"),             # yì 四声
     ("祇树给孤独园", "奇树几孤独园"), # qí shù jǐ
     ("饭食讫", "饭食气"),         # qì 四声
     ("长老须菩提", "掌老须菩提"), # zhǎng 三声
+    ("著衣持钵", "浊衣持钵"),     # zhuó 二声
+    ("着衣持钵", "浊衣持钵"),     # zhuó 二声
     ("右膝着地", "右膝浊地"),     # zhuó
     ("愿乐欲闻", "愿要欲闻"),     # yào 四声
+    ("云何降伏", "云何降服"),     # xiáng fú
+    ("降伏其心", "降服其心"),     # xiáng fú
     ("降伏", "降服"),             # xiáng fú
-    ("应云何", "英云何"),         # yīng, 阻断大模型自动纠错为“云何应”
-    ("应如是", "英如是"),         # yīng
-    ("应无所住", "英无所住"),     # yīng
-    ("但应如所教住", "但英如所教住"), # yīng
     ("可思量不", "可思量否"),     # fǒu
     ("见如来不", "见如来否"),     # fǒu
     ("生实信不", "生实信否"),     # fǒu
     ("宁为多不", "宁为多否"),     # fǒu
+    ("四句偈", "四句记"),         # jì 四声
+    ("为他人说", "位他人说"),     # wèi 四声
+    ("其福胜彼", "其福圣彼"),     # shèng 四声
+    ("著我人", "浊我人"),         # zhuó
+
+    # ─── 名相“相”（xiàng 四声）全面锁定 ───
     ("我相", "我向"),             # xiàng
     ("人相", "人向"),             # xiàng
     ("众生相", "众生向"),         # xiàng
@@ -83,21 +109,10 @@ PHONETIC_REPLACEMENTS = [
     ("不住于相", "不住于向"),     # xiàng
     ("不住相", "不住向"),         # xiàng
     ("无住相", "无住向"),         # xiàng
-    ("著我人", "浊我人"),         # zhuó
-    ("不应取", "不英取"),         # yīng
-    ("法尚应舍", "法尚英舍"),     # yīng
-    ("不也", "否也"),             # fǒu yě 佛经古音正读
-    ("四句偈", "四句记"),         # jì 四声
-    ("为他人说", "位他人说"),     # wèi 四声
-    ("其福胜彼", "其福圣彼"),     # shèng 四声
 ]
 
-SANCTUARY_PLUS_FILTER = (
-    "highpass=f=70,"
-    "equalizer=f=150:width_type=h:width=120:g=2.2,"
-    "equalizer=f=10500:width_type=h:width=2500:g=2.8,"
-    "aecho=0.80:0.75:80|160|260:0.22|0.12|0.06"
-)
+# 纯净贴耳干声：去除人工 aecho 混响回声，保持最本真的诵读入静
+CLEAN_DRY_VOICE_FILTER = "highpass=f=50,volume=1.05"
 
 def apply_phonetic_fixes(text: str) -> str:
     res = text
@@ -135,20 +150,13 @@ def synthesize_voice(client, voice_name: str, text: str, out_mp3: str) -> bool:
                     wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(24000)
                     wf.writeframes(pcm)
 
-                tmp_wav = out_mp3 + ".tmp.wav"
                 subprocess.run([
                     "ffmpeg", "-y", "-i", raw_wav.replace('\\', '/'),
-                    "-af", SANCTUARY_PLUS_FILTER,
-                    "-c:a", "pcm_s16le", tmp_wav.replace('\\', '/')
-                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                subprocess.run([
-                    "ffmpeg", "-y", "-i", tmp_wav.replace('\\', '/'),
+                    "-af", CLEAN_DRY_VOICE_FILTER,
                     "-b:a", "192k", out_mp3.replace('\\', '/')
                 ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                 if os.path.exists(raw_wav): os.remove(raw_wav)
-                if os.path.exists(tmp_wav): os.remove(tmp_wav)
                 print(f"   ✅ 合成完成: {out_mp3}", flush=True)
                 return True
             else:
