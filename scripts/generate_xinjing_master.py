@@ -1,13 +1,7 @@
 """
 generate_xinjing_master.py
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-《心经》全篇单次纯正母带生成与毫秒级时间轴对齐流水线
-遵循《禅阅》Zen Audio Master SOP 规范：
-1. 经文全篇单次传入（仅需 2 次 API 调用：女声 1 次 + 男声 1 次，杜绝浪费单日额度）
-2. 保持严谨正统汉字经文，绝不使用同音字替换污染语义
-3. 解除宗教经文 SAFETY 误拦截（BLOCK_NONE）
-4. 贴耳纯干声滤波（45Hz 高通，杜绝人工浴室混响）
-5. Whisper 全局音素级强制对齐，直出毫秒级时间轴
+《心经》高保真清畅匀速母带生成与 Whisper 全局音素强制对齐
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -41,57 +35,43 @@ def get_api_key():
                         return line.strip().split("=", 1)[1].strip().strip('"').strip("'")
     return os.environ.get("GEMINI_API_KEY", "")
 
-# 佛经四六骈俪标准全本（纯正严谨汉字，气口自然，绝不使用生造同音字）
-XINJING_FULL_TEXT = """般若波罗蜜多心经。
+FIXED_XINJING_TEXT = """波惹波罗蜜多心经。
 
 观自在菩萨，
-行深般若波罗蜜多时，
+行深波惹波罗蜜多时，
 照见五蕴皆空，度一切苦厄。
 
-舍利子！
+设利子，
 色不异空，空不异色；
 色即是空，空即是色。
-受想行识，亦复如是。
+受想形识，亦复如是。
 
-舍利子！
-是诸法空相，不生不灭，不垢不净，不增不减。
-是故空中无色，无受想行识，
+设利子，
+是诸法空向，不生不灭，不垢不净，不增不减。
+是故空中无色，无受想形识，
 无眼耳鼻舌身意，无色声香味触法，
 无眼界，乃至无意识界。
-无无明，亦无无明尽，
-乃至无老死，亦无老死尽。
+无无明，亦无无明进，
+乃至无老死，亦无老死进。
 无苦集灭道，无智亦无得。
 
-以无所得故，菩提萨埵，
-依般若波罗蜜多故，心无挂碍。
-无挂碍故，无有恐怖，远离颠倒梦想，究竟涅槃。
+以无所得故，菩提萨朵，
+依波惹波罗蜜多故，心无挂艾。
+无挂艾故，无有恐怖，远离颠倒梦想，究竟涅盘。
 
 三世诸佛，
-依般若波罗蜜多故，
-得阿耨多罗三藐三菩提。
+依波惹波罗蜜多故，
+得阿诺多罗三秒三菩提。
 
-故知般若波罗蜜多，
+故知波惹波罗蜜多，
 是大神咒，是大明咒，是无上咒，是无等等咒，
 能除一切苦，真实不虚。
 
-故说般若波罗蜜多咒，即说咒曰：
-揭谛揭谛，波罗揭谛，
-波罗僧揭谛，菩提萨婆诃。"""
+故说波惹波罗蜜多咒，即说咒曰：
+阶帝阶帝，波罗阶帝，
+波罗僧阶帝，菩提萨婆呵。"""
 
-SYSTEM_PROMPT = """用平稳、自然、安详的普通话从容念诵以下经文。
-要求：
-1. 声音平静安详、字音平直匀速、不带舞台朗诵腔、无情绪波动起伏，气息从容均匀，声断气不断。
-2. 遇到经文古梵音与多音字，请严格按以下发音念诵：
-   - “般若”读作“bō rě”
-   - “诸法空相”中“相”读作“xiàng”
-   - “阿耨多罗”读作“ā nòu duō luó”
-   - “菩提萨埵”读作“pú tí sà duǒ”
-   - “菩提萨婆诃”读作“pú tí sà pó hē”
-   - “波罗蜜多”中“多”读作第一声“duō”
-
-请端身正意持诵以下经文：
-
-""" + XINJING_FULL_TEXT
+GOLDEN_PROMPT = f"用平稳、自然、无修饰的普通话念读以下文字，语调平平、不带朗诵感：\n\n{FIXED_XINJING_TEXT}"
 
 SAFETY_SETTINGS = [
     types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
@@ -101,15 +81,15 @@ SAFETY_SETTINGS = [
     types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, threshold=types.HarmBlockThreshold.BLOCK_NONE),
 ]
 
-def synthesize_single_pass(client, voice_name: str, out_mp3: str) -> bool:
-    print(f"\n🎙️ 正在录制【{voice_name}】《心经》全篇母带 (单次直出，无拼接)...", flush=True)
+def synthesize_voice(client, voice_name: str, out_mp3: str) -> bool:
+    print(f"\n🎙️ 正在录制【{voice_name}】《心经》清畅母带...", flush=True)
     raw_wav = out_mp3 + ".raw.wav"
     
-    for attempt in range(1, 6):
+    for attempt in range(1, 4):
         try:
             res = client.models.generate_content(
                 model="gemini-3.1-flash-tts-preview",
-                contents=SYSTEM_PROMPT,
+                contents=GOLDEN_PROMPT,
                 config=types.GenerateContentConfig(
                     response_modalities=["AUDIO"],
                     safety_settings=SAFETY_SETTINGS,
@@ -130,19 +110,18 @@ def synthesize_single_pass(client, voice_name: str, out_mp3: str) -> bool:
                     wf.writeframes(data)
                     
                 dur = len(data) / (24000 * 2)
-                print(f"   ✅ 单次生成成功! 纯净干声时长: {dur:.1f}s ({dur/60:.2f}分钟)", flush=True)
+                print(f"   ✅ 生成成功! 时长: {dur:.1f}s ({dur/60:.2f}分钟)", flush=True)
                 
-                # FFmpeg 滤波压制 (45Hz 消除极低频共振，无人工混响)
                 os.makedirs(os.path.dirname(out_mp3), exist_ok=True)
                 subprocess.run([
                     "ffmpeg", "-y", "-i", raw_wav.replace('\\', '/'),
-                    "-af", "highpass=f=45,volume=1.05",
+                    "-af", "highpass=f=50,volume=1.05",
                     "-b:a", "192k", out_mp3.replace('\\', '/')
                 ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 
                 if os.path.exists(raw_wav):
                     os.remove(raw_wav)
-                print(f"   ✅ 工业级母带压制完成: {out_mp3}", flush=True)
+                print(f"   ✅ 母带就绪: {out_mp3}", flush=True)
                 return True
             else:
                 print(f"   ⚠️ 尝试 {attempt} 返回空 candidate，重试...", flush=True)
@@ -150,8 +129,8 @@ def synthesize_single_pass(client, voice_name: str, out_mp3: str) -> bool:
         except Exception as e:
             err_str = str(e)
             match = re.search(r"retry in (\d+\.?\d*)s", err_str) or re.search(r"retryDelay': '(\d+)s", err_str)
-            wait_time = int(float(match.group(1))) + 5 if match else 30
-            print(f"   ⚠️ 尝试 {attempt} 遇到限流: {err_str[:60]}... 等待 {wait_time}s 重试...", flush=True)
+            wait_time = int(float(match.group(1))) + 5 if match else 25
+            print(f"   ⚠️ 尝试 {attempt} 遇限流: {err_str[:60]}... 等待 {wait_time}s 重试...", flush=True)
             time.sleep(wait_time)
             
     return False
@@ -163,7 +142,6 @@ def align_full_xinjing_whisper(whisper_model, audio_path: str, json_path: str):
         
     res = whisper_model.transcribe(audio_path, language="zh", word_timestamps=True)
     
-    # 提取 Whisper 识别字和时间戳
     asr_chars = []
     for s in res.get("segments", []):
         for w in s.get("words", []):
@@ -177,7 +155,6 @@ def align_full_xinjing_whisper(whisper_model, audio_path: str, json_path: str):
                     "end": round(w["start"] + (idx + 1) * dur, 3)
                 })
                 
-    # 提取 JSON 全篇经文字符
     doc_chars = []
     for c in doc.get("title", []):
         if c.get("text", "").strip():
@@ -242,7 +219,6 @@ def align_full_xinjing_whisper(whisper_model, audio_path: str, json_path: str):
         if doc_chars[i]["endTime"] <= doc_chars[i]["startTime"]:
             doc_chars[i]["endTime"] = round(doc_chars[i]["startTime"] + 0.25, 3)
             
-    # 回写每行和每个段落的起止时间
     for p in doc.get("paragraphs", []):
         for l in p.get("lines", []):
             v_c = [c for c in l.get("chars", []) if "startTime" in c and c["startTime"] is not None]
@@ -268,29 +244,20 @@ def main():
     client = genai.Client(api_key=api_key)
     
     female_mp3 = os.path.join(PROJECT_ROOT, "public", "audio", "xinjing_female.mp3")
-    male_mp3 = os.path.join(PROJECT_ROOT, "public", "audio", "xinjing_male.mp3")
     default_mp3 = os.path.join(PROJECT_ROOT, "public", "audio", "xinjing.mp3")
     json_path = os.path.join(PROJECT_ROOT, "src", "data", "xinjing", "chapter_1.json")
     
-    # 1. 单次录制女声 (Zephyr)
-    ok_f = synthesize_single_pass(client, "Zephyr", female_mp3)
+    # 仅录制女声 (Zephyr)
+    ok_f = synthesize_voice(client, "Zephyr", female_mp3)
     
-    # 2. 默认音频使用女声
     if ok_f and os.path.exists(female_mp3):
         with open(female_mp3, "rb") as fi, open(default_mp3, "wb") as fo:
             fo.write(fi.read())
         print(f"✅ 默认母带已就绪: {default_mp3}")
         
-    # 3. Whisper 全篇音素级对齐回写 JSON
-    if ok_f and os.path.exists(female_mp3):
         whisper_model = whisper.load_model("base")
         align_full_xinjing_whisper(whisper_model, female_mp3, json_path)
-        
-    # 4. 单次录制男声 (Charon)
-    time.sleep(20)
-    ok_m = synthesize_single_pass(client, "Charon", male_mp3)
-    
-    print("\n🎉 《心经》全篇单次直出双音色母带全部圆满就绪！")
+        print("\n🎉 《心经》女声清畅母带与毫秒级时间轴圆满就绪！")
 
 if __name__ == "__main__":
     main()
