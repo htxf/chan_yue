@@ -79,7 +79,16 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
     if (!isUserTouching) {
       await nextTick()
       const el = lineRefs.value[lineIdx]
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        const vh = window.innerHeight || document.documentElement.clientHeight
+        const elementCenter = rect.top + rect.height / 2
+        const viewportCenter = vh * 0.48
+        // 偏离舒适阅读中心超 45px 时才平滑移动，杜绝紧邻短行每隔一两秒高频微抖
+        if (Math.abs(elementCenter - viewportCenter) > 45) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }
     }
   }
 })
