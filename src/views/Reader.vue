@@ -360,6 +360,11 @@ function handleToggle() {
           :mode="mode"
         >
           <template #footer>
+            <!-- 经文诵毕 · 结经尾花印（古典经本落卷法印，一品圆满） -->
+            <div class="chapter-end-seal">
+              <span class="seal-glyph">◈</span>
+            </div>
+
             <!-- 极简轻雅经品翻卷条（告别厚重大框，单侧时自动居中，无多余菱形） -->
             <nav 
               v-if="prevChapter || nextChapter" 
@@ -596,9 +601,31 @@ function handleToggle() {
   text-overflow: ellipsis;
 }
 
+/* 经文诵毕 · 结经尾花印（古典经卷落品法印，一品圆满） */
+.chapter-end-seal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 64px;
+  margin-bottom: 20px;
+}
+
+.seal-glyph {
+  font-size: 15px;
+  color: var(--gold);
+  opacity: 0.4;
+  letter-spacing: 6px;
+  transition: all 0.3s ease;
+}
+
+.seal-glyph:hover {
+  opacity: 0.85;
+  text-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+}
+
 /* Chapter Pagination Footer (轻雅通透翻品条：告别厚重大框，单侧居中，自然从容) */
 .chapter-nav-bar {
-  margin-top: 56px;
+  margin-top: 12px;
   margin-bottom: 40px;
   padding: 0 16px;
   max-width: 580px;
