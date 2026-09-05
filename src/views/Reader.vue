@@ -329,14 +329,6 @@ function handleToggle() {
                 <span class="ch-num">{{ String(idx + 1).padStart(2, '0') }}</span>
                 <span class="ch-title">{{ chapter.title }}</span>
               </div>
-              <span v-if="bookId === 'jingangjing' && idx < 8" class="badge-audio">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M19 12a7 7 0 0 0-14 0" opacity="0.6"/>
-                </svg>
-                双音色
-              </span>
-              <span v-else class="badge-text">墨读</span>
             </div>
           </div>
         </div>
@@ -368,25 +360,38 @@ function handleToggle() {
           :mode="mode"
         >
           <template #footer>
-            <div class="mt-24 mb-8 flex justify-between items-center text-amber-100/70 font-serif text-sm tracking-widest px-4 max-w-lg mx-auto">
+            <!-- 器物级经折书签翻品器 -->
+            <nav v-if="prevChapter || nextChapter" class="chapter-nav-footer" aria-label="经品导航">
+              <!-- 上一品 -->
               <button 
                 v-if="prevChapter" 
                 @click.stop="selectChapter(prevChapter.id || prevChapter.chapterId)"
-                class="hover:text-amber-400 transition-colors duration-300 flex items-center gap-2"
+                class="nav-plate prev"
               >
-                <span>←</span> {{ prevChapter.title || '上一品' }}
+                <div class="nav-direction">
+                  <span class="nav-arrow">←</span>
+                  <span class="nav-label">上一品</span>
+                </div>
+                <div class="nav-title">{{ prevChapter.title || '上一品' }}</div>
               </button>
-              <div v-else></div>
+              <div v-else class="nav-placeholder"></div>
 
+              <div class="nav-divider">◈</div>
+
+              <!-- 下一品 -->
               <button 
                 v-if="nextChapter" 
                 @click.stop="selectChapter(nextChapter.id || nextChapter.chapterId)"
-                class="hover:text-amber-500 transition-colors duration-300 flex items-center gap-2"
+                class="nav-plate next"
               >
-                {{ nextChapter.title || '下一品' }} <span>→</span>
+                <div class="nav-direction">
+                  <span class="nav-label">下一品</span>
+                  <span class="nav-arrow">→</span>
+                </div>
+                <div class="nav-title">{{ nextChapter.title || '下一品' }}</div>
               </button>
-              <div v-else></div>
-            </div>
+              <div v-else class="nav-placeholder"></div>
+            </nav>
           </template>
         </SutraBody>
       </template>
@@ -593,27 +598,129 @@ function handleToggle() {
   text-overflow: ellipsis;
 }
 
-.badge-audio {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  border-radius: 9999px;
-  font-size: 10px;
-  font-family: 'Noto Serif SC', serif;
-  background: rgba(212, 165, 116, 0.08);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  color: var(--gold);
-  flex-shrink: 0;
-  letter-spacing: 0.5px;
+/* Chapter Pagination Footer (器物级经折书签翻品器) */
+.chapter-nav-footer {
+  margin-top: 72px;
+  margin-bottom: 48px;
+  padding: 0 16px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 14px;
 }
 
-.badge-text {
-  font-size: 10px;
-  color: var(--text-muted);
-  opacity: 0.5;
-  padding: 2px 6px;
+.nav-plate {
+  flex: 1;
+  min-width: 0;
+  background: rgba(22, 22, 30, 0.45);
+  border: 1px solid rgba(212, 165, 116, 0.18);
+  border-radius: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nav-plate.next {
+  text-align: right;
+}
+
+.nav-plate:hover {
+  background: rgba(30, 30, 42, 0.75);
+  border-color: rgba(212, 165, 116, 0.48);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(212, 165, 116, 0.08);
+}
+
+.nav-plate:active {
+  transform: scale(0.98);
+}
+
+.nav-direction {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 11.5px;
+  color: var(--gold);
+  opacity: 0.8;
+  letter-spacing: 1px;
+}
+
+.nav-plate.next .nav-direction {
+  justify-content: flex-end;
+}
+
+.nav-arrow {
+  font-size: 13px;
+  transition: transform 0.25s ease;
+}
+
+.nav-plate.prev:hover .nav-arrow {
+  transform: translateX(-3px);
+}
+
+.nav-plate.next:hover .nav-arrow {
+  transform: translateX(3px);
+}
+
+.nav-title {
+  font-family: 'Noto Serif SC', 'SimSun', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ebdcc8;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.25s ease;
+}
+
+.nav-plate:hover .nav-title {
+  color: var(--gold);
+}
+
+.nav-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  opacity: 0.25;
+  font-size: 13px;
   flex-shrink: 0;
+  padding: 0 2px;
+}
+
+.nav-placeholder {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .chapter-nav-footer {
+    gap: 8px;
+    margin-top: 56px;
+    padding: 0 8px;
+  }
+  .nav-plate {
+    padding: 12px 12px;
+    border-radius: 10px;
+  }
+  .nav-title {
+    font-size: 13.5px;
+    letter-spacing: 0.5px;
+  }
+  .nav-direction {
+    font-size: 11px;
+  }
 }
 
 /* Transitions */

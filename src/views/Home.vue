@@ -40,7 +40,6 @@ function goToBook(item) {
     <header class="home-header">
       <div class="ornament">◈</div>
       <h1 class="title">经 书 阁</h1>
-      <p class="subtitle">禅思无界 · 阅心有道</p>
 
       <!-- 双生视界切换 -->
       <div class="home-tab-switcher">
@@ -49,7 +48,7 @@ function goToBook(item) {
           :class="{ active: activeTab === 'reading' }"
           @click="activeTab = 'reading'"
         >
-          <span>阅卷 · 藏经</span>
+          <span>阅卷</span>
         </button>
         <span class="tab-sep">/</span>
         <button 
@@ -57,7 +56,7 @@ function goToBook(item) {
           :class="{ active: activeTab === 'listening' }"
           @click="activeTab = 'listening'"
         >
-          <span>听诵 · 禅修</span>
+          <span>听诵</span>
         </button>
       </div>
     </header>
@@ -70,14 +69,6 @@ function goToBook(item) {
         class="sutra-card"
         @click="goToBook(item)"
       >
-        <!-- 卷次眉标 -->
-        <div class="card-meta-top">
-          <span class="meta-ornament">◈</span>
-          <span class="meta-vol">卷{{ idx === 0 ? '一' : '二' }}</span>
-          <span class="meta-sep">·</span>
-          <span class="meta-tag">{{ item.id === 'jingangjing' ? '三十二分全' : '全文纯享' }}</span>
-        </div>
-
         <!-- 经名大字 -->
         <h2 class="sutra-name">
           {{ item.name }}
@@ -163,19 +154,10 @@ function goToBook(item) {
   font-family: 'Noto Serif SC', 'SimSun', serif;
   font-size: 28px;
   color: var(--text-primary);
-  margin: 0 0 8px;
+  margin: 0 0 16px;
   letter-spacing: 9px;
   font-weight: 700;
   text-shadow: 0 0 24px rgba(212, 165, 116, 0.15);
-}
-
-.subtitle {
-  font-family: 'Noto Serif SC', 'KaiTi', serif;
-  color: var(--text-muted);
-  font-size: 13px;
-  letter-spacing: 4px;
-  margin: 0 0 16px;
-  opacity: 0.8;
 }
 
 /* 顶部双生视界切换开关 */
@@ -298,41 +280,14 @@ function goToBook(item) {
   box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.6), 0 0 24px rgba(212, 165, 116, 0.08);
 }
 
-/* 卷次眉标（明确部次划分） */
-.card-meta-top {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: 'Noto Serif SC', serif;
-  font-size: 11px;
-  color: var(--gold);
-  opacity: 0.9;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-}
-
-.meta-ornament {
-  font-size: 9px;
-  opacity: 0.75;
-}
-
-.meta-sep {
-  opacity: 0.45;
-}
-
-.meta-tag {
-  color: var(--text-muted);
-  opacity: 0.95;
-}
-
 /* 经名：典雅修长的宋体大字 */
 .sutra-name {
-  margin: 0 0 10px;
   font-family: 'Noto Serif SC', 'SimSun', serif;
   font-size: 23px;
-  font-weight: 700;
-  color: #f2ece2;
-  letter-spacing: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 4px 0 10px;
+  letter-spacing: 4px;
   transition: all 0.3s ease;
   line-height: 1.4;
 }
