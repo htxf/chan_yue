@@ -132,35 +132,21 @@ const prevTitleRef = ref(null)
 const nextTitleRef = ref(null)
 const isPrevTitleOverflow = ref(false)
 const isNextTitleOverflow = ref(false)
-const prevScrollDist = ref(0)
-const nextScrollDist = ref(0)
 
 function checkNavOverflow() {
   nextTick(() => {
     if (prevTitleRef.value) {
+      const unit = prevTitleRef.value.querySelector('.nav-title-unit') || prevTitleRef.value
       const parent = prevTitleRef.value.parentElement
-      if (parent) {
-        const diff = prevTitleRef.value.scrollWidth - parent.clientWidth
-        if (diff > 4) {
-          isPrevTitleOverflow.value = true
-          prevScrollDist.value = -(diff + 12)
-        } else {
-          isPrevTitleOverflow.value = false
-          prevScrollDist.value = 0
-        }
+      if (unit && parent) {
+        isPrevTitleOverflow.value = unit.scrollWidth > parent.clientWidth + 2
       }
     }
     if (nextTitleRef.value) {
+      const unit = nextTitleRef.value.querySelector('.nav-title-unit') || nextTitleRef.value
       const parent = nextTitleRef.value.parentElement
-      if (parent) {
-        const diff = nextTitleRef.value.scrollWidth - parent.clientWidth
-        if (diff > 4) {
-          isNextTitleOverflow.value = true
-          nextScrollDist.value = -(diff + 12)
-        } else {
-          isNextTitleOverflow.value = false
-          nextScrollDist.value = 0
-        }
+      if (unit && parent) {
+        isNextTitleOverflow.value = unit.scrollWidth > parent.clientWidth + 2
       }
     }
   })
@@ -434,11 +420,14 @@ function handleToggle() {
                 <span class="nav-label">上一品</span>
                 <span class="nav-sep">·</span>
                 <div class="nav-title-track" :class="{ 'is-scrolling': isPrevTitleOverflow }">
-                  <span 
-                    ref="prevTitleRef" 
-                    class="nav-title-inner"
-                    :style="{ '--scroll-dist': `${prevScrollDist}px` }"
-                  >{{ prevChapter.title }}</span>
+                  <div ref="prevTitleRef" class="nav-marquee-loop">
+                    <span class="nav-title-unit">{{ prevChapter.title }}</span>
+                    <template v-if="isPrevTitleOverflow">
+                      <span class="nav-marquee-sep">···</span>
+                      <span class="nav-title-unit">{{ prevChapter.title }}</span>
+                      <span class="nav-marquee-sep">···</span>
+                    </template>
+                  </div>
                 </div>
               </button>
 
@@ -450,11 +439,14 @@ function handleToggle() {
                 :title="`下一品：${nextChapter.title}`"
               >
                 <div class="nav-title-track" :class="{ 'is-scrolling': isNextTitleOverflow }">
-                  <span 
-                    ref="nextTitleRef" 
-                    class="nav-title-inner"
-                    :style="{ '--scroll-dist': `${nextScrollDist}px` }"
-                  >{{ nextChapter.title }}</span>
+                  <div ref="nextTitleRef" class="nav-marquee-loop">
+                    <span class="nav-title-unit">{{ nextChapter.title }}</span>
+                    <template v-if="isNextTitleOverflow">
+                      <span class="nav-marquee-sep">···</span>
+                      <span class="nav-title-unit">{{ nextChapter.title }}</span>
+                      <span class="nav-marquee-sep">···</span>
+                    </template>
+                  </div>
                 </div>
                 <span class="nav-sep">·</span>
                 <span class="nav-label">下一品</span>
@@ -793,24 +785,44 @@ function handleToggle() {
   mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
 }
 
-.nav-title-inner {
-  display: inline-block;
+.nav-marquee-loop {
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
   line-height: 1.4;
   will-change: transform;
 }
 
-.nav-title-track.is-scrolling .nav-title-inner {
-  animation: navTitleMarquee 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+.nav-title-track.is-scrolling .nav-marquee-loop {
+  animation: continuousNavMarquee 11s linear infinite;
 }
 
-@keyframes navTitleMarquee {
-  0%, 25% {
+.nav-btn:hover .nav-marquee-loop,
+.nav-btn:active .nav-marquee-loop {
+  animation-play-state: paused;
+}
+
+@keyframes continuousNavMarquee {
+  0% {
     transform: translateX(0);
   }
-  75%, 100% {
-    transform: translateX(var(--scroll-dist, 0px));
+  100% {
+    transform: translateX(-50%);
   }
+}
+
+.nav-title-unit {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.nav-marquee-sep {
+  display: inline-block;
+  padding: 0 8px;
+  color: var(--gold);
+  opacity: 0.45;
+  font-size: 11px;
+  letter-spacing: 2px;
 }
 
 @media (max-width: 640px) {
