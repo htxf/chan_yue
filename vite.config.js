@@ -40,6 +40,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         // 运行时缓存：音频文件走 CacheFirst
         runtimeCaching: [
           {
