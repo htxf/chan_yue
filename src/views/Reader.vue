@@ -128,6 +128,48 @@ const nextChapter = computed(() => {
   return null
 })
 
+const prevTitleRef = ref(null)
+const nextTitleRef = ref(null)
+const isPrevTitleOverflow = ref(false)
+const isNextTitleOverflow = ref(false)
+const prevScrollDist = ref(0)
+const nextScrollDist = ref(0)
+
+function checkNavOverflow() {
+  nextTick(() => {
+    if (prevTitleRef.value) {
+      const parent = prevTitleRef.value.parentElement
+      if (parent) {
+        const diff = prevTitleRef.value.scrollWidth - parent.clientWidth
+        if (diff > 4) {
+          isPrevTitleOverflow.value = true
+          prevScrollDist.value = -(diff + 12)
+        } else {
+          isPrevTitleOverflow.value = false
+          prevScrollDist.value = 0
+        }
+      }
+    }
+    if (nextTitleRef.value) {
+      const parent = nextTitleRef.value.parentElement
+      if (parent) {
+        const diff = nextTitleRef.value.scrollWidth - parent.clientWidth
+        if (diff > 4) {
+          isNextTitleOverflow.value = true
+          nextScrollDist.value = -(diff + 12)
+        } else {
+          isNextTitleOverflow.value = false
+          nextScrollDist.value = 0
+        }
+      }
+    }
+  })
+}
+
+watch([chapterId, prevChapter, nextChapter], () => {
+  checkNavOverflow()
+})
+
 let isAutoPlayingNext = false
 
 function goToNextChapter(isAutoPlay = false) {
@@ -245,6 +287,12 @@ async function loadChapterData() {
 onMounted(async () => {
   await loadBookData()
   await loadChapterData()
+  checkNavOverflow()
+  window.addEventListener('resize', checkNavOverflow)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkNavOverflow)
 })
 
 /* 切换到阅读模式时暂停播放 */
@@ -265,7 +313,7 @@ function handleToggle() {
 </script>
 
 <template>
-  <div class="reader-wrapper min-h-screen w-full bg-[var(--bg-primary)] pb-36 md:pb-32">
+  <div class="reader-wrapper min-h-screen w-full bg-[var(--bg-primary)] pb-6 md:pb-8">
     
     <!-- Top Controls (自适应智能微缩浮动顶栏) -->
     <div 
@@ -365,7 +413,7 @@ function handleToggle() {
               <span class="seal-glyph">◈</span>
             </div>
 
-            <!-- 极简轻雅经品翻卷条（告别厚重大框，单侧时自动居中，无多余菱形） -->
+            <!-- 极简轻雅经品翻卷条（告别厚重大框，单侧居中，长品名自适应平滑跑马灯） -->
             <nav 
               v-if="prevChapter || nextChapter" 
               class="chapter-nav-bar" 
@@ -380,9 +428,18 @@ function handleToggle() {
                 v-if="prevChapter" 
                 @click.stop="selectChapter(prevChapter.id || prevChapter.chapterId)"
                 class="nav-btn prev"
+                :title="`上一品：${prevChapter.title}`"
               >
                 <span class="nav-arrow">←</span>
-                <span class="nav-text">上一品 · {{ prevChapter.title }}</span>
+                <span class="nav-label">上一品</span>
+                <span class="nav-sep">·</span>
+                <div class="nav-title-track" :class="{ 'is-scrolling': isPrevTitleOverflow }">
+                  <span 
+                    ref="prevTitleRef" 
+                    class="nav-title-inner"
+                    :style="{ '--scroll-dist': `${prevScrollDist}px` }"
+                  >{{ prevChapter.title }}</span>
+                </div>
               </button>
 
               <!-- 下一品 -->
@@ -390,8 +447,17 @@ function handleToggle() {
                 v-if="nextChapter" 
                 @click.stop="selectChapter(nextChapter.id || nextChapter.chapterId)"
                 class="nav-btn next"
+                :title="`下一品：${nextChapter.title}`"
               >
-                <span class="nav-text">下一品 · {{ nextChapter.title }}</span>
+                <div class="nav-title-track" :class="{ 'is-scrolling': isNextTitleOverflow }">
+                  <span 
+                    ref="nextTitleRef" 
+                    class="nav-title-inner"
+                    :style="{ '--scroll-dist': `${nextScrollDist}px` }"
+                  >{{ nextChapter.title }}</span>
+                </div>
+                <span class="nav-sep">·</span>
+                <span class="nav-label">下一品</span>
                 <span class="nav-arrow">→</span>
               </button>
             </nav>
@@ -601,20 +667,20 @@ function handleToggle() {
   text-overflow: ellipsis;
 }
 
-/* 经文诵毕 · 结经尾花印（古典经卷落品法印，一品圆满） */
+/* 经文诵毕 · 结经尾花印（律动规范：经文末至印章 24px，印章至导航条 12px） */
 .chapter-end-seal {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 64px;
-  margin-bottom: 20px;
+  margin-top: 24px;
+  margin-bottom: 12px;
 }
 
 .seal-glyph {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--gold);
   opacity: 0.4;
-  letter-spacing: 6px;
+  letter-spacing: 4px;
   transition: all 0.3s ease;
 }
 
@@ -623,17 +689,17 @@ function handleToggle() {
   text-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
 }
 
-/* Chapter Pagination Footer (轻雅通透翻品条：告别厚重大框，单侧居中，自然从容) */
+/* Chapter Pagination Footer (律动规范：导航条下边距 16px，支持自适应平滑跑马灯) */
 .chapter-nav-bar {
-  margin-top: 12px;
-  margin-bottom: 40px;
-  padding: 0 16px;
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding: 0 12px;
   max-width: 580px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .chapter-nav-bar.is-single {
@@ -645,17 +711,19 @@ function handleToggle() {
 }
 
 .nav-btn {
+  flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 18px;
+  gap: 6px;
+  padding: 8px 14px;
   border-radius: 9999px;
   background: rgba(22, 22, 28, 0.45);
   border: 1px solid rgba(212, 165, 116, 0.2);
   color: var(--text-primary);
   font-family: 'Noto Serif SC', serif;
   font-size: 13px;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(8px);
@@ -664,8 +732,9 @@ function handleToggle() {
 }
 
 .chapter-nav-bar.is-single .nav-btn {
+  flex: 0 1 auto;
   max-width: 85%;
-  padding: 9px 24px;
+  padding: 8px 24px;
 }
 
 .nav-btn:hover {
@@ -683,7 +752,7 @@ function handleToggle() {
 .nav-arrow {
   color: var(--gold);
   opacity: 0.8;
-  font-size: 13px;
+  font-size: 12px;
   flex-shrink: 0;
   transition: transform 0.25s ease;
 }
@@ -696,25 +765,71 @@ function handleToggle() {
   transform: translateX(3px);
 }
 
-.nav-text {
-  white-space: nowrap;
+.nav-label {
+  flex-shrink: 0;
+  color: var(--gold);
+  opacity: 0.8;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.nav-sep {
+  flex-shrink: 0;
+  color: rgba(212, 165, 116, 0.4);
+  font-size: 11px;
+}
+
+/* 跑马灯滚动轨道：当文字溢出时两侧淡隐，平滑来回滚动展现全名 */
+.nav-title-track {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-title-track.is-scrolling {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+}
+
+.nav-title-inner {
+  display: inline-block;
+  white-space: nowrap;
   line-height: 1.4;
+  will-change: transform;
+}
+
+.nav-title-track.is-scrolling .nav-title-inner {
+  animation: navTitleMarquee 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+}
+
+@keyframes navTitleMarquee {
+  0%, 25% {
+    transform: translateX(0);
+  }
+  75%, 100% {
+    transform: translateX(var(--scroll-dist, 0px));
+  }
 }
 
 @media (max-width: 640px) {
+  .chapter-end-seal {
+    margin-top: 18px;
+    margin-bottom: 10px;
+  }
   .chapter-nav-bar {
-    margin-top: 44px;
-    margin-bottom: 32px;
-    padding: 0 12px;
+    padding: 0 8px;
     gap: 8px;
+    margin-bottom: 12px;
   }
   .nav-btn {
-    padding: 7px 12px;
+    padding: 6px 10px;
     font-size: 12px;
-    letter-spacing: 0.5px;
-    gap: 5px;
+    gap: 4px;
+  }
+  .nav-label {
+    font-size: 11px;
   }
 }
 

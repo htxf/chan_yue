@@ -27,8 +27,8 @@ defineProps({
     
     <slot name="footer"></slot>
     
-    <!-- 底部留白，避免被播放条遮挡 -->
-    <div class="bottom-spacer"></div>
+    <!-- 底部自适应留白：禅听模式预留播放条96px，纯阅读模式仅留28px -->
+    <div class="bottom-spacer" :class="{ 'mode-listening': mode === 'listening' }"></div>
   </div>
 </template>
 
@@ -36,7 +36,7 @@ defineProps({
 .sutra-body {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px 40px;
+  padding: 0 20px 20px;
   max-width: 680px;
   margin: 0 auto;
   width: 100%;
@@ -44,7 +44,12 @@ defineProps({
 }
 
 .bottom-spacer {
-  height: 120px;
+  height: 28px;
+  transition: height 0.35s ease;
+}
+
+.bottom-spacer.mode-listening {
+  height: 96px;
 }
 
 /* 自定义滚动条 */
