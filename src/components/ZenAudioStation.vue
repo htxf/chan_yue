@@ -474,7 +474,6 @@ onUnmounted(() => {
           <div class="zen-dialog-box chapter-dialog">
             <div class="dialog-header">
               <div class="dialog-title-wrap">
-                <span class="header-ornament">◈</span>
                 <h3>经 卷 选 择</h3>
               </div>
               <button class="dialog-close-btn" @click="isChapterDrawerOpen = false" aria-label="关闭">
@@ -524,7 +523,6 @@ onUnmounted(() => {
         <div v-if="isTimerModalOpen" class="zen-modal-backdrop" @click.self="isTimerModalOpen = false">
           <div class="zen-dialog-box timer-dialog">
             <div class="dialog-header timer-header-center">
-              <span class="header-ornament">◈</span>
               <h3>禅 修 定 时</h3>
             </div>
 
@@ -907,12 +905,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.header-ornament {
-  font-size: 13px;
-  color: var(--gold);
-  opacity: 0.8;
 }
 
 .dialog-title-wrap h3,

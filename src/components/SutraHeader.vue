@@ -42,8 +42,6 @@ const rawTitleText = computed(() => {
   <header class="sutra-header" :class="{ 'is-subsequent': isMultiChapter && !isFirstChapter }">
     <!-- 情况一：多章节经典的第一品（如《金刚经》卷首：全经总题 -> 译署署名 -> 第一品品题） -->
     <template v-if="isMultiChapter && isFirstChapter">
-      <div class="ornament">◈</div>
-      
       <!-- 1. 全经总题 -->
       <h2 class="book-grand-title">
         <ruby v-for="(char, i) in nTitle" :key="`t-${i}`">
@@ -75,9 +73,7 @@ const rawTitleText = computed(() => {
     <!-- 情况二：多章节经典的后续品目（第二品至第三十二品） -->
     <template v-else-if="isMultiChapter && !isFirstChapter">
       <div class="book-badge">
-        <span class="badge-dot">◈</span>
         <span class="badge-name">{{ rawTitleText }}</span>
-        <span class="badge-dot">◈</span>
       </div>
       <h1 class="sutra-title chapter-hero-title" :class="{ 'is-title-glowing': isTitleActive }">
         <ruby v-for="(char, i) in (nSubtitle.length ? nSubtitle : nTitle)" :key="`ch-${i}`">
@@ -88,7 +84,6 @@ const rawTitleText = computed(() => {
 
     <!-- 情况三：单卷经典（如《心经》：全经总题 -> 译署署名，不重复堆叠） -->
     <template v-else>
-      <div class="ornament">◈</div>
       <h1 class="sutra-title chapter-hero-title" :class="{ 'is-title-glowing': isTitleActive }">
         <ruby v-for="(char, i) in (nSubtitle.length ? nSubtitle : nTitle)" :key="`x-${i}`">
           {{ char.text }}<rt v-if="char.pinyin">{{ char.pinyin }}</rt>
@@ -122,14 +117,6 @@ const rawTitleText = computed(() => {
   padding: 80px 20px 32px;
 }
 
-.ornament {
-  font-size: 18px;
-  color: var(--gold);
-  opacity: 0.45;
-  margin-bottom: 16px;
-  letter-spacing: 14px;
-}
-
 /* 卷首全经总题 */
 .book-grand-title {
   font-family: 'Noto Serif SC', 'SimSun', serif;
@@ -160,22 +147,17 @@ const rawTitleText = computed(() => {
 .book-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   margin-bottom: 14px;
-  padding: 4px 14px;
+  padding: 3px 14px;
   border-radius: 9999px;
   background: rgba(212, 165, 116, 0.06);
-  border: 1px solid rgba(212, 165, 116, 0.18);
+  border: 1px solid rgba(212, 165, 116, 0.16);
   color: var(--gold);
   font-family: 'Noto Serif SC', serif;
-  font-size: 13px;
-  letter-spacing: 3px;
+  font-size: 12.5px;
+  letter-spacing: 2.5px;
   opacity: 0.85;
-}
-
-.badge-dot {
-  font-size: 10px;
-  opacity: 0.6;
 }
 
 /* 本品品题 / 核心主标题 */

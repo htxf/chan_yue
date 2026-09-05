@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   SearchModal - 藏经墨索 / 禅意全文检索浮层
   支持跨经、跨卷全文实时检索，关键词泥金高亮与快速直达
 -->
@@ -125,12 +125,16 @@ function selectResult(res, snippet = '') {
               maxlength="40"
             />
             <button v-if="query" class="clear-btn" @click="query = ''">×</button>
-            <span class="esc-badge">ESC</span>
+            <button class="modal-close-btn" @click="close" aria-label="关闭">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
 
           <!-- 灵犀微荐 -->
           <div v-if="!query" class="suggestion-box">
-            <span class="sug-label">◈ 拈香寻句：</span>
+            <span class="sug-label">拈香寻句：</span>
             <div class="sug-tags">
               <button
                 v-for="s in suggestions"
@@ -146,7 +150,6 @@ function selectResult(res, snippet = '') {
           <!-- 搜索结果列表 -->
           <div class="search-body">
             <div v-if="query && searchResults.length === 0" class="no-results">
-              <span class="empty-ornament">◈</span>
               <p>未探得与“{{ query }}”相合之经句</p>
               <span class="empty-sub">万法皆空 · 亦可探寻其他字句</span>
             </div>
@@ -252,14 +255,25 @@ function selectResult(res, snippet = '') {
   padding: 0 4px;
 }
 
-.esc-badge {
-  font-size: 11px;
-  font-family: monospace;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+.modal-close-btn {
+  background: none;
+  border: none;
   color: var(--text-muted);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.modal-close-btn:hover {
+  color: var(--gold);
+  background: rgba(212, 165, 116, 0.12);
+  opacity: 1;
 }
 
 .suggestion-box {
@@ -313,14 +327,6 @@ function selectResult(res, snippet = '') {
   padding: 40px 20px;
   color: var(--text-muted);
   font-family: 'Noto Serif SC', serif;
-}
-
-.empty-ornament {
-  font-size: 18px;
-  color: var(--gold);
-  opacity: 0.5;
-  display: block;
-  margin-bottom: 8px;
 }
 
 .empty-sub {

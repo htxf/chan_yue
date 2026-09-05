@@ -38,7 +38,6 @@ function goToBook(item) {
   <div class="home-container">
     <!-- 顶部静穆阁标（固定锚定，双生视界切换零跳动） -->
     <header class="home-header">
-      <div class="ornament">◈</div>
       <h1 class="title">经 书 阁</h1>
 
       <!-- 双生视界切换 -->
@@ -140,14 +139,6 @@ function goToBook(item) {
   margin-bottom: 24px;
   width: 100%;
   animation: fadeIn 1.2s ease both;
-}
-
-.ornament {
-  font-size: 15px;
-  color: var(--gold);
-  opacity: 0.6;
-  margin-bottom: 6px;
-  letter-spacing: 10px;
 }
 
 .title {

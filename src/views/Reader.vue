@@ -360,37 +360,35 @@ function handleToggle() {
           :mode="mode"
         >
           <template #footer>
-            <!-- 器物级经折书签翻品器 -->
-            <nav v-if="prevChapter || nextChapter" class="chapter-nav-footer" aria-label="经品导航">
+            <!-- 极简轻雅经品翻卷条（告别厚重大框，单侧时自动居中，无多余菱形） -->
+            <nav 
+              v-if="prevChapter || nextChapter" 
+              class="chapter-nav-bar" 
+              :class="{ 
+                'is-both': prevChapter && nextChapter, 
+                'is-single': (!prevChapter && nextChapter) || (prevChapter && !nextChapter) 
+              }"
+              aria-label="经品导航"
+            >
               <!-- 上一品 -->
               <button 
                 v-if="prevChapter" 
                 @click.stop="selectChapter(prevChapter.id || prevChapter.chapterId)"
-                class="nav-plate prev"
+                class="nav-btn prev"
               >
-                <div class="nav-direction">
-                  <span class="nav-arrow">←</span>
-                  <span class="nav-label">上一品</span>
-                </div>
-                <div class="nav-title">{{ prevChapter.title || '上一品' }}</div>
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">上一品 · {{ prevChapter.title }}</span>
               </button>
-              <div v-else class="nav-placeholder"></div>
-
-              <div class="nav-divider">◈</div>
 
               <!-- 下一品 -->
               <button 
                 v-if="nextChapter" 
                 @click.stop="selectChapter(nextChapter.id || nextChapter.chapterId)"
-                class="nav-plate next"
+                class="nav-btn next"
               >
-                <div class="nav-direction">
-                  <span class="nav-label">下一品</span>
-                  <span class="nav-arrow">→</span>
-                </div>
-                <div class="nav-title">{{ nextChapter.title || '下一品' }}</div>
+                <span class="nav-text">下一品 · {{ nextChapter.title }}</span>
+                <span class="nav-arrow">→</span>
               </button>
-              <div v-else class="nav-placeholder"></div>
             </nav>
           </template>
         </SutraBody>
@@ -598,128 +596,98 @@ function handleToggle() {
   text-overflow: ellipsis;
 }
 
-/* Chapter Pagination Footer (器物级经折书签翻品器) */
-.chapter-nav-footer {
-  margin-top: 72px;
-  margin-bottom: 48px;
+/* Chapter Pagination Footer (轻雅通透翻品条：告别厚重大框，单侧居中，自然从容) */
+.chapter-nav-bar {
+  margin-top: 56px;
+  margin-bottom: 40px;
   padding: 0 16px;
-  max-width: 600px;
+  max-width: 580px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.nav-plate {
-  flex: 1;
-  min-width: 0;
-  background: rgba(22, 22, 30, 0.45);
-  border: 1px solid rgba(212, 165, 116, 0.18);
-  border-radius: 12px;
-  padding: 14px 18px;
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.nav-plate.next {
-  text-align: right;
-}
-
-.nav-plate:hover {
-  background: rgba(30, 30, 42, 0.75);
-  border-color: rgba(212, 165, 116, 0.48);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(212, 165, 116, 0.08);
-}
-
-.nav-plate:active {
-  transform: scale(0.98);
-}
-
-.nav-direction {
-  display: flex;
   align-items: center;
-  gap: 5px;
-  font-family: 'Noto Serif SC', serif;
-  font-size: 11.5px;
-  color: var(--gold);
-  opacity: 0.8;
-  letter-spacing: 1px;
+  gap: 16px;
 }
 
-.nav-plate.next .nav-direction {
-  justify-content: flex-end;
+.chapter-nav-bar.is-single {
+  justify-content: center;
+}
+
+.chapter-nav-bar.is-both {
+  justify-content: space-between;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  background: rgba(22, 22, 28, 0.45);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  color: var(--text-primary);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: 48%;
+}
+
+.chapter-nav-bar.is-single .nav-btn {
+  max-width: 85%;
+  padding: 9px 24px;
+}
+
+.nav-btn:hover {
+  background: rgba(32, 32, 44, 0.75);
+  border-color: rgba(212, 165, 116, 0.48);
+  color: var(--gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.nav-btn:active {
+  transform: scale(0.97);
 }
 
 .nav-arrow {
+  color: var(--gold);
+  opacity: 0.8;
   font-size: 13px;
+  flex-shrink: 0;
   transition: transform 0.25s ease;
 }
 
-.nav-plate.prev:hover .nav-arrow {
+.nav-btn.prev:hover .nav-arrow {
   transform: translateX(-3px);
 }
 
-.nav-plate.next:hover .nav-arrow {
+.nav-btn.next:hover .nav-arrow {
   transform: translateX(3px);
 }
 
-.nav-title {
-  font-family: 'Noto Serif SC', 'SimSun', serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: #ebdcc8;
-  letter-spacing: 1.5px;
+.nav-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.25s ease;
-}
-
-.nav-plate:hover .nav-title {
-  color: var(--gold);
-}
-
-.nav-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--gold);
-  opacity: 0.25;
-  font-size: 13px;
-  flex-shrink: 0;
-  padding: 0 2px;
-}
-
-.nav-placeholder {
-  flex: 1;
+  line-height: 1.4;
 }
 
 @media (max-width: 640px) {
-  .chapter-nav-footer {
+  .chapter-nav-bar {
+    margin-top: 44px;
+    margin-bottom: 32px;
+    padding: 0 12px;
     gap: 8px;
-    margin-top: 56px;
-    padding: 0 8px;
   }
-  .nav-plate {
-    padding: 12px 12px;
-    border-radius: 10px;
-  }
-  .nav-title {
-    font-size: 13.5px;
+  .nav-btn {
+    padding: 7px 12px;
+    font-size: 12px;
     letter-spacing: 0.5px;
-  }
-  .nav-direction {
-    font-size: 11px;
+    gap: 5px;
   }
 }
 
