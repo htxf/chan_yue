@@ -63,24 +63,26 @@ def get_api_key() -> str:
     return os.environ.get("GEMINI_API_KEY", "")
 
 # 古汉语及梵音字音正音映射表（锁定 shí 二声石、duǒ 三声朵、rě 三声惹）
+# 关键：般若加微顿气口“波惹，”，阻断唇齿音粘连低化为 ra/染，确保饱满 rě
 PHONETIC_TTS_MAP = {
-    "般若": "波惹",
-    "菩提萨埵": "菩提萨朵",
-    "萨埵": "萨朵",
-    "受想行识": "受想形石",
-    "乃至无意识界": "乃至无意石界",
-    "舍利子": "设利子",
-    "诸法空相": "诸法空向",
-    "无明尽": "无明进",
-    "老死尽": "老死进",
+    "般若波罗蜜多": "波惹，波罗蜜多",
+    "般若": "波惹，",
+    "菩提萨埵": "菩提萨朵，",
+    "萨埵": "萨朵，",
+    "受想行识": "受想形石，",
+    "乃至无意识界": "乃至无意石界，",
+    "舍利子": "设利子，",
+    "诸法空相": "诸法空向，",
+    "无明尽": "无明进，",
+    "老死尽": "老死进，",
     "阿耨多罗": "阿诺多罗",
     "三藐三菩提": "三秒三菩提",
-    "揭谛揭谛": "阶帝阶帝",
-    "波罗揭谛": "波罗阶帝",
-    "波罗僧揭谛": "波罗僧阶帝",
-    "菩提萨婆诃": "菩提萨婆呵",
-    "心无挂碍": "心无挂艾",
-    "无挂碍故": "无挂艾故",
+    "揭谛揭谛": "阶帝阶帝，",
+    "波罗揭谛": "波罗阶帝，",
+    "波罗僧揭谛": "波罗僧阶帝，",
+    "菩提萨婆诃": "菩提萨婆呵。",
+    "心无挂碍": "心无挂艾，",
+    "无挂碍故": "无挂艾故，",
 }
 
 def compile_sutra_prompt(doc: dict) -> tuple:
@@ -223,12 +225,12 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
             elif asr_char in rule['expected_chars']:
                 is_valid = True
                 
-            # 严格拦截降调失真
+            # 严格拦截降调失真与元音低化
             if txt == '识' and asr_char in ['事', '是']:
                 is_valid = False
             if txt == '埵' and asr_char in ['堕']:
                 is_valid = False
-            if txt == '若' and asr_char in ['熱', '热']:
+            if txt == '若' and (asr_char in ['熱', '热', '染'] or not asr_py.startswith('re')):
                 is_valid = False
                 
             status = "✅ PASS" if is_valid else "❌ FAIL"
