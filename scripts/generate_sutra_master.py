@@ -78,7 +78,7 @@ PHONETIC_TTS_MAP = {
     "受想行识": "受想形石",
     "乃至无意识界": "乃至无意石界",
     "舍利子": "设利子",
-    "诸法空相": "诸法空向",
+    "诸法空相": "诸法空香",
     "究竟涅槃": "揪竟涅盘",
     "无明尽": "无明进",
     "老死尽": "老死进",
@@ -123,13 +123,17 @@ def synthesize_master_audio(client, voice_name: str, prompt: str, raw_wav: str) 
     """
     print(f"\n🎙️ 正在单次直出录制【{voice_name}】经文母带...", flush=True)
     
+    tts_models = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"]
     for attempt in range(1, 9):
+        model_name = tts_models[(attempt - 1) % len(tts_models)]
         try:
+            print(f"   [尝试 {attempt}] 使用模型【{model_name}】最低温度 temp=0.0 录制...", flush=True)
             res = client.models.generate_content(
-                model="gemini-3.1-flash-tts-preview",
+                model=model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_modalities=["AUDIO"],
+                    temperature=0.0,
                     safety_settings=SAFETY_SETTINGS,
                     speech_config=types.SpeechConfig(
                         voice_config=types.VoiceConfig(
@@ -198,7 +202,7 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
         '识': {'expected_tones': [2], 'expected_chars': ['时', '時', '石', '识', '識'], 'desc': '二声 shí，句末绝不可降调读四声 shì'},
         '埵': {'expected_tones': [3], 'expected_chars': ['朵', '垛', '埵'], 'desc': '三声 duǒ，绝不可读四声 duò'},
         '舍': {'expected_tones': [4], 'expected_chars': ['设', '設', '舍'], 'desc': '四声 shè'},
-        '相': {'expected_tones': [4], 'expected_chars': ['向', '相', '象'], 'desc': '四声 xiàng（与屏幕注音一致）'},
+        '相': {'expected_tones': [1], 'expected_chars': ['香', '箱', '相'], 'desc': '一声 xiāng（与屏幕注音一致，绝不可读四声 xiàng）'},
         '究': {'expected_tones': [1], 'expected_chars': ['揪', '究', '赳'], 'desc': '一声 jiū（与屏幕注音一致，绝不可读四声 jiù）'},
         '揭': {'expected_tones': [1], 'expected_chars': ['街', '阶', '皆', '揭'], 'desc': '一声 jiē（与屏幕注音一致，绝不可读二声 jié）'},
         '耨': {'expected_tones': [4], 'expected_chars': ['诺', '糯', '耨'], 'desc': '四声鼻音 nuò/nòu（声母严格为 n，绝不可读边音 l/漏）'},
@@ -238,7 +242,7 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
                 is_valid = False
             if txt == '若' and (asr_char in ['熱', '热', '染'] or not asr_py.startswith('re')):
                 is_valid = False
-            if txt == '相' and actual_tone != 4:
+            if txt == '相' and actual_tone != 1:
                 is_valid = False
             if txt == '究' and actual_tone != 1:
                 is_valid = False
