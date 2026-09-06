@@ -63,10 +63,10 @@ def get_api_key() -> str:
     return os.environ.get("GEMINI_API_KEY", "")
 
 # 经文与梵音字音精准正音映射表（单一真理源：100% 绝对服从经文 JSON 屏幕注音）
-# 1. 诸法空相：屏幕标注 xiāng 一声 -> 映射为“诸法空湘”（湘 100% 为 xiāng 一声，彻底杜绝四声向）
+# 1. 诸法空相：屏幕标注 xiàng 四声 -> 映射为“诸法空向”（向 100% 为 xiàng 四声正音）
 # 2. 究竟涅槃：屏幕标注 jiū 一声 -> 映射为“揪竟涅盘”（揪 100% 为 jiū 一声，彻底杜绝四声就）
 # 3. 揭谛：屏幕标注 jiē 一声 -> 映射为“街帝”（街 100% 为 jiē 一声，彻底杜绝二声截）
-# 4. 阿耨多罗：屏幕标注 nòu 四声鼻音 -> 映射为“阿糯多罗”（糯 100% 为 nuò 四声鼻音，彻底杜绝边音 l/漏）
+# 4. 阿耨多罗：屏幕标注 nuò/nòu 四声鼻音 -> 映射为“阿糯多罗”（糯 100% 为 nuò 四声鼻音，彻底杜绝边音 l/漏）
 # 5. 般若波罗蜜多：屏幕标注 rě 三声 -> 映射为“波惹波罗蜜多”，名相内部零标点紧凑衔接
 # 6. 受想行识：屏幕标注 shí 二声 -> 映射为“受想形石”，杜绝句末下沉四声事
 # 7. 菩提萨埵：屏幕标注 duǒ 三声 -> 映射为“菩提萨朵”，杜绝四声堕
@@ -78,7 +78,7 @@ PHONETIC_TTS_MAP = {
     "受想行识": "受想形石",
     "乃至无意识界": "乃至无意石界",
     "舍利子": "设利子",
-    "诸法空相": "诸法空湘",
+    "诸法空相": "诸法空向",
     "究竟涅槃": "揪竟涅盘",
     "无明尽": "无明进",
     "老死尽": "老死进",
@@ -112,8 +112,7 @@ def compile_sutra_prompt(doc: dict) -> tuple:
     reading_body = raw_body
     for k, v in PHONETIC_TTS_MAP.items():
         reading_body = reading_body.replace(k, v)
-        
-    directive = "用平稳、自然、无修饰的普通话念诵以下文字，字字相扣、从容连贯，语调平平、不带朗诵感：“波惹”读作 bō rě（三声上声），与后文自然衔接紧凑，不可久顿：\n\n"
+    directive = "用平稳、自然、无修饰的普通话念诵以下文字，字字相扣、从容连贯，语调平平、不带朗诵感：\n\n"
     full_prompt = directive + reading_body
     return full_prompt, reading_body
 
@@ -199,7 +198,7 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
         '识': {'expected_tones': [2], 'expected_chars': ['时', '時', '石', '识', '識'], 'desc': '二声 shí，句末绝不可降调读四声 shì'},
         '埵': {'expected_tones': [3], 'expected_chars': ['朵', '垛', '埵'], 'desc': '三声 duǒ，绝不可读四声 duò'},
         '舍': {'expected_tones': [4], 'expected_chars': ['设', '設', '舍'], 'desc': '四声 shè'},
-        '相': {'expected_tones': [1], 'expected_chars': ['湘', '厢', '香', '相'], 'desc': '一声 xiāng（与屏幕注音一致，绝不可读四声 xiàng）'},
+        '相': {'expected_tones': [4], 'expected_chars': ['向', '相', '象'], 'desc': '四声 xiàng（与屏幕注音一致）'},
         '究': {'expected_tones': [1], 'expected_chars': ['揪', '究', '赳'], 'desc': '一声 jiū（与屏幕注音一致，绝不可读四声 jiù）'},
         '揭': {'expected_tones': [1], 'expected_chars': ['街', '阶', '皆', '揭'], 'desc': '一声 jiē（与屏幕注音一致，绝不可读二声 jié）'},
         '耨': {'expected_tones': [4], 'expected_chars': ['诺', '糯', '耨'], 'desc': '四声鼻音 nuò/nòu（声母严格为 n，绝不可读边音 l/漏）'},
@@ -239,7 +238,7 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
                 is_valid = False
             if txt == '若' and (asr_char in ['熱', '热', '染'] or not asr_py.startswith('re')):
                 is_valid = False
-            if txt == '相' and (actual_tone != 1 or asr_char in ['象', '向']):
+            if txt == '相' and actual_tone != 4:
                 is_valid = False
             if txt == '究' and actual_tone != 1:
                 is_valid = False
