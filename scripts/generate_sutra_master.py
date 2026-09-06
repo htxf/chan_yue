@@ -62,8 +62,14 @@ def get_api_key() -> str:
                         return line.strip().split("=", 1)[1].strip().strip('"').strip("'")
     return os.environ.get("GEMINI_API_KEY", "")
 
-# 古汉语及梵音字音正音映射表（锁定 shí 二声石、duǒ 三声朵、rě 三声惹）
-# 铁律：名相内部（如“波惹波罗蜜多”）严禁插入逗号，保持字字相扣，杜绝 400ms+ 断裂长停顿
+# 经文与梵音字音精准正音映射表（单一真理源：100% 绝对服从经文 JSON 屏幕注音）
+# 1. 诸法空相：屏幕标注 xiāng 一声 -> 映射为“诸法空湘”（湘 100% 为 xiāng 一声，彻底杜绝四声向）
+# 2. 究竟涅槃：屏幕标注 jiū 一声 -> 映射为“揪竟涅盘”（揪 100% 为 jiū 一声，彻底杜绝四声就）
+# 3. 揭谛：屏幕标注 jiē 一声 -> 映射为“街帝”（街 100% 为 jiē 一声，彻底杜绝二声截）
+# 4. 阿耨多罗：屏幕标注 nòu 四声鼻音 -> 映射为“阿糯多罗”（糯 100% 为 nuò 四声鼻音，彻底杜绝边音 l/漏）
+# 5. 般若波罗蜜多：屏幕标注 rě 三声 -> 映射为“波惹波罗蜜多”，名相内部零标点紧凑衔接
+# 6. 受想行识：屏幕标注 shí 二声 -> 映射为“受想形石”，杜绝句末下沉四声事
+# 7. 菩提萨埵：屏幕标注 duǒ 三声 -> 映射为“菩提萨朵”，杜绝四声堕
 PHONETIC_TTS_MAP = {
     "般若波罗蜜多": "波惹波罗蜜多",
     "般若": "波惹",
@@ -72,14 +78,16 @@ PHONETIC_TTS_MAP = {
     "受想行识": "受想形石",
     "乃至无意识界": "乃至无意石界",
     "舍利子": "设利子",
-    "诸法空相": "诸法空向",
+    "诸法空相": "诸法空湘",
+    "究竟涅槃": "揪竟涅盘",
     "无明尽": "无明进",
     "老死尽": "老死进",
-    "阿耨多罗": "阿诺多罗",
+    "阿耨多罗": "阿糯多罗",
     "三藐三菩提": "三秒三菩提",
-    "揭谛揭谛": "阶帝阶帝，",
-    "波罗揭谛": "波罗阶帝，",
-    "波罗僧揭谛": "波罗僧阶帝",
+    "揭谛揭谛": "街帝街帝，",
+    "揭谛": "街帝",
+    "波罗揭谛": "波罗街帝",
+    "波罗僧揭谛": "波罗僧街帝",
     "菩提萨婆诃": "菩提萨婆呵",
     "心无挂碍": "心无挂艾",
     "无挂碍故": "无挂艾故",
@@ -191,7 +199,10 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
         '识': {'expected_tones': [2], 'expected_chars': ['时', '時', '石', '识', '識'], 'desc': '二声 shí，句末绝不可降调读四声 shì'},
         '埵': {'expected_tones': [3], 'expected_chars': ['朵', '垛', '埵'], 'desc': '三声 duǒ，绝不可读四声 duò'},
         '舍': {'expected_tones': [4], 'expected_chars': ['设', '設', '舍'], 'desc': '四声 shè'},
-        '相': {'expected_tones': [4], 'expected_chars': ['向', '相'], 'desc': '四声 xiàng'},
+        '相': {'expected_tones': [1], 'expected_chars': ['湘', '厢', '香', '相'], 'desc': '一声 xiāng（与屏幕注音一致，绝不可读四声 xiàng）'},
+        '究': {'expected_tones': [1], 'expected_chars': ['揪', '究', '赳'], 'desc': '一声 jiū（与屏幕注音一致，绝不可读四声 jiù）'},
+        '揭': {'expected_tones': [1], 'expected_chars': ['街', '阶', '皆', '揭'], 'desc': '一声 jiē（与屏幕注音一致，绝不可读二声 jié）'},
+        '耨': {'expected_tones': [4], 'expected_chars': ['诺', '糯', '耨'], 'desc': '四声鼻音 nuò/nòu（声母严格为 n，绝不可读边音 l/漏）'},
         '尽': {'expected_tones': [4], 'expected_chars': ['进', '進', '尽', '盡', '静', '靜'], 'desc': '四声 jìn'},
     }
     
@@ -215,22 +226,26 @@ def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
             tone_match = re.search(r'\d', asr_py)
             actual_tone = int(tone_match.group(0)) if tone_match else 0
             
-            # 综合声学判断：
-            # 若字：如果识别为“惹”，拼音必定是 re3，通过；如果识别为“熱”或“若”且为四声，失败！
-            # 识字：如果识别为“時/石”，拼音是 shi2，通过；如果识别为“事/是”，拼音是 shi4，失败！
-            # 埵字：如果识别为“朵/垛”，拼音是 duo3，通过；如果识别为“堕”，拼音是 duo4，失败！
             is_valid = False
             if actual_tone in rule['expected_tones']:
                 is_valid = True
             elif asr_char in rule['expected_chars']:
                 is_valid = True
                 
-            # 严格拦截降调失真与元音低化
+            # 严格拦截失真：绝对服从屏幕 JSON 权威真理源
             if txt == '识' and asr_char in ['事', '是']:
                 is_valid = False
             if txt == '埵' and asr_char in ['堕']:
                 is_valid = False
             if txt == '若' and (asr_char in ['熱', '热', '染'] or not asr_py.startswith('re')):
+                is_valid = False
+            if txt == '相' and (actual_tone != 1 or asr_char in ['象', '向']):
+                is_valid = False
+            if txt == '究' and actual_tone != 1:
+                is_valid = False
+            if txt == '揭' and (actual_tone != 1 or asr_char in ['截', '劫']):
+                is_valid = False
+            if txt == '耨' and (asr_py.startswith('l') or asr_char in ['漏', '搂', '露']):
                 is_valid = False
                 
             status = "✅ PASS" if is_valid else "❌ FAIL"
