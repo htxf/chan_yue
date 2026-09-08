@@ -223,7 +223,8 @@ class SutraSSMLCompiler:
         """
         封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣。
         针对“如来善护念诸菩萨 / 善付嘱诸菩萨”等紧邻对偶句，TTS 自注意力极易将第二句重复名相弱读（轻读、轻佻滑脱）。
-        自动分离谓语与圣号宾语，并赋予圣号专属稳健中气加权（volume +15%, rate -14%），消除轻佻感并保持 100% 物理对齐。
+        自动分离谓语与圣号宾语，赋予专属稳健中气加权（volume +15%, rate -14%），
+        并对“菩萨”注入硬去声同音定调（“菩飒”），彻底破除口语轻声（·sa）滑脱先验，字字沉稳厚重。
         """
         c_text = "".join([x['text'] for x in chars])
         if c_text in ("如来善护念诸菩萨", "善付嘱诸菩萨"):
@@ -231,8 +232,10 @@ class SutraSSMLCompiler:
             part1_chars, part2_chars = chars[:split_idx], chars[split_idx:]
             part1_sapi = " ".join(sapis[:split_idx])
             part2_sapi = " ".join(sapis[split_idx:])
+            # 对偶圣号宾语“诸菩萨”采用同音硬去声定调（“诸菩飒”），彻底破除口语轻声（·sa）滑脱先验
+            part2_text = "".join([x["text"] for x in part2_chars]).replace("菩萨", "菩飒")
             
-            target.append(f'<phoneme alphabet="sapi" ph="{part1_sapi}">{"".join([x["text"] for x in part1_chars])}</phoneme><prosody volume="+15%" rate="-14%"><phoneme alphabet="sapi" ph="{part2_sapi}">{"".join([x["text"] for x in part2_chars])}</phoneme></prosody>')
+            target.append(f'<phoneme alphabet="sapi" ph="{part1_sapi}">{"".join([x["text"] for x in part1_chars])}</phoneme><prosody volume="+15%" rate="-14%"><phoneme alphabet="sapi" ph="{part2_sapi}">{part2_text}</phoneme></prosody>')
             self.clauses_meta.append(('clause', part1_chars))
             self.clauses_meta.append(('clause', part2_chars))
         else:
