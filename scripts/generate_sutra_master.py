@@ -221,12 +221,24 @@ class SutraSSMLCompiler:
 
     def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
         """
-        封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣
+        封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣。
+        针对“如来善护念诸菩萨 / 善付嘱诸菩萨”等紧邻对偶句，TTS 自注意力极易将第二句重复名相弱读（轻读、轻佻滑脱）。
+        自动分离谓语与圣号宾语，并赋予圣号专属稳健中气加权（volume +15%, rate -14%），消除轻佻感并保持 100% 物理对齐。
         """
         c_text = "".join([x['text'] for x in chars])
-        c_sapi = " ".join(sapis)
-        target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
-        self.clauses_meta.append(('clause', chars))
+        if c_text in ("如来善护念诸菩萨", "善付嘱诸菩萨"):
+            split_idx = 5 if c_text.startswith("如来善护念") else 3
+            part1_chars, part2_chars = chars[:split_idx], chars[split_idx:]
+            part1_sapi = " ".join(sapis[:split_idx])
+            part2_sapi = " ".join(sapis[split_idx:])
+            
+            target.append(f'<phoneme alphabet="sapi" ph="{part1_sapi}">{"".join([x["text"] for x in part1_chars])}</phoneme><prosody volume="+15%" rate="-14%"><phoneme alphabet="sapi" ph="{part2_sapi}">{"".join([x["text"] for x in part2_chars])}</phoneme></prosody>')
+            self.clauses_meta.append(('clause', part1_chars))
+            self.clauses_meta.append(('clause', part2_chars))
+        else:
+            c_sapi = " ".join(sapis)
+            target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
+            self.clauses_meta.append(('clause', chars))
 
     def _append_pause(self, punct: str, target: List[str], is_sentence_end: bool = False):
         """
