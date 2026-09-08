@@ -179,7 +179,9 @@ class SutraSSMLCompiler:
                     py = c.get('pinyin', '')
 
                     if txt in self.PAUSE_PUNCTUATIONS:
+                        last_clause_txt = ""
                         if curr_chars:
+                            last_clause_txt = "".join(x['text'] for x in curr_chars)
                             self._append_clause(curr_chars, curr_sapis, ssml_clauses)
                             curr_chars, curr_sapis = [], []
                         
@@ -187,7 +189,19 @@ class SutraSSMLCompiler:
                         is_end = (l_idx == len(lines) - 1) and (
                             c_idx == len(chars) - 1 or all(not x.get('pinyin') for x in chars[c_idx+1:])
                         )
-                        self._append_pause(txt, ssml_clauses, is_sentence_end=is_end)
+                        
+                        # 检查是否为“善哉，善哉”成对紧凑赞叹：若是首个“善哉”，使用 150ms 紧凑气口，杜绝拖长音与冷场
+                        is_shanzai_paired = False
+                        if last_clause_txt == "善哉" and not is_end:
+                            if l_idx + 1 < len(lines):
+                                next_l_txt = "".join(x.get('text', '') for x in lines[l_idx+1].get('chars', []))
+                                if "善哉" in next_l_txt:
+                                    is_shanzai_paired = True
+
+                        if is_shanzai_paired:
+                            ssml_clauses.append('，<break time="150ms"/>')
+                        else:
+                            self._append_pause(txt, ssml_clauses, is_sentence_end=is_end)
                     elif txt in self.DECORATIVE_PUNCT:
                         # 装饰标点不发音、不生成空 phoneme
                         continue
@@ -222,25 +236,31 @@ class SutraSSMLCompiler:
     def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
         """
         封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣。
-        针对“如来善护念诸菩萨 / 善付嘱诸菩萨”等紧邻对偶句，TTS 自注意力极易将第二句重复名相弱读（轻读、轻佻滑脱）。
-        自动分离谓语与圣号宾语，赋予专属稳健中气加权（volume +15%, rate -14%），
-        并对“菩萨”注入硬去声同音定调（“菩飒”），彻底破除口语轻声（·sa）滑脱先验，字字沉稳厚重。
+        针对“如来善护念诸菩萨 / 善付嘱诸菩萨”等紧邻对偶句：
+        - 自动分离谓语与圣号宾语，赋予专属稳健中气加权（volume +12%，不降低语速，绝不拖音延宕）
+        - 针对女声底模口语轻声（pú ·sa）滑脱先验，对“诸菩萨”采用同音硬去声定调（“诸菩飒”），读满刚劲第四声（sà），字字干脆沉稳。
         """
         c_text = "".join([x['text'] for x in chars])
+        is_female = "xiaoqiu" in self.voice_name.lower()
         if c_text in ("如来善护念诸菩萨", "善付嘱诸菩萨"):
             split_idx = 5 if c_text.startswith("如来善护念") else 3
             part1_chars, part2_chars = chars[:split_idx], chars[split_idx:]
             part1_sapi = " ".join(sapis[:split_idx])
             part2_sapi = " ".join(sapis[split_idx:])
-            # 对偶圣号宾语“诸菩萨”采用同音硬去声定调（“诸菩飒”），彻底破除口语轻声（·sa）滑脱先验
-            part2_text = "".join([x["text"] for x in part2_chars]).replace("菩萨", "菩飒")
+            # 对偶圣号宾语“诸菩萨”在女声中采用同音硬去声定调（“诸菩飒”），破除口语轻声（·sa）
+            part2_text = "".join([x["text"] for x in part2_chars])
+            if is_female:
+                part2_text = part2_text.replace("菩萨", "菩飒")
             
-            target.append(f'<phoneme alphabet="sapi" ph="{part1_sapi}">{"".join([x["text"] for x in part1_chars])}</phoneme><prosody volume="+15%" rate="-14%"><phoneme alphabet="sapi" ph="{part2_sapi}">{part2_text}</phoneme></prosody>')
+            # volume +12% 给足底气，去除 rate 负向减速（杜绝拖音不干脆）
+            target.append(f'<phoneme alphabet="sapi" ph="{part1_sapi}">{"".join([x["text"] for x in part1_chars])}</phoneme><prosody volume="+12%"><phoneme alphabet="sapi" ph="{part2_sapi}">{part2_text}</phoneme></prosody>')
             self.clauses_meta.append(('clause', part1_chars))
             self.clauses_meta.append(('clause', part2_chars))
         else:
+            # 圣号“菩萨”通用防轻声化：女声遇到“菩萨”，统一将文字注为“菩飒”，彻底根除口语轻声发飘与拖音
+            c_text_ssml = c_text.replace("菩萨", "菩飒") if is_female else c_text
             c_sapi = " ".join(sapis)
-            target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
+            target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text_ssml}</phoneme>')
             self.clauses_meta.append(('clause', chars))
 
     def _append_pause(self, punct: str, target: List[str], is_sentence_end: bool = False):
@@ -301,8 +321,28 @@ class TimestampAligner:
 
     @classmethod
     def align_and_save(cls, data: Dict[str, Any], clauses_meta: List[Tuple[str, List[Dict[str, Any]]]],
-                       word_events: List[Dict[str, Any]], json_path: str):
+                       word_events: List[Dict[str, Any]], json_path: str, voice_key: str = "female"):
         """执行对齐并保存更新后的经文 JSON"""
+        # 如果文件已存在，先读取一次磁盘最新 JSON 合并已有 voices，确保男女声时间戳共存互不覆盖
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    disk_data = json.load(f)
+                if 'voices' in disk_data and isinstance(disk_data['voices'], dict):
+                    data['voices'] = disk_data['voices']
+                for p_idx, p in enumerate(data.get('paragraphs', [])):
+                    if p_idx < len(disk_data.get('paragraphs', [])):
+                        disk_p = disk_data['paragraphs'][p_idx]
+                        if 'voices' in disk_p and isinstance(disk_p['voices'], dict):
+                            p['voices'] = disk_p['voices']
+                        for l_idx, line in enumerate(p.get('lines', [])):
+                            if l_idx < len(disk_p.get('lines', [])):
+                                disk_line = disk_p['lines'][l_idx]
+                                if 'voices' in disk_line and isinstance(disk_line['voices'], dict):
+                                    line['voices'] = disk_line['voices']
+            except Exception:
+                pass
+
         # 0. 先行数据净化：彻底清理所有非发音字符（无 pinyin 的标点/引号等）的残留时间戳，杜绝历史脏数据污染
         for p in data.get('paragraphs', []):
             for line in p.get('lines', []):
@@ -337,8 +377,12 @@ class TimestampAligner:
                 if p_start < last_p_start:
                     raise ValueError(f"🚨 时间戳单调性异常熔断: 段落{p_idx} startTime ({p_start}) 小于前一段 ({last_p_start})")
                 last_p_start = p_start
-                p['startTime'] = p_start
-                p['endTime'] = p_end
+                if 'voices' not in p or not isinstance(p['voices'], dict):
+                    p['voices'] = {}
+                p['voices'][voice_key] = {'startTime': p_start, 'endTime': p_end}
+                if voice_key == "female":
+                    p['startTime'] = p_start
+                    p['endTime'] = p_end
 
                 last_l_start = -1.0
                 for l_idx, line in enumerate(p.get('lines', [])):
@@ -349,14 +393,24 @@ class TimestampAligner:
                         if l_start < last_l_start:
                             raise ValueError(f"🚨 时间戳单调性异常熔断: 段落{p_idx} 行{l_idx} lineStart ({l_start}) 倒退")
                         last_l_start = l_start
-                        line['lineStart'] = l_start
-                        line['lineEnd'] = l_end
+                        if 'voices' not in line or not isinstance(line['voices'], dict):
+                            line['voices'] = {}
+                        line['voices'][voice_key] = {'lineStart': l_start, 'lineEnd': l_end}
+                        if voice_key == "female":
+                            line['lineStart'] = l_start
+                            line['lineEnd'] = l_end
 
         # 汇总经题时间戳
         title_chars = [c for c in data.get('title', []) if c.get('pinyin') and 'startTime' in c]
         if title_chars:
-            data['titleStart'] = title_chars[0]['startTime']
-            data['titleEnd'] = title_chars[-1]['endTime']
+            t_start = title_chars[0]['startTime']
+            t_end = title_chars[-1]['endTime']
+            if 'voices' not in data or not isinstance(data['voices'], dict):
+                data['voices'] = {}
+            data['voices'][voice_key] = {'titleStart': t_start, 'titleEnd': t_end}
+            if voice_key == "female":
+                data['titleStart'] = t_start
+                data['titleEnd'] = t_end
 
         # 备份原 JSON 并写入
         shutil.copyfile(json_path, json_path + '.backup')
@@ -371,7 +425,7 @@ def resolve_voice_name(voice_arg: str) -> str:
 
 
 def generate_sutra_master(book: str, chapter: str, voice: str, output: str = None, 
-                           update_json: bool = True, rate: str = "-11%"):
+                           update_json: bool = True, rate: str = "-11%", voice_key: str = None):
     """主流水线执行函数"""
     speech_key = os.environ.get('AZURE_SPEECH_KEY')
     service_region = os.environ.get('AZURE_SPEECH_REGION', 'eastasia')
@@ -387,6 +441,11 @@ def generate_sutra_master(book: str, chapter: str, voice: str, output: str = Non
         data = json.load(f)
 
     actual_voice = resolve_voice_name(voice)
+    if not voice_key:
+        if "yunyang" in actual_voice.lower() or "male" in actual_voice.lower():
+            voice_key = "male"
+        else:
+            voice_key = "female"
     
     # 针对音色自动绑定专属工业级风格与语速
     if "yunyang" in actual_voice.lower():
@@ -397,7 +456,7 @@ def generate_sutra_master(book: str, chapter: str, voice: str, output: str = Non
         auto_style = None
 
     print(f"📖 正在加载经文: [{book} / {chapter}]")
-    print(f"🎙️ 选定音色: {actual_voice} (输入别名: {voice}, 语速: {rate}, 演播风格: {auto_style})")
+    print(f"🎙️ 选定音色: {actual_voice} (别名: {voice}, 语速: {rate}, 演播风格: {auto_style}, 时间轴分类: {voice_key})")
 
     # 1. 编译 SSML (经过强制数据门禁校验)
     compiler = SutraSSMLCompiler(data, actual_voice, rate=rate, volume="+10%", style=auto_style)
@@ -421,9 +480,9 @@ def generate_sutra_master(book: str, chapter: str, voice: str, output: str = Non
 
     # 4. 对齐并更新 JSON
     if update_json:
-        print(f"⏱️ 正在回写毫秒级时间戳至 {json_path} ...")
-        TimestampAligner.align_and_save(data, clauses_meta, word_events, json_path)
-        print(f"✅ 毫秒级时间戳对齐与段落回写完成！(原文件已备份至 {json_path}.backup)")
+        print(f"⏱️ 正在回写 [{voice_key}] 毫秒级时间戳至 {json_path} ...")
+        TimestampAligner.align_and_save(data, clauses_meta, word_events, json_path, voice_key=voice_key)
+        print(f"✅ [{voice_key}] 毫秒级时间戳对齐与段落回写完成！(原文件已备份至 {json_path}.backup)")
 
 
 def main():

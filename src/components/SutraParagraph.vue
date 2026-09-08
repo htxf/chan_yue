@@ -53,12 +53,16 @@ let lastScrolledLine = -1
 let userTouchTimer = null
 let isUserTouching = false
 
-function onUserTouchActivity() {
+function onUserTouchActivity(e) {
+  // 排除点击控制栏、播放器或导航按钮触发的误判
+  if (e && e.target && e.target.closest && e.target.closest('.audio-player-fixed, .audio-player-card, button, .nav-top-btn, .mode-selector')) {
+    return
+  }
   isUserTouching = true
   if (userTouchTimer) clearTimeout(userTouchTimer)
   userTouchTimer = setTimeout(() => {
     isUserTouching = false
-  }, 3500)
+  }, 2000)
 }
 
 if (typeof window !== 'undefined') {

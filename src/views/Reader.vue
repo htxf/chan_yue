@@ -30,9 +30,37 @@ function extractText(val) {
 const bookId = computed(() => route.params.bookId)
 const chapterId = computed(() => route.params.chapterId || 'chapter_1')
 
-const paragraphsRef = computed(() => chapterData.value?.paragraphs || [])
-
 const selectedVoice = ref(localStorage.getItem('chanyue_voice') || 'female')
+
+/**
+ * 响应式动态音色时间戳适配：
+ * 根据 selectedVoice 自动提取当前音色的专属时间戳（voices.female / voices.male），
+ * 确保男女声切换时，段落 startTime 与行 lineStart 100% 毫秒级对齐。
+ */
+const activeParagraphs = computed(() => {
+  const ps = chapterData.value?.paragraphs || []
+  const voice = selectedVoice.value
+  return ps.map(p => {
+    const vTime = p.voices?.[voice]
+    const pStart = vTime?.startTime ?? p.startTime
+    const pEnd = vTime?.endTime ?? p.endTime
+    return {
+      ...p,
+      startTime: pStart,
+      endTime: pEnd,
+      lines: (p.lines || []).map(l => {
+        const lvTime = l.voices?.[voice]
+        return {
+          ...l,
+          lineStart: lvTime?.lineStart ?? l.lineStart,
+          lineEnd: lvTime?.lineEnd ?? l.lineEnd,
+        }
+      })
+    }
+  })
+})
+
+const paragraphsRef = activeParagraphs
 
 function getVoiceAudioUrl(rawUrl, voice = selectedVoice.value) {
   if (!rawUrl) return rawUrl
@@ -288,10 +316,27 @@ watch(mode, (newMode) => {
   }
 })
 
-/* 点击播放时，自动切换到禅听模式 */
+const currentFirstPStart = computed(() => {
+  const p0 = activeParagraphs.value?.[0]
+  return p0?.startTime ?? 3.0
+})
+
+const isTitleActive = computed(() => isPlaying.value && currentTime.value < currentFirstPStart.value)
+
+/* 诵读题目期间聚焦：当开始播放且处于诵读题目阶段时，第一时间聚焦滚动至顶部经题 */
+watch(isTitleActive, (active) => {
+  if (active && mode.value === 'listening') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+})
+
+/* 点击播放时，自动切换到禅听模式并第一时间聚焦经题 */
 function handleToggle() {
   if (mode.value === 'reading' && !isPlaying.value) {
     mode.value = 'listening'
+  }
+  if (!isPlaying.value && currentTime.value < currentFirstPStart.value) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   toggle()
 }
@@ -382,13 +427,13 @@ function handleToggle() {
           :author="bookMeta.author || chapterData.author"
           :isFirstChapter="chapterId === 'chapter_1' || !chapterId"
           :isMultiChapter="Boolean(bookMeta?.chapters && bookMeta.chapters.length > 1)"
-          :isTitleActive="isPlaying && currentTime < (chapterData.paragraphs?.[0]?.startTime || 3.0)"
+          :isTitleActive="isTitleActive"
         />
 
         <ModeSelector v-model:mode="mode" />
 
         <SutraBody
-          :paragraphs="chapterData.paragraphs"
+          :paragraphs="activeParagraphs"
           :currentParagraphId="currentParagraphId"
           :currentTime="currentTime"
           :mode="mode"
