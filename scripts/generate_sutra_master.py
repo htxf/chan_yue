@@ -168,11 +168,13 @@ class SutraSSMLCompiler:
 
         # 2. 编译经文段落（Paragraphs）
         for p in self.data.get('paragraphs', []):
-            for line in p.get('lines', []):
+            lines = p.get('lines', [])
+            for l_idx, line in enumerate(lines):
                 curr_chars: List[Dict[str, Any]] = []
                 curr_sapis: List[str] = []
+                chars = line.get('chars', [])
 
-                for c in line.get('chars', []):
+                for c_idx, c in enumerate(chars):
                     txt = c.get('text', '')
                     py = c.get('pinyin', '')
 
@@ -180,7 +182,12 @@ class SutraSSMLCompiler:
                         if curr_chars:
                             self._append_clause(curr_chars, curr_sapis, ssml_clauses)
                             curr_chars, curr_sapis = [], []
-                        self._append_pause(txt, ssml_clauses)
+                        
+                        # 判断是否为段落末尾结句
+                        is_end = (l_idx == len(lines) - 1) and (
+                            c_idx == len(chars) - 1 or all(not x.get('pinyin') for x in chars[c_idx+1:])
+                        )
+                        self._append_pause(txt, ssml_clauses, is_sentence_end=is_end)
                     elif txt in self.DECORATIVE_PUNCT:
                         # 装饰标点不发音、不生成空 phoneme
                         continue
@@ -221,16 +228,20 @@ class SutraSSMLCompiler:
         target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
         self.clauses_meta.append(('clause', chars))
 
-    def _append_pause(self, punct: str, target: List[str]):
+    def _append_pause(self, punct: str, target: List[str], is_sentence_end: bool = False):
         """
-        依参考样例实测精准留白：
-        逗号：原生200ms + 补偿380ms = 实测 ~580ms（从容深呼吸）
-        句号：原生750ms + 补偿250ms = 实测 ~1000ms（沉稳落定）
+        依参考样例实测精准留白与古籍经文声学标点归一化（Acoustic Punctuation Normalization）：
+        1. 绝不向 TTS 引擎输出现代情绪标点 '！' 或 '？'，防止触发剧烈惊叫破音（尖尖的）或质问上挑；
+        2. 句号类 ('。' 或句末终结 '！' / '？')：声学平落 '。<break time="250ms"/>'（实测总留白 ~1000ms，沉稳落定）；
+        3. 呼赞与疑问承接 ('！', '？', 冒号 '：', 分号 '；')：声学温和气口 '，<break time="380ms"/>'（实测总留白 ~580ms，从容深呼吸）；
+        4. 顿号 ('、')：保留顿号自身，微歇 120ms（实测总留白 ~250ms），并列韵律紧凑自然，杜绝报菜名式大断裂。
         """
-        if punct == '。':
+        if punct == '。' or is_sentence_end:
             target.append('。<break time="250ms"/>')
+        elif punct == '、':
+            target.append('、<break time="120ms"/>')
         else:
-            target.append(f'{punct}<break time="380ms"/>')
+            target.append('，<break time="380ms"/>')
 
 
 class SpeechMasterSynthesizer:
@@ -271,13 +282,21 @@ class TimestampAligner:
     """
     负责将捕获的物理时间戳对齐分配给 JSON 字符、行与段落
     """
-    PUNCT_FILTER = {'。', '，', '；', '：', '、', '？', '！', '」', '「', '“', '”'}
+    PUNCT_FILTER = {'。', '，', '；', '：', '、', '？', '！', '」', '「', '“', '”', '『', '』', '‘', '’', '《', '》', '（', '）'}
 
     @classmethod
     def align_and_save(cls, data: Dict[str, Any], clauses_meta: List[Tuple[str, List[Dict[str, Any]]]],
                        word_events: List[Dict[str, Any]], json_path: str):
         """执行对齐并保存更新后的经文 JSON"""
-        # 过滤纯标点事件
+        # 0. 先行数据净化：彻底清理所有非发音字符（无 pinyin 的标点/引号等）的残留时间戳，杜绝历史脏数据污染
+        for p in data.get('paragraphs', []):
+            for line in p.get('lines', []):
+                for c in line.get('chars', []):
+                    if not c.get('pinyin') or not c.get('pinyin').strip():
+                        c.pop('startTime', None)
+                        c.pop('endTime', None)
+
+        # 过滤纯标点物理事件
         actual_clauses = [w for w in word_events if w['text'] not in cls.PUNCT_FILTER]
 
         # 逐小句按字数等分对齐
@@ -292,20 +311,34 @@ class TimestampAligner:
                     c['startTime'] = round(c_start + j * char_dur, 3)
                     c['endTime'] = round(c_start + (j + 1) * char_dur, 3)
 
-        # 汇总段落与行时间戳
-        for p in data.get('paragraphs', []):
-            p_chars = [c for line in p.get('lines', []) for c in line.get('chars', []) if 'startTime' in c]
+        # 汇总段落与行时间戳（100% 仅从具有有效 pinyin 的发音汉字中提取）
+        last_p_start = -1.0
+        for p_idx, p in enumerate(data.get('paragraphs', [])):
+            p_chars = [c for line in p.get('lines', []) for c in line.get('chars', []) if c.get('pinyin') and 'startTime' in c]
             if p_chars:
-                p['startTime'] = p_chars[0]['startTime']
-                p['endTime'] = p_chars[-1]['endTime']
-                for line in p.get('lines', []):
-                    l_chars = [c for c in line.get('chars', []) if 'startTime' in c]
+                p_start = p_chars[0]['startTime']
+                p_end = p_chars[-1]['endTime']
+                # 强制单调性门禁：段落时间严禁倒退
+                if p_start < last_p_start:
+                    raise ValueError(f"🚨 时间戳单调性异常熔断: 段落{p_idx} startTime ({p_start}) 小于前一段 ({last_p_start})")
+                last_p_start = p_start
+                p['startTime'] = p_start
+                p['endTime'] = p_end
+
+                last_l_start = -1.0
+                for l_idx, line in enumerate(p.get('lines', [])):
+                    l_chars = [c for c in line.get('chars', []) if c.get('pinyin') and 'startTime' in c]
                     if l_chars:
-                        line['lineStart'] = l_chars[0]['startTime']
-                        line['lineEnd'] = l_chars[-1]['endTime']
+                        l_start = l_chars[0]['startTime']
+                        l_end = l_chars[-1]['endTime']
+                        if l_start < last_l_start:
+                            raise ValueError(f"🚨 时间戳单调性异常熔断: 段落{p_idx} 行{l_idx} lineStart ({l_start}) 倒退")
+                        last_l_start = l_start
+                        line['lineStart'] = l_start
+                        line['lineEnd'] = l_end
 
         # 汇总经题时间戳
-        title_chars = [c for c in data.get('title', []) if 'startTime' in c]
+        title_chars = [c for c in data.get('title', []) if c.get('pinyin') and 'startTime' in c]
         if title_chars:
             data['titleStart'] = title_chars[0]['startTime']
             data['titleEnd'] = title_chars[-1]['endTime']
