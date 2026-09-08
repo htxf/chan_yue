@@ -119,11 +119,22 @@ function handleWindowScroll() {
 
 onMounted(() => {
   window.addEventListener('scroll', handleWindowScroll, { passive: true })
+  checkNavOverflow()
+  setupNavObserver()
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => checkNavOverflow())
+  }
+  window.addEventListener('resize', checkNavOverflow, { passive: true })
 })
 
 onUnmounted(() => {
   if (autoPlayTimer) clearTimeout(autoPlayTimer)
   window.removeEventListener('scroll', handleWindowScroll)
+  window.removeEventListener('resize', checkNavOverflow)
+  if (navResizeObserver) {
+    navResizeObserver.disconnect()
+    navResizeObserver = null
+  }
 })
 
 // --- Interaction & UI Hide Logic ---
@@ -156,32 +167,59 @@ const nextChapter = computed(() => {
   return null
 })
 
+const prevTrackRef = ref(null)
+const nextTrackRef = ref(null)
 const prevTitleRef = ref(null)
 const nextTitleRef = ref(null)
 const isPrevTitleOverflow = ref(false)
 const isNextTitleOverflow = ref(false)
 
+let navResizeObserver = null
+
 function checkNavOverflow() {
   nextTick(() => {
-    if (prevTitleRef.value) {
-      const unit = prevTitleRef.value.querySelector('.nav-title-unit') || prevTitleRef.value
-      const parent = prevTitleRef.value.parentElement
-      if (unit && parent) {
-        isPrevTitleOverflow.value = unit.scrollWidth > parent.clientWidth + 2
+    if (prevTrackRef.value && prevTitleRef.value) {
+      const unit = prevTitleRef.value.querySelector('.nav-title-unit')
+      if (unit) {
+        const unitWidth = unit.scrollWidth || unit.getBoundingClientRect().width
+        const trackWidth = prevTrackRef.value.clientWidth
+        isPrevTitleOverflow.value = unitWidth > (trackWidth + 1)
       }
+    } else {
+      isPrevTitleOverflow.value = false
     }
-    if (nextTitleRef.value) {
-      const unit = nextTitleRef.value.querySelector('.nav-title-unit') || nextTitleRef.value
-      const parent = nextTitleRef.value.parentElement
-      if (unit && parent) {
-        isNextTitleOverflow.value = unit.scrollWidth > parent.clientWidth + 2
+
+    if (nextTrackRef.value && nextTitleRef.value) {
+      const unit = nextTitleRef.value.querySelector('.nav-title-unit')
+      if (unit) {
+        const unitWidth = unit.scrollWidth || unit.getBoundingClientRect().width
+        const trackWidth = nextTrackRef.value.clientWidth
+        isNextTitleOverflow.value = unitWidth > (trackWidth + 1)
       }
+    } else {
+      isNextTitleOverflow.value = false
     }
   })
 }
 
+function setupNavObserver() {
+  if (typeof ResizeObserver !== 'undefined') {
+    if (!navResizeObserver) {
+      navResizeObserver = new ResizeObserver(() => {
+        checkNavOverflow()
+      })
+    }
+    navResizeObserver.disconnect()
+    if (prevTrackRef.value) navResizeObserver.observe(prevTrackRef.value)
+    if (nextTrackRef.value) navResizeObserver.observe(nextTrackRef.value)
+  }
+}
+
 watch([chapterId, prevChapter, nextChapter], () => {
-  checkNavOverflow()
+  nextTick(() => {
+    checkNavOverflow()
+    setupNavObserver()
+  })
 })
 
 let isAutoPlayingNext = false
@@ -464,14 +502,16 @@ function handleToggle() {
                 <span class="nav-arrow">←</span>
                 <span class="nav-label">上一品</span>
                 <span class="nav-sep">·</span>
-                <div class="nav-title-track" :class="{ 'is-scrolling': isPrevTitleOverflow }">
+                <div ref="prevTrackRef" class="nav-title-track" :class="{ 'is-scrolling': isPrevTitleOverflow }">
                   <div ref="prevTitleRef" class="nav-marquee-loop">
-                    <span class="nav-title-unit">{{ prevChapter.title }}</span>
-                    <template v-if="isPrevTitleOverflow">
-                      <span class="nav-marquee-sep">···</span>
+                    <div class="nav-marquee-part">
+                      <span class="nav-title-unit">{{ prevChapter.title }}</span>
+                      <span v-if="isPrevTitleOverflow" class="nav-marquee-sep">···</span>
+                    </div>
+                    <div v-if="isPrevTitleOverflow" class="nav-marquee-part" aria-hidden="true">
                       <span class="nav-title-unit">{{ prevChapter.title }}</span>
                       <span class="nav-marquee-sep">···</span>
-                    </template>
+                    </div>
                   </div>
                 </div>
               </button>
@@ -483,14 +523,16 @@ function handleToggle() {
                 class="nav-btn next"
                 :title="`下一品：${nextChapter.title}`"
               >
-                <div class="nav-title-track" :class="{ 'is-scrolling': isNextTitleOverflow }">
+                <div ref="nextTrackRef" class="nav-title-track" :class="{ 'is-scrolling': isNextTitleOverflow }">
                   <div ref="nextTitleRef" class="nav-marquee-loop">
-                    <span class="nav-title-unit">{{ nextChapter.title }}</span>
-                    <template v-if="isNextTitleOverflow">
-                      <span class="nav-marquee-sep">···</span>
+                    <div class="nav-marquee-part">
+                      <span class="nav-title-unit">{{ nextChapter.title }}</span>
+                      <span v-if="isNextTitleOverflow" class="nav-marquee-sep">···</span>
+                    </div>
+                    <div v-if="isNextTitleOverflow" class="nav-marquee-part" aria-hidden="true">
                       <span class="nav-title-unit">{{ nextChapter.title }}</span>
                       <span class="nav-marquee-sep">···</span>
-                    </template>
+                    </div>
                   </div>
                 </div>
                 <span class="nav-sep">·</span>
@@ -726,17 +768,19 @@ function handleToggle() {
   text-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
 }
 
-/* Chapter Pagination Footer (律动规范：导航条下边距 16px，支持自适应平滑跑马灯) */
+/* Chapter Pagination Footer (自适应宽度 + 极限小屏平滑跑马灯) */
 .chapter-nav-bar {
   margin-top: 0;
   margin-bottom: 16px;
   padding: 0 12px;
-  max-width: 580px;
+  width: 100%;
+  max-width: min(760px, 94%);
   margin-left: auto;
   margin-right: auto;
   display: flex;
   align-items: center;
   gap: 12px;
+  box-sizing: border-box;
 }
 
 .chapter-nav-bar.is-single {
@@ -748,29 +792,30 @@ function handleToggle() {
 }
 
 .nav-btn {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  max-width: calc(50% - 6px);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
   border-radius: 9999px;
-  background: rgba(22, 22, 28, 0.45);
-  border: 1px solid rgba(212, 165, 116, 0.2);
+  background: rgba(22, 22, 28, 0.55);
+  border: 1px solid rgba(212, 165, 116, 0.22);
   color: var(--text-primary);
   font-family: 'Noto Serif SC', serif;
   font-size: 13px;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  max-width: 48%;
+  overflow: hidden;
 }
 
 .chapter-nav-bar.is-single .nav-btn {
   flex: 0 1 auto;
-  max-width: 85%;
+  max-width: min(480px, 88%);
   padding: 8px 24px;
 }
 
@@ -816,9 +861,9 @@ function handleToggle() {
   font-size: 11px;
 }
 
-/* 跑马灯滚动轨道：当文字溢出时两侧淡隐，平滑来回滚动展现全名 */
+/* 跑马灯滚动轨道：当文字溢出时两侧柔和羽化遮罩，无缝匀速滚动 */
 .nav-title-track {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
   position: relative;
@@ -826,8 +871,8 @@ function handleToggle() {
 }
 
 .nav-title-track.is-scrolling {
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
 
 .nav-marquee-loop {
@@ -838,8 +883,15 @@ function handleToggle() {
   will-change: transform;
 }
 
+.nav-marquee-part {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .nav-title-track.is-scrolling .nav-marquee-loop {
-  animation: continuousNavMarquee 11s linear infinite;
+  animation: continuousNavMarquee 9s linear infinite;
 }
 
 .nav-btn:hover .nav-marquee-loop,
@@ -879,14 +931,35 @@ function handleToggle() {
     padding: 0 8px;
     gap: 8px;
     margin-bottom: 12px;
+    max-width: 100%;
   }
   .nav-btn {
     padding: 6px 10px;
     font-size: 12px;
     gap: 4px;
+    max-width: calc(50% - 4px);
   }
   .nav-label {
     font-size: 11px;
+  }
+  .nav-marquee-sep {
+    padding: 0 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .chapter-nav-bar {
+    padding: 0 4px;
+    gap: 6px;
+  }
+  .nav-btn {
+    padding: 5px 7px;
+    font-size: 11.5px;
+    gap: 3px;
+    max-width: calc(50% - 3px);
+  }
+  .nav-sep {
+    display: none;
   }
 }
 
