@@ -448,6 +448,12 @@ function handleToggle() {
               </div>
             </div>
           </div>
+          <div class="drawer-footer">
+            <a href="/compare.html" class="drawer-compare-btn">
+              <span>🎯 声学修复对比实验室</span>
+              <span>→</span>
+            </a>
+          </div>
         </div>
       </div>
     </transition>
@@ -744,6 +750,34 @@ function handleToggle() {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.drawer-footer {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(212, 165, 116, 0.12);
+  background: rgba(14, 14, 18, 0.5);
+}
+
+.drawer-compare-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(212, 165, 116, 0.08);
+  border: 1px solid rgba(212, 165, 116, 0.25);
+  color: var(--gold);
+  font-size: 13px;
+  text-decoration: none;
+  font-family: 'Noto Serif SC', serif;
+  transition: all 0.25s ease;
+}
+
+.drawer-compare-btn:hover,
+.drawer-compare-btn:active {
+  background: rgba(212, 165, 116, 0.18);
+  border-color: rgba(212, 165, 116, 0.5);
+  transform: translateY(-1px);
 }
 
 /* 经文诵毕 · 结经尾花印（律动规范：经文末至印章 24px，印章至导航条 12px） */

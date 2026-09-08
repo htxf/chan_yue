@@ -113,9 +113,13 @@ function goToBook(item) {
       <ZenAudioStation />
     </main>
 
-    <!-- 底部清净小记 -->
+    <!-- 底部清净小记 & 对比入口 -->
     <footer class="home-footer">
       <p>息妄显真 · 随缘自适</p>
+      <a href="/compare.html" class="compare-entry-badge">
+        <span>🎯 声学修复对比实验室</span>
+        <span class="text-xs opacity-60">→</span>
+      </a>
     </footer>
 
     <!-- 全藏索经弹窗 -->
@@ -374,15 +378,43 @@ function goToBook(item) {
   transition: transform 0.2s ease;
 }
 
-/* 底部清净字 */
 .home-footer {
   text-align: center;
   margin-top: 36px;
   font-family: 'Noto Serif SC', 'KaiTi', serif;
   font-size: 12px;
   color: var(--text-muted);
-  opacity: 0.65;
-  letter-spacing: 4px;
+  opacity: 0.75;
+  letter-spacing: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.compare-entry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(22, 22, 28, 0.65);
+  border: 1px solid rgba(212, 165, 116, 0.28);
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.compare-entry-badge:hover,
+.compare-entry-badge:active {
+  background: rgba(36, 36, 48, 0.85);
+  border-color: rgba(212, 165, 116, 0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes fadeIn {
