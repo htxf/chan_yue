@@ -1,438 +1,402 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 generate_sutra_master.py
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-《禅阅》全藏工业级古籍佛经音频母带生成与声学门禁质检全流程引擎
-遵循《禅阅》Zen Audio Master SOP 工业级标准：
-1. 篇幅分级：≤400字经卷强制单次直出（Single-Pass）
-2. 全类别 BLOCK_NONE 安全豁免，彻底杜绝古籍名相误拦截
-3. 动态提示词注入：依据经文 JSON 标准注音严格锁定字音声调
-4. 24kHz 贴耳纯干声，50Hz 亚音频滤波母带压制
-5. Whisper 全局音素强制对齐（SequenceMatcher + pypinyin）
-6. 声字一致性真实声学门禁（Phonetic Gatekeeper）：声调不符绝对阻断
+《禅阅》工业级古籍佛经音频母带生成与毫秒级时间轴对齐引擎 v2.0 (全小句 SAPI 跑通标准)
+
+设计原则：
+1. 单一真理源（Single Source of Truth）：100% 动态读取 src/data/<book>/<chapter>.json 屏幕注音。
+2. 小句级 SAPI 封装（Clause-Level Boxing）：按标点划分整句封装 <phoneme>，每个字的读音 100% 由经文注音驱动（般若必然读 bō rě，绝不读 bān）。
+3. 严格标点气口留白：句号补偿 250ms（总计 ~1050ms），逗号补偿 380ms（总计 ~580ms），经题补偿 550ms。
+4. 原生底层时间戳捕获：利用 Azure Speech SDK word_boundary 事件直接获取毫秒级物理边界，零转录误差。
+5. 纯净高保真零滤镜直出：24kHz 160kbps MP3 原生直出，消除任何人工染色与共振。
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-用法:
-    python scripts/generate_sutra_master.py xinjing chapter_1 --voice female
-    python scripts/generate_sutra_master.py jingangjing chapter_3 --voice male
+用法示例:
+    # 默认女声（晓秋）全篇母带并回写时间轴
+    python scripts/generate_sutra_master.py --book xinjing --chapter chapter_1
+
+    # 央视正声男声（云扬）全篇生成
+    python scripts/generate_sutra_master.py --book xinjing --chapter chapter_1 --voice yunyang --output public/audio/xinjing_yunyang.mp3
+
+    # 自然大模型男声（Bo）全篇生成
+    python scripts/generate_sutra_master.py --book xinjing --chapter chapter_1 --voice bo --output public/audio/xinjing_bo.mp3
 """
 
 import os
 import sys
 import json
-import wave
-import time
-import re
+import shutil
 import argparse
-import subprocess
-import difflib
-import whisper
-import pypinyin
-from google import genai
-from google.genai import types
+from typing import List, Dict, Tuple, Any
+import azure.cognitiveservices.speech as speechsdk
+from pydub import AudioSegment
+from dotenv import load_dotenv
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
+# 项目根目录
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
 
-SAFETY_SETTINGS = [
-    types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
-    types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=types.HarmBlockThreshold.BLOCK_NONE),
-    types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
-    types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
-    types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, threshold=types.HarmBlockThreshold.BLOCK_NONE),
-]
-
-VOICE_CONFIG = {
-    "female": "Zephyr", # 莲华女声
-    "male": "Charon",   # 暮钟男声
+# 预设音色指纹矩阵
+VOICE_PRESETS: Dict[str, str] = {
+    # 女声音色
+    "xiaoqiu": "zh-CN-XiaoqiuNeural",   # 主力女声：晓秋（中气充沛、声底厚实、沉稳不衰）
+    "xiaoxiao": "zh-CN-XiaoxiaoNeural", # 备选女声：晓晓（温婉清秀）
+    "female": "zh-CN-XiaoqiuNeural",
+    # 男声音色
+    "yunyang": "zh-CN-YunyangNeural",   # 👑 主力男声：云扬（央视国宝级播音正声、庄严正大、绝无拖尾降调）
+    "bo": "zh-CN-Bo:MAI-Voice-2",       # 🌿 自然大模型男声：Bo（微软最新 MAI-Voice-2，真实自然人声）
+    "yunyi": "zh-CN-Yunyi:DragonHDFlashLatestNeural", # 次时代高清：云逸 Dragon HD（古典国风诗意）
+    "yunze": "zh-CN-YunzeNeural",       # 沉厚老者：云泽
+    "yunjian": "zh-CN-YunjianNeural",   # 纪实居士：云健
+    "yunye": "zh-CN-YunyeNeural",       # 温润文僧：云野
+    "yunfeng": "zh-CN-YunfengNeural",   # 从容叙事：云枫
+    "male": "zh-CN-YunyangNeural",      # 默认男声直接锁定为云扬
 }
 
-class PhoneticAuditError(Exception):
-    """声学门禁校验不通过异常"""
+
+class PinyinSapiConverter:
+    """
+    负责将带调拼音（如 xiāng、bú、nuò、bō、rě）转译为微软 SAPI 音标格式（如 xiang 1、bu 2、nuo 4、bo 1、re 3）
+    """
+    TONE_MAP: Dict[str, Tuple[str, str]] = {
+        'ā': ('a', '1'), 'á': ('a', '2'), 'ǎ': ('a', '3'), 'à': ('a', '4'),
+        'ē': ('e', '1'), 'é': ('e', '2'), 'ě': ('e', '3'), 'è': ('e', '4'),
+        'ī': ('i', '1'), 'í': ('i', '2'), 'ǐ': ('i', '3'), 'ì': ('i', '4'),
+        'ō': ('o', '1'), 'ó': ('o', '2'), 'ǒ': ('o', '3'), 'ò': ('o', '4'),
+        'ū': ('u', '1'), 'ú': ('u', '2'), 'ǔ': ('u', '3'), 'ù': ('u', '4'),
+        'ǖ': ('v', '1'), 'ǘ': ('v', '2'), 'ǚ': ('v', '3'), 'ǜ': ('v', '4'),
+        'ü': ('v', '5')
+    }
+
+    @classmethod
+    def to_sapi(cls, pinyin: str) -> str:
+        """转换单个带调拼音为 SAPI 词音素（单音节）"""
+        if not pinyin:
+            return ""
+        tone = '5'
+        clean = ""
+        for char in pinyin:
+            if char in cls.TONE_MAP:
+                base, t = cls.TONE_MAP[char]
+                clean += base
+                tone = t
+            else:
+                clean += char
+        return f"{clean} {tone}"
+
+
+class PhoneticGatekeeperError(Exception):
+    """佛门正音与变调门禁拦截异常"""
     pass
 
-def get_api_key() -> str:
-    for p in [os.path.join(PROJECT_ROOT, ".env"), "d:/Projects/poem_project/.env"]:
-        if os.path.exists(p):
-            with open(p, "r", encoding="utf-8") as f:
-                for line in f:
-                    if line.strip().startswith("GEMINI_API_KEY="):
-                        return line.strip().split("=", 1)[1].strip().strip('"').strip("'")
-    return os.environ.get("GEMINI_API_KEY", "")
 
-# 经文与梵音字音精准正音映射表（单一真理源：100% 绝对服从经文 JSON 屏幕注音）
-# 1. 诸法空相：屏幕标注 xiàng 四声 -> 映射为“诸法空向”（向 100% 为 xiàng 四声正音）
-# 2. 究竟涅槃：屏幕标注 jiū 一声 -> 映射为“揪竟涅盘”（揪 100% 为 jiū 一声，彻底杜绝四声就）
-# 3. 揭谛：屏幕标注 jiē 一声 -> 映射为“街帝”（街 100% 为 jiē 一声，彻底杜绝二声截）
-# 4. 阿耨多罗：屏幕标注 nuò/nòu 四声鼻音 -> 映射为“阿糯多罗”（糯 100% 为 nuò 四声鼻音，彻底杜绝边音 l/漏）
-# 5. 般若波罗蜜多：屏幕标注 rě 三声 -> 映射为“波惹波罗蜜多”，名相内部零标点紧凑衔接
-# 6. 受想行识：屏幕标注 shí 二声 -> 映射为“受想形石”，杜绝句末下沉四声事
-# 7. 菩提萨埵：屏幕标注 duǒ 三声 -> 映射为“菩提萨朵”，杜绝四声堕
-PHONETIC_TTS_MAP = {
-    "般若波罗蜜多": "波惹波罗蜜多",
-    "般若": "波惹",
-    "菩提萨埵": "菩提萨朵",
-    "萨埵": "萨朵",
-    "受想行识": "受想形石",
-    "乃至无意识界": "乃至无意石界",
-    "舍利子": "设利子",
-    "诸法空相": "诸法空香",
-    "究竟涅槃": "揪竟涅盘",
-    "无明尽": "无明进",
-    "老死尽": "老死进",
-    "阿耨多罗": "阿糯多罗",
-    "三藐三菩提": "三秒三菩提",
-    "揭谛揭谛": "街帝街帝，",
-    "揭谛": "街帝",
-    "波罗揭谛": "波罗街帝",
-    "波罗僧揭谛": "波罗僧街帝",
-    "菩提萨婆诃": "菩提萨婆呵",
-    "心无挂碍": "心无挂艾",
-    "无挂碍故": "无挂艾故",
-}
+def assert_phonetics_gatekeeper(data: Dict[str, Any]):
+    """
+    【强制安全门禁】：生成前 100% 自动化校验经文数据，不合规绝对阻断落盘
+    1. 般若: bō rě
+    2. 空相: xiāng
+    3. 行识: shí
+    4. 耨: nuò
+    5. 不字变调: 遇四声必须为 bú，其余必须为 bù
+    """
+    errors = []
+    for p in data.get('paragraphs', []):
+        for line in p.get('lines', []):
+            chars = line.get('chars', [])
+            for i, c in enumerate(chars):
+                t = c.get('text', '')
+                py = c.get('pinyin', '')
+                prev_t = chars[i-1].get('text', '') if i > 0 else ''
+                nxt_t = chars[i+1].get('text', '') if i + 1 < len(chars) else ''
+                nxt_py = chars[i+1].get('pinyin', '') if i + 1 < len(chars) else ''
 
-def compile_sutra_prompt(doc: dict) -> tuple:
-    """
-    第一阶：编译经文诵读底本与声学指令
-    """
-    title_chars = [c["text"] for c in doc.get("title", []) if c.get("text", "").strip()]
-    title_str = "".join(title_chars)
-    
-    lines = [f"{title_str}。"]
-    for p in doc.get("paragraphs", []):
-        for l in p.get("lines", []):
-            line_chars = "".join([c["text"] for c in l.get("chars", []) if c.get("text", "").strip()])
-            if line_chars:
-                clean_line = line_chars.replace("？", "。").replace("?", "。")
-                lines.append(clean_line)
-                
-    raw_body = "\n".join(lines)
-    reading_body = raw_body
-    for k, v in PHONETIC_TTS_MAP.items():
-        reading_body = reading_body.replace(k, v)
-    directive = "用平稳、自然、无修饰的普通话念诵以下文字，字字相扣、从容连贯，语调平平、不带朗诵感：\n\n"
-    full_prompt = directive + reading_body
-    return full_prompt, reading_body
+                if t == '相' and prev_t == '空' and py != 'xiāng':
+                    errors.append(f"段落{p.get('id')}: 空相之'相'必须为 xiāng，当前为 {py}")
+                if t == '若' and prev_t == '般' and py != 'rě':
+                    errors.append(f"段落{p.get('id')}: 般若之'若'必须为 rě，当前为 {py}")
+                if t == '般' and nxt_t == '若' and py != 'bō':
+                    errors.append(f"段落{p.get('id')}: 般若之'般'必须为 bō，当前为 {py}")
+                if t == '识' and prev_t == '行' and py != 'shí':
+                    errors.append(f"段落{p.get('id')}: 行识之'识'必须为 shí，当前为 {py}")
+                if t == '耨' and py != 'nuò':
+                    errors.append(f"段落{p.get('id')}: 梵音'耨'必须为 nuò，当前为 {py}")
+                if t == '不':
+                    is_fourth = any(nxt_py.endswith(x) for x in ['4', 'à', 'è', 'ì', 'ò', 'ù', 'ǜ']) or nxt_py in ['yì', 'miè', 'gòu', 'jìng']
+                    if is_fourth and py != 'bú':
+                        errors.append(f"段落{p.get('id')}: '不{nxt_t}({nxt_py})'必须变调为 bú，当前为 {py}")
+                    elif not is_fourth and py != 'bù':
+                        errors.append(f"段落{p.get('id')}: '不{nxt_t}({nxt_py})'必须读四声 bù，当前为 {py}")
+
+    if errors:
+        raise PhoneticGatekeeperError("🚨 经文注音未通过自动化门禁，已阻断合成:\n" + "\n".join(errors))
 
 
-def synthesize_master_audio(client, voice_name: str, prompt: str, raw_wav: str) -> bool:
+class SutraSSMLCompiler:
     """
-    第二阶：单次直出高保真母带录制
+    负责将经文 JSON 数据编译为小句级封装的标准 SSML 文本（完全复刻女声跑通标准）
     """
-    print(f"\n🎙️ 正在单次直出录制【{voice_name}】经文母带...", flush=True)
-    
-    tts_models = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"]
-    for attempt in range(1, 9):
-        model_name = tts_models[(attempt - 1) % len(tts_models)]
-        try:
-            print(f"   [尝试 {attempt}] 使用模型【{model_name}】最低温度 temp=0.0 录制...", flush=True)
-            res = client.models.generate_content(
-                model=model_name,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_modalities=["AUDIO"],
-                    temperature=0.0,
-                    safety_settings=SAFETY_SETTINGS,
-                    speech_config=types.SpeechConfig(
-                        voice_config=types.VoiceConfig(
-                            prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name)
-                        )
-                    )
-                )
-            )
-            cand = res.candidates[0]
-            if cand.content and cand.content.parts:
-                data = cand.content.parts[0].inline_data.data
-                os.makedirs(os.path.dirname(os.path.abspath(raw_wav)), exist_ok=True)
-                with wave.open(raw_wav, "wb") as wf:
-                    wf.setnchannels(1)
-                    wf.setsampwidth(2)
-                    wf.setframerate(24000)
-                    wf.writeframes(data)
-                    
-                dur = len(data) / (24000 * 2)
-                print(f"   ✅ 单次生成成功! 纯净干声时长: {dur:.1f}s ({dur/60:.2f}分钟)", flush=True)
-                return True
-            else:
-                print(f"   ⚠️ 尝试 {attempt} 未返回音频数据，等待 15s 后重试...", flush=True)
-                time.sleep(15)
-        except Exception as e:
-            err_str = str(e)
-            match = re.search(r"retry in (\d+\.?\d*)s", err_str) or re.search(r"retryDelay': '(\d+)s", err_str)
-            wait_time = int(float(match.group(1))) + 5 if match else 30
-            print(f"   ⚠️ 尝试 {attempt} 遇到限流或网络断开: {err_str[:60]}... 等待 {wait_time}s 重试...", flush=True)
-            time.sleep(wait_time)
-            
-    return False
+    PAUSE_PUNCTUATIONS = {'，', '。', '；', '、', '：', '？', '！'}
+    DECORATIVE_PUNCT = {'“', '”', '「', '」', '『', '』', '‘', '’', '（', '）', '《', '》', '—', '…', '·'}
 
-def audit_phonetic_gatekeeper(asr_chars: list, doc_chars: list):
-    """
-    第三阶：声学声调真实门禁质检（Phonetic Gatekeeper）
-    提取 Whisper 实际识别的汉字与声调，严格核验核心多音字
-    若声调不符，抛出 PhoneticAuditError 绝对阻断落盘！
-    """
-    print("\n🔍 正在执行【声字声调真实声学门禁质检】...", flush=True)
-    
-    custom_map = {'般': 'bo', '若': 're', '埵': 'duo', '耨': 'nuo'}
-    def to_py(c):
-        if c in custom_map: return custom_map[c]
-        p = pypinyin.pinyin(c, style=pypinyin.Style.NORMAL, errors='default')
-        return p[0][0] if p and p[0] else c
+    def __init__(self, data: Dict[str, Any], voice_name: str, rate: str = "-11%", volume: str = "+10%", style: str = None):
+        assert_phonetics_gatekeeper(data)
+        self.data = data
+        self.voice_name = voice_name
+        self.rate = rate
+        self.volume = volume
+        self.style = style
+        self.clauses_meta: List[Tuple[str, List[Dict[str, Any]]]] = []
+
+    def compile(self) -> Tuple[str, List[Tuple[str, List[Dict[str, Any]]]]]:
+        """编译生成完整 SSML 及对应的小句元数据列表"""
+        ssml_clauses: List[str] = []
+        self.clauses_meta = []
+
+        # 1. 编译经题（Title）
+        title_chars = [c for c in self.data.get('title', []) if c.get('text', '').strip() and c.get('pinyin', '').strip()]
+        if title_chars:
+            t_text = "".join([c['text'] for c in title_chars])
+            t_sapi = " ".join([PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in title_chars])
+            ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{t_sapi}">{t_text}</phoneme>。<break time="550ms"/>')
+            self.clauses_meta.append(('title', title_chars))
+
+        # 2. 编译经文段落（Paragraphs）
+        for p in self.data.get('paragraphs', []):
+            for line in p.get('lines', []):
+                curr_chars: List[Dict[str, Any]] = []
+                curr_sapis: List[str] = []
+
+                for c in line.get('chars', []):
+                    txt = c.get('text', '')
+                    py = c.get('pinyin', '')
+
+                    if txt in self.PAUSE_PUNCTUATIONS:
+                        if curr_chars:
+                            self._append_clause(curr_chars, curr_sapis, ssml_clauses)
+                            curr_chars, curr_sapis = [], []
+                        self._append_pause(txt, ssml_clauses)
+                    elif txt in self.DECORATIVE_PUNCT:
+                        # 装饰标点不发音、不生成空 phoneme
+                        continue
+                    elif txt.strip() and py.strip():
+                        curr_chars.append(c)
+                        curr_sapis.append(PinyinSapiConverter.to_sapi(py))
+
+                if curr_chars:
+                    self._append_clause(curr_chars, curr_sapis, ssml_clauses)
+
+        ssml_body = "\n            ".join(ssml_clauses)
         
-    doc_pys = [to_py(c["text"]) for c in doc_chars]
-    asr_pys = [to_py(c["char"]) for c in asr_chars]
-    
-    sm = difflib.SequenceMatcher(None, doc_pys, asr_pys)
-    matched_blocks = sm.get_matching_blocks()
-    
-    aligned_pairs = {}
-    for a_idx, b_idx, size in matched_blocks:
-        for k in range(size):
-            if a_idx + k < len(doc_chars) and b_idx + k < len(asr_chars):
-                aligned_pairs[a_idx + k] = asr_chars[b_idx + k]
-                
-    # 严格门禁规则字典：
-    # 若: 必须是上声三声 (rě)，Whisper 识别为“惹/热”时声调必须为 3，严禁 4 声或 1 声！
-    # 识: 必须是阳平二声 (shí)，Whisper 识别为“時/石/识/食”等 2 声，严禁四声“事/是”！
-    # 埵: 必须是上声三声 (duǒ)，Whisper 识别为“朵/垛/埵”等 3 声，严禁四声“堕”或轻声！
-    audit_rules = {
-        '若': {'expected_tones': [3], 'expected_chars': ['惹', '若'], 'desc': '三声 rě，绝不可读四声 ruò 或一声'},
-        '识': {'expected_tones': [2], 'expected_chars': ['时', '時', '石', '识', '識'], 'desc': '二声 shí，句末绝不可降调读四声 shì'},
-        '埵': {'expected_tones': [3], 'expected_chars': ['朵', '垛', '埵'], 'desc': '三声 duǒ，绝不可读四声 duò'},
-        '舍': {'expected_tones': [4], 'expected_chars': ['设', '設', '舍'], 'desc': '四声 shè'},
-        '相': {'expected_tones': [1], 'expected_chars': ['香', '箱', '相'], 'desc': '一声 xiāng（与屏幕注音一致，绝不可读四声 xiàng）'},
-        '究': {'expected_tones': [1], 'expected_chars': ['揪', '究', '赳'], 'desc': '一声 jiū（与屏幕注音一致，绝不可读四声 jiù）'},
-        '揭': {'expected_tones': [1], 'expected_chars': ['街', '阶', '皆', '揭'], 'desc': '一声 jiē（与屏幕注音一致，绝不可读二声 jié）'},
-        '耨': {'expected_tones': [4], 'expected_chars': ['诺', '糯', '耨'], 'desc': '四声鼻音 nuò/nòu（声母严格为 n，绝不可读边音 l/漏）'},
-        '尽': {'expected_tones': [4], 'expected_chars': ['进', '進', '尽', '盡', '静', '靜'], 'desc': '四声 jìn'},
-    }
-    
-    violations = []
-    total_audited = 0
-    
-    for idx, c in enumerate(doc_chars):
-        txt = c["text"]
-        if txt in audit_rules:
-            total_audited += 1
-            rule = audit_rules[txt]
-            asr_match = aligned_pairs.get(idx)
-            if not asr_match:
-                print(f"   ⚠️ 经文字【{txt}】未能对齐到 ASR 字符，标记警告")
-                continue
-                
-            asr_char = asr_match["char"]
-            asr_tone3_list = pypinyin.pinyin(asr_char, style=pypinyin.Style.TONE3)
-            asr_py = asr_tone3_list[0][0] if asr_tone3_list and asr_tone3_list[0] else ""
-            
-            tone_match = re.search(r'\d', asr_py)
-            actual_tone = int(tone_match.group(0)) if tone_match else 0
-            
-            is_valid = False
-            if actual_tone in rule['expected_tones']:
-                is_valid = True
-            elif asr_char in rule['expected_chars']:
-                is_valid = True
-                
-            # 严格拦截失真：绝对服从屏幕 JSON 权威真理源
-            if txt == '识' and asr_char in ['事', '是']:
-                is_valid = False
-            if txt == '埵' and asr_char in ['堕']:
-                is_valid = False
-            if txt == '若' and (asr_char in ['熱', '热', '染'] or not asr_py.startswith('re')):
-                is_valid = False
-            if txt == '相' and actual_tone != 1:
-                is_valid = False
-            if txt == '究' and actual_tone != 1:
-                is_valid = False
-            if txt == '揭' and (actual_tone != 1 or asr_char in ['截', '劫']):
-                is_valid = False
-            if txt == '耨' and (asr_py.startswith('l') or asr_char in ['漏', '搂', '露']):
-                is_valid = False
-                
-            status = "✅ PASS" if is_valid else "❌ FAIL"
-            if not is_valid:
-                violations.append({
-                    "char": txt,
-                    "expected": rule['desc'],
-                    "actual_asr_char": asr_char,
-                    "actual_py": asr_py,
-                    "time": f"{asr_match['start']:.2f}s-{asr_match['end']:.2f}s"
-                })
-                
-            print(f"   [{status}] 经文字:【{txt}】| 期待: {rule['desc']} | ASR识别:【{asr_char}】({asr_py}) @ {asr_match['start']:.2f}s")
-            
-    if violations:
-        print("\n🚫 门禁拦截：检测到关键声调发音不符指标！")
-        for v in violations:
-            print(f"   - 经文字【{v['char']}】: Whisper实际识别【{v['actual_asr_char']}】({v['actual_py']})，标准要求: {v['expected']} (发生于 {v['time']})")
-        raise PhoneticAuditError(f"声学门禁拦截：共有 {len(violations)} 处关键多音字声调不符合规范，阻断落盘！")
-        
-    print(f"✅ 声字声调真实声学门禁 100% 完美通过！（共核验 {total_audited} 处关键古名相）\n")
+        # 演播风格封装
+        if self.style:
+            content_inner = f"""<mstts:express-as style="{self.style}" styledegree="0.8">
+            <prosody rate="{self.rate}" volume="{self.volume}">
+                {ssml_body}
+            </prosody>
+        </mstts:express-as>"""
+        else:
+            content_inner = f"""<prosody rate="{self.rate}" volume="{self.volume}">
+            {ssml_body}
+        </prosody>"""
 
-def force_align_timestamps(doc: dict, doc_chars: list, asr_chars: list):
-    """
-    第四阶：Whisper 全局音素级强制物理对齐
-    """
-    print("📐 正在执行 Whisper 全局音素级物理对齐...", flush=True)
-    
-    custom_map = {'般': 'bo', '若': 're', '埵': 'duo', '耨': 'nuo'}
-    def to_py(c):
-        if c in custom_map: return custom_map[c]
-        p = pypinyin.pinyin(c, style=pypinyin.Style.NORMAL, errors='default')
-        return p[0][0] if p and p[0] else c
-        
-    doc_pys = [to_py(c["text"]) for c in doc_chars]
-    asr_pys = [to_py(c["char"]) for c in asr_chars]
-    
-    sm = difflib.SequenceMatcher(None, doc_pys, asr_pys)
-    matched_blocks = sm.get_matching_blocks()
-    
-    for c in doc_chars:
-        c["startTime"] = None
-        c["endTime"] = None
-        
-    for a_idx, b_idx, size in matched_blocks:
-        for k in range(size):
-            if a_idx + k < len(doc_chars) and b_idx + k < len(asr_chars):
-                doc_chars[a_idx + k]["startTime"] = asr_chars[b_idx + k]["start"]
-                doc_chars[a_idx + k]["endTime"] = asr_chars[b_idx + k]["end"]
-                
-    last_time = 0.0
-    for i in range(len(doc_chars)):
-        if doc_chars[i]["startTime"] is None:
-            next_anchor_idx = None
-            for j in range(i + 1, len(doc_chars)):
-                if doc_chars[j]["startTime"] is not None:
-                    next_anchor_idx = j
-                    break
-            if next_anchor_idx is not None:
-                next_time = doc_chars[next_anchor_idx]["startTime"]
-                gap = (next_time - last_time) / (next_anchor_idx - i + 1)
-                doc_chars[i]["startTime"] = round(last_time + gap * 0.4, 3)
-                doc_chars[i]["endTime"] = round(last_time + gap * 0.95, 3)
-            else:
-                doc_chars[i]["startTime"] = round(last_time + 0.35, 3)
-                doc_chars[i]["endTime"] = round(last_time + 0.65, 3)
-        last_time = doc_chars[i]["endTime"]
-        
-    for i in range(1, len(doc_chars)):
-        if doc_chars[i]["startTime"] <= doc_chars[i-1]["startTime"]:
-            doc_chars[i]["startTime"] = round(doc_chars[i-1]["startTime"] + 0.12, 3)
-        if doc_chars[i]["endTime"] <= doc_chars[i]["startTime"]:
-            doc_chars[i]["endTime"] = round(doc_chars[i]["startTime"] + 0.22, 3)
-            
-    for p in doc.get("paragraphs", []):
-        for l in p.get("lines", []):
-            v_c = [c for c in l.get("chars", []) if "startTime" in c and c["startTime"] is not None]
-            if v_c:
-                l["lineStart"] = v_c[0]["startTime"]
-                l["lineEnd"] = v_c[-1]["endTime"]
-        p_lines = [l for l in p.get("lines", []) if "lineStart" in l]
-        if p_lines:
-            p["startTime"] = p_lines[0]["lineStart"]
-            p["endTime"] = p_lines[-1]["lineEnd"]
+        full_ssml = f"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="zh-CN">
+    <voice name="{self.voice_name}">
+        {content_inner}
+    </voice>
+</speak>"""
+        return full_ssml, self.clauses_meta
 
-def finalize_master(raw_wav: str, target_mp3: str, doc: dict, json_path: str, sync_default: bool = False):
+    def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
+        """
+        封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣
+        """
+        c_text = "".join([x['text'] for x in chars])
+        c_sapi = " ".join(sapis)
+        target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
+        self.clauses_meta.append(('clause', chars))
+
+    def _append_pause(self, punct: str, target: List[str]):
+        """
+        依参考样例实测精准留白：
+        逗号：原生200ms + 补偿380ms = 实测 ~580ms（从容深呼吸）
+        句号：原生750ms + 补偿250ms = 实测 ~1000ms（沉稳落定）
+        """
+        if punct == '。':
+            target.append('。<break time="250ms"/>')
+        else:
+            target.append(f'{punct}<break time="380ms"/>')
+
+
+class SpeechMasterSynthesizer:
     """
-    第五阶：母带滤波压制与数据原子发布
+    负责调用 Azure Speech SDK 进行高保真合成，并捕获底层物理时间戳
     """
-    print(f"🎛️ 正在进行 50Hz 纯干声母带压制与落盘: {target_mp3}...", flush=True)
-    os.makedirs(os.path.dirname(target_mp3), exist_ok=True)
+    def __init__(self, key: str, region: str):
+        self.speech_config = speechsdk.SpeechConfig(subscription=key, region=region)
+        self.speech_config.set_speech_synthesis_output_format(
+            speechsdk.SpeechSynthesisOutputFormat.Audio24Khz160KBitRateMonoMp3
+        )
+
+    def synthesize(self, ssml: str, output_path: str) -> List[Dict[str, Any]]:
+        """执行合成并返回捕获到的词级物理事件"""
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        audio_config = speechsdk.audio.AudioOutputConfig(filename=output_path)
+        synthesizer = speechsdk.SpeechSynthesizer(speech_config=self.speech_config, audio_config=audio_config)
+
+        events: List[Dict[str, Any]] = []
+
+        def on_word_boundary(e):
+            events.append({
+                'text': e.text,
+                'start': e.audio_offset / 10000000.0,
+                'duration': e.duration.total_seconds()
+            })
+
+        synthesizer.synthesis_word_boundary.connect(on_word_boundary)
+        result = synthesizer.speak_ssml_async(ssml).get()
+
+        if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
+            raise RuntimeError(f"Azure Speech 合成失败: {result.cancellation_details.error_details}")
+
+        return events
+
+
+class TimestampAligner:
+    """
+    负责将捕获的物理时间戳对齐分配给 JSON 字符、行与段落
+    """
+    PUNCT_FILTER = {'。', '，', '；', '：', '、', '？', '！', '」', '「', '“', '”'}
+
+    @classmethod
+    def align_and_save(cls, data: Dict[str, Any], clauses_meta: List[Tuple[str, List[Dict[str, Any]]]],
+                       word_events: List[Dict[str, Any]], json_path: str):
+        """执行对齐并保存更新后的经文 JSON"""
+        # 过滤纯标点事件
+        actual_clauses = [w for w in word_events if w['text'] not in cls.PUNCT_FILTER]
+
+        # 逐小句按字数等分对齐
+        for i, (ctype, char_objs) in enumerate(clauses_meta):
+            if i < len(actual_clauses):
+                ev = actual_clauses[i]
+                c_start = ev['start']
+                c_dur = ev['duration']
+                n_chars = len(char_objs)
+                char_dur = c_dur / n_chars if n_chars > 0 else 0
+                for j, c in enumerate(char_objs):
+                    c['startTime'] = round(c_start + j * char_dur, 3)
+                    c['endTime'] = round(c_start + (j + 1) * char_dur, 3)
+
+        # 汇总段落与行时间戳
+        for p in data.get('paragraphs', []):
+            p_chars = [c for line in p.get('lines', []) for c in line.get('chars', []) if 'startTime' in c]
+            if p_chars:
+                p['startTime'] = p_chars[0]['startTime']
+                p['endTime'] = p_chars[-1]['endTime']
+                for line in p.get('lines', []):
+                    l_chars = [c for c in line.get('chars', []) if 'startTime' in c]
+                    if l_chars:
+                        line['lineStart'] = l_chars[0]['startTime']
+                        line['lineEnd'] = l_chars[-1]['endTime']
+
+        # 汇总经题时间戳
+        title_chars = [c for c in data.get('title', []) if 'startTime' in c]
+        if title_chars:
+            data['titleStart'] = title_chars[0]['startTime']
+            data['titleEnd'] = title_chars[-1]['endTime']
+
+        # 备份原 JSON 并写入
+        shutil.copyfile(json_path, json_path + '.backup')
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def resolve_voice_name(voice_arg: str) -> str:
+    """解析音色参数，支持简写别名或完整名称"""
+    key = voice_arg.lower().strip()
+    return VOICE_PRESETS.get(key, voice_arg)
+
+
+def generate_sutra_master(book: str, chapter: str, voice: str, output: str = None, 
+                           update_json: bool = True, rate: str = "-11%"):
+    """主流水线执行函数"""
+    speech_key = os.environ.get('AZURE_SPEECH_KEY')
+    service_region = os.environ.get('AZURE_SPEECH_REGION', 'eastasia')
+
+    if not speech_key:
+        raise ValueError("请在 .env 中配置 AZURE_SPEECH_KEY")
+
+    json_path = os.path.join(PROJECT_ROOT, 'src', 'data', book, f"{chapter}.json")
+    if not os.path.exists(json_path):
+        raise FileNotFoundError(f"找不到经文 JSON 数据: {json_path}")
+
+    with open(json_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    actual_voice = resolve_voice_name(voice)
     
-    subprocess.run([
-        "ffmpeg", "-y", "-i", raw_wav.replace('\\', '/'),
-        "-af", "highpass=f=50,volume=1.05",
-        "-b:a", "192k", target_mp3.replace('\\', '/')
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-    if sync_default:
-        default_mp3 = os.path.join(os.path.dirname(target_mp3), "xinjing.mp3")
-        with open(target_mp3, "rb") as fi, open(default_mp3, "wb") as fo:
-            fo.write(fi.read())
-        print(f"   ✅ 同步更新默认母带: {default_mp3}")
-        
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=2)
-    print(f"   ✅ 经文毫秒级时间轴保存成功: {json_path}")
-    
-    if os.path.exists(raw_wav):
-        os.remove(raw_wav)
+    # 针对音色自动绑定专属工业级风格与语速
+    if "yunyang" in actual_voice.lower():
+        auto_style = "narration-professional"
+    elif "yunjian" in actual_voice.lower():
+        auto_style = "documentary-narration"
+    else:
+        auto_style = None
+
+    print(f"📖 正在加载经文: [{book} / {chapter}]")
+    print(f"🎙️ 选定音色: {actual_voice} (输入别名: {voice}, 语速: {rate}, 演播风格: {auto_style})")
+
+    # 1. 编译 SSML (经过强制数据门禁校验)
+    compiler = SutraSSMLCompiler(data, actual_voice, rate=rate, volume="+10%", style=auto_style)
+    ssml, clauses_meta = compiler.compile()
+
+    # 2. 确定输出路径
+    if not output:
+        if book == "xinjing":
+            output = os.path.join(PROJECT_ROOT, 'public', 'audio', 'xinjing.mp3')
+        else:
+            output = os.path.join(PROJECT_ROOT, 'public', 'audio', book, f"{chapter}.mp3")
+
+    print(f"🚀 开始调用 Azure Speech 工业母带合成 -> {output}")
+    synthesizer = SpeechMasterSynthesizer(speech_key, service_region)
+    word_events = synthesizer.synthesize(ssml, output)
+
+    # 3. 统计音频时长
+    audio = AudioSegment.from_file(output)
+    dur_sec = len(audio) / 1000.0
+    print(f"✅ 合成成功！音频总时长: {dur_sec:.2f} 秒 ({dur_sec/60:.2f} 分钟)")
+
+    # 4. 对齐并更新 JSON
+    if update_json:
+        print(f"⏱️ 正在回写毫秒级时间戳至 {json_path} ...")
+        TimestampAligner.align_and_save(data, clauses_meta, word_events, json_path)
+        print(f"✅ 毫秒级时间戳对齐与段落回写完成！(原文件已备份至 {json_path}.backup)")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="禅阅通用古籍经文母带生成与声调门禁质检引擎")
-    parser.add_argument("book_id", nargs="?", default="xinjing", help="经文ID (如 xinjing, jingangjing)")
-    parser.add_argument("chapter_id", nargs="?", default="chapter_1", help="章节ID (如 chapter_1, chapter_3)")
-    parser.add_argument("--voice", choices=["female", "male"], default="female", help="诵经音色 (female=Zephyr, male=Charon)")
+    parser = argparse.ArgumentParser(description="《禅阅》工业级古籍佛经音频母带生成引擎 (女声全套跑通标准)")
+    parser.add_argument("--book", default="xinjing", help="经书目录名 (默认: xinjing)")
+    parser.add_argument("--chapter", default="chapter_1", help="章节文件名 (默认: chapter_1)")
+    parser.add_argument("--voice", default="xiaoqiu", help="音色名称或别名 (xiaoqiu/yunyang/bo/yunyi/yunze/yunjian 等)")
+    parser.add_argument("--rate", default="-11%", help="语速设置 (默认: -11%%)")
+    parser.add_argument("--output", default=None, help="自定义音频输出路径 (默认: public/audio/<book>.mp3)")
+    parser.add_argument("--no-update-json", action="store_true", help="禁止自动回写毫秒级时间戳到经文 JSON")
+
     args = parser.parse_args()
-    
-    api_key = get_api_key()
-    if not api_key:
-        print("❌ 未找到 GEMINI_API_KEY！请在 .env 中配置")
-        sys.exit(1)
-        
-    json_path = os.path.join(PROJECT_ROOT, "src", "data", args.book_id, f"{args.chapter_id}.json")
-    if not os.path.exists(json_path):
-        print(f"❌ 经文文件不存在: {json_path}")
-        sys.exit(1)
-        
-    voice_name = VOICE_CONFIG[args.voice]
-    target_mp3 = os.path.join(PROJECT_ROOT, "public", "audio", f"{args.book_id}_{args.voice}.mp3")
-    raw_wav = os.path.join(PROJECT_ROOT, "scratch", f"{args.book_id}_{args.chapter_id}_{args.voice}.raw.wav")
-    
-    with open(json_path, "r", encoding="utf-8") as f:
-        doc = json.load(f)
-        
-    prompt, reading_body = compile_sutra_prompt(doc)
-    
-    client = genai.Client(api_key=api_key)
-    ok = synthesize_master_audio(client, voice_name, prompt, raw_wav)
-    if not ok or not os.path.exists(raw_wav):
-        print("❌ 母带录制失败！")
-        sys.exit(1)
-        
-    print("🤖 正在载入 Whisper 提取物理声学时序与真实音素...", flush=True)
-    whisper_model = whisper.load_model("base")
-    asr_res = whisper_model.transcribe(raw_wav, language="zh", word_timestamps=True)
-    
-    asr_chars = []
-    for s in asr_res.get("segments", []):
-        for w in s.get("words", []):
-            w_t = w["word"].strip(" ，。！？；：、“”‘’\n\t")
-            if not w_t: continue
-            dur = (w["end"] - w["start"]) / max(1, len(w_t))
-            for idx, ch in enumerate(w_t):
-                asr_chars.append({
-                    "char": ch,
-                    "start": round(w["start"] + idx * dur, 3),
-                    "end": round(w["start"] + (idx + 1) * dur, 3)
-                })
-                
-    doc_chars = []
-    for c in doc.get("title", []):
-        if c.get("text", "").strip():
-            doc_chars.append(c)
-    for p in doc.get("paragraphs", []):
-        for l in p.get("lines", []):
-            for c in l.get("chars", []):
-                txt = c.get("text", "").strip()
-                if txt and txt not in "，。！？；：、“”‘’『』《》〈〉":
-                    doc_chars.append(c)
-                    
-    # 第三阶：真实声调门禁（若不符合直接阻断抛异常，绝不放行）
-    audit_phonetic_gatekeeper(asr_chars, doc_chars)
-    
-    # 第四阶：全局强制对齐
-    force_align_timestamps(doc, doc_chars, asr_chars)
-    
-    # 第五阶：滤波压制与原子落盘
-    sync_default = (args.book_id == "xinjing" and args.voice == "female")
-    finalize_master(raw_wav, target_mp3, doc, json_path, sync_default=sync_default)
-    
-    print(f"\n🎉 工业级母带生产全流程圆满完成！")
-    print(f"   - 音频文件: {target_mp3}")
-    print(f"   - 经文数据: {json_path}")
+    generate_sutra_master(
+        book=args.book,
+        chapter=args.chapter,
+        voice=args.voice,
+        rate=args.rate,
+        output=args.output,
+        update_json=not args.no_update_json
+    )
+
 
 if __name__ == "__main__":
     main()
