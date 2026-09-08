@@ -162,7 +162,10 @@ class SutraSSMLCompiler:
         title_chars = [c for c in self.data.get('title', []) if c.get('text', '').strip() and c.get('pinyin', '').strip()]
         if title_chars:
             t_text = "".join([c['text'] for c in title_chars])
-            t_sapi = " ".join([PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in title_chars])
+            t_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in title_chars]
+            # 汉语连读上声变调（如“启请”qi 3 qing 3 -> qi 2 qing 3，杜绝启字后生硬气口卡顿）
+            t_sapis = self._apply_sandhi(t_sapis)
+            t_sapi = " ".join(t_sapis)
             ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{t_sapi}">{t_text}</phoneme>。<break time="550ms"/>')
             self.clauses_meta.append(('title', title_chars))
 
@@ -233,35 +236,25 @@ class SutraSSMLCompiler:
 </speak>"""
         return full_ssml, self.clauses_meta
 
+    @staticmethod
+    def _apply_sandhi(sapis: List[str]) -> List[str]:
+        """汉语连续上声自然变调：两上声相连时，前字自动变阳平二声，避免引擎死板二声停顿断节"""
+        res = list(sapis)
+        for i in range(len(res) - 1):
+            if res[i].endswith(" 3") and res[i+1].endswith(" 3"):
+                res[i] = res[i][:-1] + "2"
+        return res
+
     def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
         """
         封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣。
-        针对“如来善护念诸菩萨 / 善付嘱诸菩萨”等紧邻对偶句：
-        - 自动分离谓语与圣号宾语，赋予专属稳健中气加权（volume +12%，不降低语速，绝不拖音延宕）
-        - 针对女声底模口语轻声（pú ·sa）滑脱先验，对“诸菩萨”采用同音硬去声定调（“诸菩飒”），读满刚劲第四声（sà），字字干脆沉稳。
+        小句整句封装自然流淌，绝不生硬拆断，彻底消除尾音拖音畸变（如“saaaa”）。
         """
         c_text = "".join([x['text'] for x in chars])
-        is_female = "xiaoqiu" in self.voice_name.lower()
-        if c_text in ("如来善护念诸菩萨", "善付嘱诸菩萨"):
-            split_idx = 5 if c_text.startswith("如来善护念") else 3
-            part1_chars, part2_chars = chars[:split_idx], chars[split_idx:]
-            part1_sapi = " ".join(sapis[:split_idx])
-            part2_sapi = " ".join(sapis[split_idx:])
-            # 对偶圣号宾语“诸菩萨”在女声中采用同音硬去声定调（“诸菩飒”），破除口语轻声（·sa）
-            part2_text = "".join([x["text"] for x in part2_chars])
-            if is_female:
-                part2_text = part2_text.replace("菩萨", "菩飒")
-            
-            # volume +12% 给足底气，去除 rate 负向减速（杜绝拖音不干脆）
-            target.append(f'<phoneme alphabet="sapi" ph="{part1_sapi}">{"".join([x["text"] for x in part1_chars])}</phoneme><prosody volume="+12%"><phoneme alphabet="sapi" ph="{part2_sapi}">{part2_text}</phoneme></prosody>')
-            self.clauses_meta.append(('clause', part1_chars))
-            self.clauses_meta.append(('clause', part2_chars))
-        else:
-            # 圣号“菩萨”通用防轻声化：女声遇到“菩萨”，统一将文字注为“菩飒”，彻底根除口语轻声发飘与拖音
-            c_text_ssml = c_text.replace("菩萨", "菩飒") if is_female else c_text
-            c_sapi = " ".join(sapis)
-            target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text_ssml}</phoneme>')
-            self.clauses_meta.append(('clause', chars))
+        sapis_sandhi = self._apply_sandhi(sapis)
+        c_sapi = " ".join(sapis_sandhi)
+        target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
+        self.clauses_meta.append(('clause', chars))
 
     def _append_pause(self, punct: str, target: List[str], is_sentence_end: bool = False):
         """
