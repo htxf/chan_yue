@@ -33,6 +33,13 @@ const sections = [
         tagType: 'success',
         quote: '法会因由分<span class="hl">第一</span>。（重音挺立，掷地有声，消除偷气）',
         src: '/audio/compare/v3_diyi_trimmed.mp3'
+      },
+      {
+        name: '3. 本地声纹克隆版（提取真实录音共振峰迁移）',
+        tag: '本地克隆 · 佛堂共鸣',
+        tagType: 'info',
+        quote: '法会因由分<span class="hl">第一</span>。（注入真实录音胸腔底色与大殿微空间）',
+        src: '/audio/compare/local_clone_diyi.mp3'
       }
     ]
   },
@@ -55,13 +62,20 @@ const sections = [
         tagType: 'success',
         quote: '善现启请分<span class="hl">第二</span>。（品序干脆挺拔，无下坠虚脱）',
         src: '/audio/compare/v3_ch2_title_trimmed.mp3'
+      },
+      {
+        name: '3. 本地声纹克隆版（提取真实录音共振峰迁移）',
+        tag: '本地克隆 · 沉稳',
+        tagType: 'info',
+        quote: '善现启请分<span class="hl">第二</span>。（注入大殿微空间与沉稳共振）',
+        src: '/audio/compare/local_clone_ch2_title.mp3'
       }
     ]
   },
   {
     id: 'pusa',
     title: '焦点 3：女声“诸菩萨”尾音对比',
-    desc: '对比三种状态：① 原版句末四声（受先验拖累拉长成拖沓 saaaa）；② 方案一：垫字“众”连读后裁切（让“萨”作为过渡音节发实声四声，零气声拖音）；③ 显式轻声（pu 2 sa 5）。',
+    desc: '对比：① 原版四声；② 垫字切除；③ 显式轻声；④ 本地声纹克隆版（对标上方黄金参考范本，移植胸腔共鸣）。',
     tagColor: 'rose',
     cases: [
       {
@@ -84,6 +98,13 @@ const sections = [
         tagType: 'info',
         quote: '如来善护念诸<span class="hl">菩萨(轻声)</span>，善付嘱诸<span class="hl">菩萨(轻声)</span>。',
         src: '/audio/compare/v3_pusa_neutral.mp3'
+      },
+      {
+        name: '4. 本地声纹克隆版（对标上方黄金范本）',
+        tag: '本地克隆 · 洗掉数码味',
+        tagType: 'info',
+        quote: '如来善护念诸<span class="hl">菩萨</span>，善付嘱诸<span class="hl">菩萨</span>。（匹配真实范本共振峰与微空间）',
+        src: '/audio/compare/local_clone_pusa.mp3'
       }
     ]
   },
