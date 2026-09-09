@@ -319,7 +319,7 @@ class SutraSSMLCompiler:
             if c_text == "萨":
                 target.append('<prosody rate="+25%"><phoneme alphabet="sapi" ph="sa 5">萨</phoneme></prosody>')
             elif c_text == "哉":
-                target.append('<prosody rate="+25%"><phoneme alphabet="sapi" ph="zai 5">哉</phoneme></prosody>')
+                target.append('<prosody rate="+15%"><phoneme alphabet="sapi" ph="zai 1">哉</phoneme></prosody>')
             else:
                 target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
             self.clauses_meta.append(('clause', sub_chars))
