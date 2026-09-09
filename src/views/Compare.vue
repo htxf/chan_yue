@@ -15,6 +15,72 @@ function goBack() {
 // 焦点测试数据
 const sections = [
   {
+    id: 'xinjing_pusa',
+    title: '最新优化 1：《心经》开篇“观自在菩萨”吞音修复',
+    desc: '病因：5字连诵导致“菩萨”退化为轻声偷气（RMS: -28.2 dBFS，仅539ms）。修复：语义重音解耦，赋予独立 660ms 完整时段与沉稳去声（RMS: -23.6 dBFS，能量强化 +4.6 dB）。',
+    tagColor: 'amber',
+    cases: [
+      {
+        name: '❌ 优化前（句尾吞音发飘）',
+        tag: 'RMS: -28.2 dBFS · 仅 539ms',
+        tagType: 'danger',
+        quote: '观自在<span class="err">菩萨</span>，行深般若波罗蜜多时',
+        src: '/audio/compare/compare_pusa_xinjing_before.mp3'
+      },
+      {
+        name: '✅ 优化后（语义解耦 · 沉稳着力）',
+        tag: 'RMS: -23.6 dBFS (+4.6dB) · 660ms',
+        tagType: 'success',
+        quote: '观自在 <span class="hl">菩萨</span>，行深般若波罗蜜多时',
+        src: '/audio/compare/compare_pusa_xinjing_after.mp3'
+      }
+    ]
+  },
+  {
+    id: 'xinjing_zhou',
+    title: '最新优化 2：《心经》四大神咒排比句衰减修复',
+    desc: '病因：逗号连诵导致注意力机制将“咒”判定为已知旧信息予以削弱，第4句暴跌 4.5dB。修复：分句重音定盘，句首浮动 < 1.1dB，每个“咒”字均获 310~340ms 沉稳下沉发音。',
+    tagColor: 'rose',
+    cases: [
+      {
+        name: '❌ 优化前（第4句断崖暴跌 · 末尾吃音）',
+        tag: '第4句暴跌 -4.5 dB',
+        tagType: 'danger',
+        quote: '是大神咒，是大明咒，是无上咒，<span class="err">是无等等咒</span>',
+        src: '/audio/compare/compare_zhou_before.mp3'
+      },
+      {
+        name: '✅ 优化后（句首均权 · 咒字下沉如磬）',
+        tag: '差异 < 1.1 dB · 字字下沉',
+        tagType: 'success',
+        quote: '是大神 <b>咒</b>，是大明 <b>咒</b>，是无上 <b>咒</b>，<span class="hl">是无等等 咒</span>',
+        src: '/audio/compare/compare_zhou_after.mp3'
+      }
+    ]
+  },
+  {
+    id: 'ch2_pusa_new',
+    title: '最新优化 3：《金刚经》第二品“诸菩萨”长句吞音修复',
+    desc: '病因：“如来善护念诸菩萨”8字连诵，末尾“诸菩萨”被压缩至 -32.0 dBFS 几近耳语。修复：谓语与名相解耦，四声实声挺立，能量回升 +5.3 dB。',
+    tagColor: 'blue',
+    cases: [
+      {
+        name: '❌ 优化前（8字连读 · 诸菩萨被吞）',
+        tag: 'RMS: -32.0 dBFS · 发虚',
+        tagType: 'danger',
+        quote: '如来善护念<span class="err">诸菩萨</span>，善付嘱<span class="err">诸菩萨</span>。',
+        src: '/audio/compare/compare_pusa_ch2_before.mp3'
+      },
+      {
+        name: '✅ 优化后（名相解耦 · 庄严稳固）',
+        tag: '能量回升 +5.3 dB · 沉稳',
+        tagType: 'success',
+        quote: '如来善护念 <span class="hl">诸菩萨</span>，善付嘱 <span class="hl">诸菩萨</span>。',
+        src: '/audio/compare/compare_pusa_ch2_after.mp3'
+      }
+    ]
+  },
+  {
     id: 'diyi',
     title: '焦点 1：男声“法会因由分第一”',
     desc: '原理：输入“法会因由分第一品”，让模型把“第一”作为重音中气读满，在 1655ms 处毫秒级裁切“品”。实测尾字能量由 -34.5 dBFS 暴增至 -29.7 dBFS，峰值飙升 +6.9 dB！',
