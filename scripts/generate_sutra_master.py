@@ -253,7 +253,7 @@ class SutraSSMLCompiler:
         将易衰减名相拆分为独立 SAPI 词单元，赋予独立的声学基频与能量重音。
         """
         text = "".join(c.get('text', '') for c in chars)
-        if len(text) <= 3:
+        if len(text) <= 1:
             return [chars]
 
         # 1. 四大神咒排比解耦：拆开“是大神/咒”、“是大明/咒”、“是无上/咒”、“是无等等/咒”，杜绝自注意力抑制
@@ -272,7 +272,20 @@ class SutraSSMLCompiler:
                     idx += p_len
                 return split_res
 
-        # 2. 菩萨拆解（无论“诸菩萨”还是“菩萨”，均将“萨”独立剥离，用于精准 rate="+25%" 顿音短促收束，绝不拖音虚脱）
+        # 2. 善哉拆解：将“哉”独立剥离，用于精准轻声 zai 5 + rate="+25%" 顿音短促收束，绝不拖尾
+        if "善哉" in text:
+            idx = text.find("善哉")
+            sub_clauses = []
+            if idx > 0:
+                sub_clauses.append(chars[:idx])
+            sub_clauses.append([chars[idx]])     # "善"
+            sub_clauses.append([chars[idx+1]])   # "哉"
+            if idx + 2 < len(chars):
+                rest_chars = chars[idx+2:]
+                sub_clauses.extend(cls._split_clause_chars(rest_chars))
+            return sub_clauses
+
+        # 3. 菩萨拆解（无论“诸菩萨”还是“菩萨”，均将“萨”独立剥离，用于精准 rate="+25%" 顿音短促收束，绝不拖音虚脱）
         if "菩萨" in text:
             idx = text.find("菩萨")
             sub_clauses = []
@@ -290,7 +303,7 @@ class SutraSSMLCompiler:
     def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
         """
         封装小句：支持语义重音解耦。每个解耦词单元独立封装为 <phoneme>，并同步维护 clauses_meta 物理对齐。
-        方案 A：针对“萨”字施加独立紧凑轻声顿音收束，杜绝大模型句末拖尾与虚脱。
+        方案 A：针对“萨”、“哉”字施加独立紧凑轻声顿音收束，杜绝大模型句末拖尾与虚脱。
         """
         subs = self._split_clause_chars(chars)
         idx = 0
@@ -305,6 +318,8 @@ class SutraSSMLCompiler:
             
             if c_text == "萨":
                 target.append('<prosody rate="+25%"><phoneme alphabet="sapi" ph="sa 5">萨</phoneme></prosody>')
+            elif c_text == "哉":
+                target.append('<prosody rate="+25%"><phoneme alphabet="sapi" ph="zai 5">哉</phoneme></prosody>')
             else:
                 target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
             self.clauses_meta.append(('clause', sub_chars))
