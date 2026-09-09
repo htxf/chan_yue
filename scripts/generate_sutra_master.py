@@ -245,16 +245,64 @@ class SutraSSMLCompiler:
                 res[i] = res[i][:-1] + "2"
         return res
 
+    @classmethod
+    def _split_clause_chars(cls, chars: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
+        """
+        语义重音解耦（Semantic Stress Decoupling）：
+        消除大模型自注意力导致的句群末尾弱化（如排比‘咒’越念越轻）与句尾轻声吞音（如‘菩萨’发飘）。
+        将易衰减名相拆分为独立 SAPI 词单元，赋予独立的声学基频与能量重音。
+        """
+        text = "".join(c.get('text', '') for c in chars)
+        if len(text) <= 3:
+            return [chars]
+
+        # 1. 四大神咒排比解耦：拆开“是大神/咒”、“是大明/咒”、“是无上/咒”、“是无等等/咒”，杜绝自注意力抑制
+        for pattern, pieces in [
+            ("是大神咒", ["是大神", "咒"]),
+            ("是大明咒", ["是大明", "咒"]),
+            ("是无上咒", ["是无上", "咒"]),
+            ("是无等等咒", ["是无等等", "咒"]),
+        ]:
+            if text == pattern:
+                split_res = []
+                idx = 0
+                for piece in pieces:
+                    p_len = len(piece)
+                    split_res.append(chars[idx:idx+p_len])
+                    idx += p_len
+                return split_res
+
+        # 2. 菩萨类圣号解耦（如“观自在菩萨”拆为“观自在”+“菩萨”；“如来善护念诸菩萨”拆为“如来善护念”+“诸菩萨”）
+        for term in ["诸菩萨", "摩诃萨", "菩萨"]:
+            if term in text and text != term:
+                idx = text.find(term)
+                sub_clauses = []
+                if idx > 0:
+                    sub_clauses.append(chars[:idx])
+                sub_clauses.append(chars[idx:idx+len(term)])
+                if idx + len(term) < len(chars):
+                    rest_chars = chars[idx+len(term):]
+                    sub_clauses.extend(cls._split_clause_chars(rest_chars))
+                return sub_clauses
+
+        return [chars]
+
     def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
         """
-        封装小句：整句封装为一个完整 SAPI 词序列，名相内部绝对零 break，字字相扣。
-        小句整句封装自然流淌，绝不生硬拆断，彻底消除尾音拖音畸变（如“saaaa”）。
+        封装小句：支持语义重音解耦。每个解耦词单元独立封装为 <phoneme>，并同步维护 clauses_meta 物理对齐。
         """
-        c_text = "".join([x['text'] for x in chars])
-        sapis_sandhi = self._apply_sandhi(sapis)
-        c_sapi = " ".join(sapis_sandhi)
-        target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
-        self.clauses_meta.append(('clause', chars))
+        subs = self._split_clause_chars(chars)
+        idx = 0
+        for sub_chars in subs:
+            sub_len = len(sub_chars)
+            sub_sapis = sapis[idx:idx+sub_len]
+            idx += sub_len
+
+            c_text = "".join([x['text'] for x in sub_chars])
+            sapis_sandhi = self._apply_sandhi(sub_sapis)
+            c_sapi = " ".join(sapis_sandhi)
+            target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
+            self.clauses_meta.append(('clause', sub_chars))
 
     def _append_pause(self, punct: str, target: List[str], is_sentence_end: bool = False):
         """
