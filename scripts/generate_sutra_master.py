@@ -272,24 +272,25 @@ class SutraSSMLCompiler:
                     idx += p_len
                 return split_res
 
-        # 2. 菩萨类圣号解耦（如“观自在菩萨”拆为“观自在”+“菩萨”；“如来善护念诸菩萨”拆为“如来善护念”+“诸菩萨”）
-        for term in ["诸菩萨", "摩诃萨", "菩萨"]:
-            if term in text and text != term:
-                idx = text.find(term)
-                sub_clauses = []
-                if idx > 0:
-                    sub_clauses.append(chars[:idx])
-                sub_clauses.append(chars[idx:idx+len(term)])
-                if idx + len(term) < len(chars):
-                    rest_chars = chars[idx+len(term):]
-                    sub_clauses.extend(cls._split_clause_chars(rest_chars))
-                return sub_clauses
+        # 2. 菩萨拆解（无论“诸菩萨”还是“菩萨”，均将“萨”独立剥离，用于精准 rate="+25%" 顿音短促收束，绝不拖音虚脱）
+        if "菩萨" in text:
+            idx = text.find("菩萨")
+            sub_clauses = []
+            if idx > 0:
+                sub_clauses.append(chars[:idx])
+            sub_clauses.append([chars[idx]])
+            sub_clauses.append([chars[idx+1]])
+            if idx + 2 < len(chars):
+                rest_chars = chars[idx+2:]
+                sub_clauses.extend(cls._split_clause_chars(rest_chars))
+            return sub_clauses
 
         return [chars]
 
     def _append_clause(self, chars: List[Dict[str, Any]], sapis: List[str], target: List[str]):
         """
         封装小句：支持语义重音解耦。每个解耦词单元独立封装为 <phoneme>，并同步维护 clauses_meta 物理对齐。
+        方案 A：针对“萨”字施加独立紧凑轻声顿音收束，杜绝大模型句末拖尾与虚脱。
         """
         subs = self._split_clause_chars(chars)
         idx = 0
@@ -301,7 +302,11 @@ class SutraSSMLCompiler:
             c_text = "".join([x['text'] for x in sub_chars])
             sapis_sandhi = self._apply_sandhi(sub_sapis)
             c_sapi = " ".join(sapis_sandhi)
-            target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
+            
+            if c_text == "萨":
+                target.append('<prosody rate="+25%"><phoneme alphabet="sapi" ph="sa 5">萨</phoneme></prosody>')
+            else:
+                target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
             self.clauses_meta.append(('clause', sub_chars))
 
     def _append_pause(self, punct: str, target: List[str], is_sentence_end: bool = False):
