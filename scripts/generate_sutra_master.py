@@ -548,6 +548,12 @@ def generate_sutra_master(book: str, chapter: str, voice: str, output: str = Non
     dur_sec = len(audio) / 1000.0
     print(f"✅ 合成成功！音频总时长: {dur_sec:.2f} 秒 ({dur_sec/60:.2f} 分钟)")
 
+    # 自动同步副本为带音色后缀的文件 (如 chapter_2_female.mp3)
+    if book != "xinjing":
+        suffixed_out = os.path.join(PROJECT_ROOT, 'public', 'audio', book, f"{chapter}_{voice_key}.mp3")
+        shutil.copy2(output, suffixed_out)
+        print(f"📦 已自动同步音色专用母带 -> {suffixed_out}")
+
     # 4. 对齐并更新 JSON
     if update_json:
         print(f"⏱️ 正在回写 [{voice_key}] 毫秒级时间戳至 {json_path} ...")
