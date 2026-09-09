@@ -13,7 +13,7 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from scripts.generate_sutra_master import generate_sutra_master
 
-REF_PATH = os.path.join(PROJECT_ROOT, "public", "audio", "compare", "reference_user_sample.mp3")
+REF_PATH = os.path.join(PROJECT_ROOT, "public", "audio", "reference_user_sample.mp3")
 
 def morph_audio_timbre(audio_path: str, ref_path: str):
     """

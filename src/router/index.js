@@ -9,11 +9,6 @@ const routes = [
     component: Home
   },
   {
-    path: '/compare',
-    name: 'Compare',
-    component: () => import('../views/Compare.vue')
-  },
-  {
     path: '/:bookId/:chapterId?',
     name: 'Reader',
     component: Reader
