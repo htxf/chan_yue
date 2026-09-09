@@ -193,16 +193,25 @@ class SutraSSMLCompiler:
                             c_idx == len(chars) - 1 or all(not x.get('pinyin') for x in chars[c_idx+1:])
                         )
                         
-                        # 检查是否为“善哉，善哉”成对紧凑赞叹：若是首个“善哉”，使用 150ms 紧凑气口，杜绝拖长音与冷场
-                        is_shanzai_paired = False
+                        # 检查是否为“善哉，善哉”成对赞叹：
+                        # 首声善哉：180ms 紧凑气口；次声善哉：240ms 气口承接后续经文
+                        # 两声均统一为逗号语境，彻底消除句末语调下沉与拉长，达成满分对称！
+                        is_shanzai_first = False
+                        is_shanzai_second = False
                         if last_clause_txt == "善哉" and not is_end:
                             if l_idx + 1 < len(lines):
                                 next_l_txt = "".join(x.get('text', '') for x in lines[l_idx+1].get('chars', []))
                                 if "善哉" in next_l_txt:
-                                    is_shanzai_paired = True
+                                    is_shanzai_first = True
+                            if l_idx > 0:
+                                prev_l_txt = "".join(x.get('text', '') for x in lines[l_idx-1].get('chars', []))
+                                if "善哉" in prev_l_txt:
+                                    is_shanzai_second = True
 
-                        if is_shanzai_paired:
-                            ssml_clauses.append('，<break time="150ms"/>')
+                        if is_shanzai_first:
+                            ssml_clauses.append('，<break time="180ms"/>')
+                        elif is_shanzai_second:
+                            ssml_clauses.append('，<break time="240ms"/>')
                         else:
                             self._append_pause(txt, ssml_clauses, is_sentence_end=is_end)
                     elif txt in self.DECORATIVE_PUNCT:
@@ -319,7 +328,7 @@ class SutraSSMLCompiler:
             if c_text == "萨":
                 target.append('<prosody rate="+25%"><phoneme alphabet="sapi" ph="sa 5">萨</phoneme></prosody>')
             elif c_text == "哉":
-                target.append('<prosody rate="+15%"><phoneme alphabet="sapi" ph="zai 1">哉</phoneme></prosody>')
+                target.append('<prosody rate="+20%"><phoneme alphabet="sapi" ph="zai 1">哉</phoneme></prosody>')
             else:
                 target.append(f'<phoneme alphabet="sapi" ph="{c_sapi}">{c_text}</phoneme>')
             self.clauses_meta.append(('clause', sub_chars))
