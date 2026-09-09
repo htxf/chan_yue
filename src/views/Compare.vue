@@ -15,24 +15,38 @@ function goBack() {
 // 焦点测试数据
 const sections = [
   {
-    id: 'xinjing_pusa',
-    title: '最新优化 1：《心经》开篇“观自在菩萨”吞音修复',
-    desc: '病因：5字连诵导致“菩萨”退化为轻声偷气（RMS: -28.2 dBFS，仅539ms）。修复：语义重音解耦，赋予独立 660ms 完整时段与沉稳去声（RMS: -23.6 dBFS，能量强化 +4.6 dB）。',
+    id: 'crisp_pusa',
+    title: '针对你的反馈：菩萨“干脆轻声（对标样本短促顿挫）”4 种方案盲测',
+    desc: '你的判断非常准确！真实范本确实读的是轻声，但发音极短促、气流瞬间闭合（顿音收束），绝不拖长元音“saaaa”或虚脱叹气。以下 4 种方案均移植了真实共振峰，请细听对比：',
     tagColor: 'amber',
     cases: [
       {
-        name: '❌ 优化前（句尾吞音发飘）',
-        tag: 'RMS: -28.2 dBFS · 仅 539ms',
-        tagType: 'danger',
-        quote: '观自在<span class="err">菩萨</span>，行深般若波罗蜜多时',
-        src: '/audio/compare/compare_pusa_xinjing_before.mp3'
+        name: '🔥 方案 A：顿音干脆轻声（萨字独立收口 rate=+25%）★ 推荐',
+        tag: '最贴近样本 · 顿挫收口',
+        tagType: 'success',
+        quote: '观自在<b>菩萨(干脆短促)</b>，如来善护念<b>诸菩萨</b>。（压至281ms，消除拖音和虚脱）',
+        src: '/audio/compare/test_pusa_opt3_neutral_staccato_sa.mp3'
       },
       {
-        name: '✅ 优化后（语义解耦 · 沉稳着力）',
-        tag: 'RMS: -23.6 dBFS (+4.6dB) · 660ms',
-        tagType: 'success',
-        quote: '观自在 <span class="hl">菩萨</span>，行深般若波罗蜜多时',
-        src: '/audio/compare/compare_pusa_xinjing_after.mp3'
+        name: '方案 B：整词轻声微提速（pu 2 sa 5, rate=+18%）',
+        tag: '紧凑轻声',
+        tagType: 'info',
+        quote: '观自在<b>菩萨(紧凑轻声)</b>，如来善护念<b>诸菩萨</b>。（整体提速收束）',
+        src: '/audio/compare/test_pusa_opt2_neutral_crisp_rate.mp3'
+      },
+      {
+        name: '方案 C：自然汉字轻声 + 音量底座（volume=+12%）',
+        tag: '自然词典流',
+        tagType: 'info',
+        quote: '观自在<b>菩萨</b>，如来善护念<b>诸菩萨</b>。（让模型自然读轻声，声底托住）',
+        src: '/audio/compare/test_pusa_opt4_pure_hanzi_supported.mp3'
+      },
+      {
+        name: '方案 D：上一轮四声版（SAPI 四声 sa 4）',
+        tag: '当前线上版 · 较刻意',
+        tagType: 'danger',
+        quote: '观自在<b>菩萨(四声重读)</b>，如来善护念<b>诸菩萨</b>。（即刚才你听的四声版）',
+        src: '/audio/compare/test_pusa_opt1_current_tone4.mp3'
       }
     ]
   },
