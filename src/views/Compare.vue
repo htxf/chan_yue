@@ -136,13 +136,30 @@ const sections = [
       </header>
 
       <!-- 导言说明 -->
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 text-xs text-white/70 leading-relaxed">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4 text-xs text-white/70 leading-relaxed">
         <div class="font-bold text-white/90 mb-1 flex items-center gap-1.5">
-          <span class="text-[#d4a574]">💡</span> 第一性原理验证
+          <span class="text-[#d4a574]">💡</span> 声学实测与对比
         </div>
         <p>
-          解决大模型在句末因“句号/逗号”触发能量下倾与虚脱轻声的问题。通过在短语后垫字连读使重音挺立，再毫秒级精准裁切垫字，对比原版与切除版听感。
+          通用商业 TTS 因训练集为口语新闻，在句末会触发能量衰减与轻声先验。下方为垫字切除实测，以及你所期望达到的真实范本录音。
         </p>
+      </div>
+
+      <!-- 🎯 目标参考范本（真实录音） -->
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-6 shadow-md">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+            <span>👑</span> 目标参考范本（真实诵经录音）
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium">克隆目标源</span>
+        </div>
+        <p class="text-[11px] text-white/60 mb-2 leading-relaxed">
+          从你上传的 70 秒第 2 品真实念诵中提取。请听其胸腔共鸣与沉稳定力，克隆将以此为声音 Prompt：
+        </p>
+        <div class="text-xs text-white/80 bg-black/40 px-3 py-2 rounded-lg mb-2.5 leading-relaxed">
+          希有世尊！如来善护念诸菩萨，善付嘱诸菩萨。
+        </div>
+        <audio controls preload="metadata" src="/audio/compare/reference_user_sample.mp3" class="w-full h-9 rounded-lg"></audio>
       </div>
 
       <!-- 四大焦点对比卡片 -->
