@@ -116,10 +116,10 @@ function goToBook(item) {
     <!-- 底部清净小记 & 对比入口 -->
     <footer class="home-footer">
       <p>息妄显真 · 随缘自适</p>
-      <a href="/compare.html" class="compare-entry-badge">
-        <span>🎯 声学修复对比实验室</span>
+      <router-link to="/compare" class="compare-entry-badge">
+        <span>⚡ 声学母带对比实验室</span>
         <span class="text-xs opacity-60">→</span>
-      </a>
+      </router-link>
     </footer>
 
     <!-- 全藏索经弹窗 -->

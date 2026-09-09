@@ -449,10 +449,10 @@ function handleToggle() {
             </div>
           </div>
           <div class="drawer-footer">
-            <a href="/compare.html" class="drawer-compare-btn">
-              <span>🎯 声学修复对比实验室</span>
+            <router-link to="/compare" class="drawer-compare-btn">
+              <span>⚡ 声学母带对比实验室</span>
               <span>→</span>
-            </a>
+            </router-link>
           </div>
         </div>
       </div>
