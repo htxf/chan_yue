@@ -189,7 +189,21 @@ export function useAudioSync(paragraphs, options = {}) {
     }
   }
 
+  function resetAudio() {
+    _intendPlaying = false
+    try {
+      audio.pause()
+      audio.currentTime = 0
+    } catch (e) {}
+    currentTime.value = 0
+    currentParagraphId.value = -1
+    duration.value = 0
+    isPlaying.value = false
+    stopLoop()
+  }
+
   function loadAudio(url) {
+    resetAudio()
     if (!audio.src.endsWith(url)) {
       audio.src = url
     }
@@ -278,6 +292,11 @@ export function useAudioSync(paragraphs, options = {}) {
    */
   function playNextTrack(url) {
     audio.src = url
+    try {
+      audio.currentTime = 0
+    } catch (e) {}
+    currentTime.value = 0
+    currentParagraphId.value = -1
     _intendPlaying = true
     safePlay()
   }
@@ -362,5 +381,6 @@ export function useAudioSync(paragraphs, options = {}) {
     playNextTrack,
     switchVoiceTrack,
     fadeOutAndStop,
+    resetAudio,
   }
 }

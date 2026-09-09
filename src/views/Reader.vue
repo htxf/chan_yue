@@ -85,6 +85,7 @@ const {
   updateMediaSession,
   playNextTrack,
   switchVoiceTrack,
+  resetAudio,
 } = useAudioSync(paragraphsRef, {
   onEnded: () => {
     // 播完单品自然停止
@@ -137,6 +138,17 @@ onUnmounted(() => {
   }
 })
 
+// --- Scroll to Top Helper ---
+function scrollToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  if (document.documentElement) document.documentElement.scrollTop = 0
+  if (document.body) document.body.scrollTop = 0
+  const sutraBody = document.querySelector('.sutra-body')
+  if (sutraBody) {
+    sutraBody.scrollTop = 0
+  }
+}
+
 // --- Interaction & UI Hide Logic ---
 function goBack() {
   router.push('/')
@@ -148,6 +160,8 @@ function toggleDrawer() {
 
 function selectChapter(id) {
   showDrawer.value = false
+  resetAudio()
+  scrollToTop()
   router.push({ path: `/${bookId.value}/${id}`, query: { mode: mode.value } })
 }
 
@@ -260,6 +274,11 @@ async function loadBookData() {
 async function loadChapterData() {
   isLoading.value = true
   
+  if (!isAutoPlayingNext) {
+    resetAudio()
+    scrollToTop()
+  }
+
   // 只有当这是『切章』（原本已经有数据了）时，才等待 350ms 播完淡出动画。
   // 如果是『首次从首页进入』，不需要等，直接去拉数据。
   // 注意：连播模式下不暂停——音频已经在 playNextTrack 中同步切换了
@@ -294,9 +313,9 @@ async function loadChapterData() {
     }
     isAutoPlayingNext = false
     
-    // 等待 Vue 渲染出新 DOM 的高度
+    // 等待 Vue 渲染出新 DOM 的高度，重置滚动位置置顶
     await nextTick()
-    window.scrollTo({ top: 0 })
+    scrollToTop()
 
     // 记录最近一次持诵进度供首页“续读浮舟”一键直达
     try {
@@ -327,10 +346,12 @@ async function loadChapterData() {
   } catch (err) {
     console.error('Failed to load chapter data', err)
   } finally {
-    // 使用双重 requestAnimationFrame 确保 CSS 动画引擎捕捉到状态变更
+    // 双重 requestAnimationFrame 确保过渡动画结束后视图稳固置顶
     requestAnimationFrame(() => {
+      scrollToTop()
       requestAnimationFrame(() => {
         isLoading.value = false
+        scrollToTop()
       })
     })
   }
@@ -447,12 +468,6 @@ function handleToggle() {
                 <span class="ch-title">{{ chapter.title }}</span>
               </div>
             </div>
-          </div>
-          <div class="drawer-footer">
-            <router-link to="/compare" class="drawer-compare-btn">
-              <span>⚡ 声学母带对比实验室</span>
-              <span>→</span>
-            </router-link>
           </div>
         </div>
       </div>
