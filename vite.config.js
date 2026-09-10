@@ -12,7 +12,7 @@ export default defineConfig({
       // 开发环境也启用 SW，方便调试
       devOptions: { enabled: true },
       // 需要被 SW 预缓存的静态资源
-      includeAssets: ['favicon.svg', 'icons/*.png', 'audio/**/*'],
+      includeAssets: ['favicon.svg', 'icons/*.png'],
       manifest: {
         name: '禅阅 (ChanYue)',
         short_name: '禅阅',
@@ -42,14 +42,16 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        // 运行时缓存：音频文件走 CacheFirst
+        cleanupOutdatedCaches: true,
+        // 运行时缓存：音频文件走 NetworkFirst，确保母带更新立刻生效，离线自动回退缓存
         runtimeCaching: [
           {
             urlPattern: /\/audio\/.+\.(mp3|ogg|wav)$/i,
-            handler: 'CacheFirst',
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'chan-yue-audio',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheName: 'chan-yue-audio-v2',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
           {
