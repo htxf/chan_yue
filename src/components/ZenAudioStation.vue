@@ -257,7 +257,7 @@ async function loadChapterData(autoPlay = false) {
     chapterData.value = chMod.default || chMod
 
     const rawUrl = chapterData.value.audioUrl || bookMeta.value?.audioUrl
-    const audioUrl = getVoiceAudioUrl(rawUrl, selectedVoice.value)
+    const audioUrl = getVoiceAudioUrl(rawUrl)
 
     if (audioUrl) {
       if (autoPlay) {
