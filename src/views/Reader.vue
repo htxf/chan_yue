@@ -29,8 +29,8 @@ function extractText(val) {
 
 const bookId = computed(() => route.params.bookId)
 const chapterId = computed(() => route.params.chapterId || 'chapter_1')
-
-const paragraphsRef = computed(() => chapterData.value?.paragraphs || [])
+const activeParagraphs = computed(() => chapterData.value?.paragraphs || [])
+const paragraphsRef = activeParagraphs
 
 function getVoiceAudioUrl(rawUrl) {
   return rawUrl || ''
