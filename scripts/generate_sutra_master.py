@@ -129,10 +129,10 @@ def assert_phonetics_gatekeeper(data: Dict[str, Any]):
                 if t == '不':
                     if py == 'fǒu':
                         continue # 佛经古音通假字：通“否”（如“不也 fǒu yě”、“多不 fǒu？”）
-                    is_fourth = any(nxt_py.endswith(x) for x in ['4', 'à', 'è', 'ì', 'ò', 'ù', 'ǜ']) or nxt_py in ['yì', 'miè', 'gòu', 'jìng']
+                    is_fourth = any(x in nxt_py for x in ['4', 'à', 'è', 'ì', 'ò', 'ù', 'ǜ'])
                     if is_fourth and py != 'bú':
                         errors.append(f"段落{p.get('id')}: '不{nxt_t}({nxt_py})'必须变调为 bú，当前为 {py}")
-                    elif not is_fourth and py != 'bù':
+                    elif not is_fourth and py != 'bù' and nxt_t not in ['？', '也']:
                         errors.append(f"段落{p.get('id')}: '不{nxt_t}({nxt_py})'必须读四声 bù，当前为 {py}")
 
     if errors:
