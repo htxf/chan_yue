@@ -92,3022 +92,2222 @@
   "paragraphs": [
     {
       "id": 1,
-      "startTime": 3.233,
-      "endTime": 4.497,
+      "startTime": 3.383,
+      "endTime": 4.647,
       "lines": [
         {
-          "lineStart": 3.233,
-          "lineEnd": 4.497,
+          "lineStart": 3.383,
+          "lineEnd": 4.647,
           "chars": [
             {
               "text": "观",
               "pinyin": "guān",
-              "startTime": 3.233,
-              "endTime": 3.457
+              "startTime": 3.383,
+              "endTime": 3.607
             },
             {
               "text": "自",
               "pinyin": "zì",
-              "startTime": 3.457,
-              "endTime": 3.682
+              "startTime": 3.607,
+              "endTime": 3.832
             },
             {
               "text": "在",
               "pinyin": "zài",
-              "startTime": 3.682,
-              "endTime": 3.907
+              "startTime": 3.832,
+              "endTime": 4.057
             },
             {
               "text": "菩",
               "pinyin": "pú",
-              "startTime": 3.907,
-              "endTime": 4.216
+              "startTime": 4.057,
+              "endTime": 4.366
             },
             {
               "text": "萨",
               "pinyin": "sà",
-              "startTime": 4.216,
-              "endTime": 4.497
+              "startTime": 4.366,
+              "endTime": 4.647
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 3.233,
-              "lineEnd": 4.497
-            },
-            "male": {
-              "lineStart": 3.219,
-              "lineEnd": 4.44
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 3.233,
-          "endTime": 4.497
-        },
-        "male": {
-          "startTime": 3.219,
-          "endTime": 4.44
-        }
-      }
+      ]
     },
     {
       "id": 2,
-      "startTime": 5.363,
-      "endTime": 7.596,
+      "startTime": 5.513,
+      "endTime": 7.746,
       "lines": [
         {
-          "lineStart": 5.363,
-          "lineEnd": 7.596,
+          "lineStart": 5.513,
+          "lineEnd": 7.746,
           "chars": [
             {
               "text": "行",
               "pinyin": "xíng",
-              "startTime": 5.363,
-              "endTime": 5.611
+              "startTime": 5.513,
+              "endTime": 5.761
             },
             {
               "text": "深",
               "pinyin": "shēn",
-              "startTime": 5.611,
-              "endTime": 5.859
+              "startTime": 5.761,
+              "endTime": 6.009
             },
             {
               "text": "般",
               "pinyin": "bō",
-              "startTime": 5.859,
-              "endTime": 6.107
+              "startTime": 6.009,
+              "endTime": 6.257
             },
             {
               "text": "若",
               "pinyin": "rě",
-              "startTime": 6.107,
-              "endTime": 6.356
+              "startTime": 6.257,
+              "endTime": 6.506
             },
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 6.356,
-              "endTime": 6.604
+              "startTime": 6.506,
+              "endTime": 6.754
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 6.604,
-              "endTime": 6.852
+              "startTime": 6.754,
+              "endTime": 7.002
             },
             {
               "text": "蜜",
               "pinyin": "mì",
-              "startTime": 6.852,
-              "endTime": 7.1
+              "startTime": 7.002,
+              "endTime": 7.25
             },
             {
               "text": "多",
               "pinyin": "duō",
-              "startTime": 7.1,
-              "endTime": 7.348
+              "startTime": 7.25,
+              "endTime": 7.498
             },
             {
               "text": "时",
               "pinyin": "shí",
-              "startTime": 7.348,
-              "endTime": 7.596
+              "startTime": 7.498,
+              "endTime": 7.746
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 5.363,
-              "lineEnd": 7.596
-            },
-            "male": {
-              "lineStart": 5.322,
-              "lineEnd": 7.527
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 5.363,
-          "endTime": 7.596
-        },
-        "male": {
-          "startTime": 5.322,
-          "endTime": 7.527
-        }
-      }
+      ]
     },
     {
       "id": 3,
-      "startTime": 8.506,
-      "endTime": 10.178,
+      "startTime": 8.656,
+      "endTime": 10.328,
       "lines": [
         {
-          "lineStart": 8.506,
-          "lineEnd": 10.178,
+          "lineStart": 8.656,
+          "lineEnd": 10.328,
           "chars": [
             {
               "text": "照",
               "pinyin": "zhào",
-              "startTime": 8.506,
-              "endTime": 8.785
+              "startTime": 8.656,
+              "endTime": 8.935
             },
             {
               "text": "见",
               "pinyin": "jiàn",
-              "startTime": 8.785,
-              "endTime": 9.063
+              "startTime": 8.935,
+              "endTime": 9.213
             },
             {
               "text": "五",
               "pinyin": "wǔ",
-              "startTime": 9.063,
-              "endTime": 9.342
+              "startTime": 9.213,
+              "endTime": 9.492
             },
             {
               "text": "蕴",
               "pinyin": "yùn",
-              "startTime": 9.342,
-              "endTime": 9.621
+              "startTime": 9.492,
+              "endTime": 9.771
             },
             {
               "text": "皆",
               "pinyin": "jiē",
-              "startTime": 9.621,
-              "endTime": 9.899
+              "startTime": 9.771,
+              "endTime": 10.049
             },
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 9.899,
-              "endTime": 10.178
+              "startTime": 10.049,
+              "endTime": 10.328
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 8.506,
-              "lineEnd": 10.178
-            },
-            "male": {
-              "lineStart": 8.41,
-              "lineEnd": 9.884
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 8.506,
-          "endTime": 10.178
-        },
-        "male": {
-          "startTime": 8.41,
-          "endTime": 9.884
-        }
-      }
+      ]
     },
     {
       "id": 4,
-      "startTime": 11.061,
-      "endTime": 12.367,
+      "startTime": 11.211,
+      "endTime": 12.517,
       "lines": [
         {
-          "lineStart": 11.061,
-          "lineEnd": 12.367,
+          "lineStart": 11.211,
+          "lineEnd": 12.517,
           "chars": [
             {
               "text": "度",
               "pinyin": "dù",
-              "startTime": 11.061,
-              "endTime": 11.322
+              "startTime": 11.211,
+              "endTime": 11.472
             },
             {
               "text": "一",
               "pinyin": "yí",
-              "startTime": 11.322,
-              "endTime": 11.584
+              "startTime": 11.472,
+              "endTime": 11.734
             },
             {
               "text": "切",
               "pinyin": "qiè",
-              "startTime": 11.584,
-              "endTime": 11.845
+              "startTime": 11.734,
+              "endTime": 11.995
             },
             {
               "text": "苦",
               "pinyin": "kǔ",
-              "startTime": 11.845,
-              "endTime": 12.106
+              "startTime": 11.995,
+              "endTime": 12.256
             },
             {
               "text": "厄",
               "pinyin": "è",
-              "startTime": 12.106,
-              "endTime": 12.367
+              "startTime": 12.256,
+              "endTime": 12.517
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 11.061,
-              "lineEnd": 12.367
-            },
-            "male": {
-              "lineStart": 10.78,
-              "lineEnd": 12.072
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 11.061,
-          "endTime": 12.367
-        },
-        "male": {
-          "startTime": 10.78,
-          "endTime": 12.072
-        }
-      }
+      ]
     },
     {
       "id": 5,
-      "startTime": 13.235,
-      "endTime": 16.804,
+      "startTime": 13.385,
+      "endTime": 16.954,
       "lines": [
         {
-          "lineStart": 13.235,
-          "lineEnd": 14.078,
+          "lineStart": 13.385,
+          "lineEnd": 14.228,
           "chars": [
             {
               "text": "舍",
               "pinyin": "shè",
-              "startTime": 13.235,
-              "endTime": 13.516
+              "startTime": 13.385,
+              "endTime": 13.666
             },
             {
               "text": "利",
               "pinyin": "lì",
-              "startTime": 13.516,
-              "endTime": 13.797
+              "startTime": 13.666,
+              "endTime": 13.947
             },
             {
               "text": "子",
               "pinyin": "zǐ",
-              "startTime": 13.797,
-              "endTime": 14.078
+              "startTime": 13.947,
+              "endTime": 14.228
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 13.235,
-              "lineEnd": 14.078
-            },
-            "male": {
-              "lineStart": 12.954,
-              "lineEnd": 13.699
-            }
-          }
+          ]
         },
         {
-          "lineStart": 14.472,
-          "lineEnd": 15.385,
+          "lineStart": 14.622,
+          "lineEnd": 15.535,
           "chars": [
             {
               "text": "色",
               "pinyin": "sè",
-              "startTime": 14.472,
-              "endTime": 14.7
+              "startTime": 14.622,
+              "endTime": 14.85
             },
             {
               "text": "不",
               "pinyin": "bú",
-              "startTime": 14.7,
-              "endTime": 14.929
+              "startTime": 14.85,
+              "endTime": 15.079
             },
             {
               "text": "异",
               "pinyin": "yì",
-              "startTime": 14.929,
-              "endTime": 15.157
+              "startTime": 15.079,
+              "endTime": 15.307
             },
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 15.157,
-              "endTime": 15.385
+              "startTime": 15.307,
+              "endTime": 15.535
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 14.472,
-              "lineEnd": 15.385
-            },
-            "male": {
-              "lineStart": 14.093,
-              "lineEnd": 14.964
-            }
-          }
+          ]
         },
         {
-          "lineStart": 15.849,
-          "lineEnd": 16.804,
+          "lineStart": 15.999,
+          "lineEnd": 16.954,
           "chars": [
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 15.849,
-              "endTime": 16.088
+              "startTime": 15.999,
+              "endTime": 16.238
             },
             {
               "text": "不",
               "pinyin": "bú",
-              "startTime": 16.088,
-              "endTime": 16.327
+              "startTime": 16.238,
+              "endTime": 16.477
             },
             {
               "text": "异",
               "pinyin": "yì",
-              "startTime": 16.327,
-              "endTime": 16.566
+              "startTime": 16.477,
+              "endTime": 16.716
             },
             {
               "text": "色",
               "pinyin": "sè",
-              "startTime": 16.566,
-              "endTime": 16.804
+              "startTime": 16.716,
+              "endTime": 16.954
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 15.849,
-              "lineEnd": 16.804
-            },
-            "male": {
-              "lineStart": 15.358,
-              "lineEnd": 16.172
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 13.235,
-          "endTime": 16.804
-        },
-        "male": {
-          "startTime": 12.954,
-          "endTime": 16.172
-        }
-      }
+      ]
     },
     {
       "id": 6,
-      "startTime": 17.7,
-      "endTime": 20.257,
+      "startTime": 17.85,
+      "endTime": 20.407,
       "lines": [
         {
-          "lineStart": 17.7,
-          "lineEnd": 18.782,
+          "lineStart": 17.85,
+          "lineEnd": 18.932,
           "chars": [
             {
               "text": "色",
               "pinyin": "sè",
-              "startTime": 17.7,
-              "endTime": 17.971
+              "startTime": 17.85,
+              "endTime": 18.121
             },
             {
               "text": "即",
               "pinyin": "jí",
-              "startTime": 17.971,
-              "endTime": 18.241
+              "startTime": 18.121,
+              "endTime": 18.391
             },
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 18.241,
-              "endTime": 18.512
+              "startTime": 18.391,
+              "endTime": 18.662
             },
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 18.512,
-              "endTime": 18.782
+              "startTime": 18.662,
+              "endTime": 18.932
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 17.7,
-              "lineEnd": 18.782
-            },
-            "male": {
-              "lineStart": 17.068,
-              "lineEnd": 18.023
-            }
-          }
+          ]
         },
         {
-          "lineStart": 19.232,
-          "lineEnd": 20.257,
+          "lineStart": 19.382,
+          "lineEnd": 20.407,
           "chars": [
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 19.232,
-              "endTime": 19.488
+              "startTime": 19.382,
+              "endTime": 19.638
             },
             {
               "text": "即",
               "pinyin": "jí",
-              "startTime": 19.488,
-              "endTime": 19.745
+              "startTime": 19.638,
+              "endTime": 19.895
             },
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 19.745,
-              "endTime": 20.001
+              "startTime": 19.895,
+              "endTime": 20.151
             },
             {
               "text": "色",
               "pinyin": "sè",
-              "startTime": 20.001,
-              "endTime": 20.257
+              "startTime": 20.151,
+              "endTime": 20.407
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 19.232,
-              "lineEnd": 20.257
-            },
-            "male": {
-              "lineStart": 18.418,
-              "lineEnd": 19.274
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 17.7,
-          "endTime": 20.257
-        },
-        "male": {
-          "startTime": 17.068,
-          "endTime": 19.274
-        }
-      }
+      ]
     },
     {
       "id": 7,
-      "startTime": 21.139,
-      "endTime": 23.781,
+      "startTime": 21.289,
+      "endTime": 23.931,
       "lines": [
         {
-          "lineStart": 21.139,
-          "lineEnd": 22.403,
+          "lineStart": 21.289,
+          "lineEnd": 22.553,
           "chars": [
             {
               "text": "受",
               "pinyin": "shòu",
-              "startTime": 21.139,
-              "endTime": 21.455
+              "startTime": 21.289,
+              "endTime": 21.605
             },
             {
               "text": "想",
               "pinyin": "xiǎng",
-              "startTime": 21.455,
-              "endTime": 21.771
+              "startTime": 21.605,
+              "endTime": 21.921
             },
             {
               "text": "行",
               "pinyin": "xíng",
-              "startTime": 21.771,
-              "endTime": 22.087
+              "startTime": 21.921,
+              "endTime": 22.237
             },
             {
               "text": "识",
               "pinyin": "shí",
-              "startTime": 22.087,
-              "endTime": 22.403
+              "startTime": 22.237,
+              "endTime": 22.553
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 21.139,
-              "lineEnd": 22.403
-            },
-            "male": {
-              "lineStart": 20.156,
-              "lineEnd": 21.153
-            }
-          }
+          ]
         },
         {
-          "lineStart": 22.84,
-          "lineEnd": 23.781,
+          "lineStart": 22.99,
+          "lineEnd": 23.931,
           "chars": [
             {
               "text": "亦",
               "pinyin": "yì",
-              "startTime": 22.84,
-              "endTime": 23.075
+              "startTime": 22.99,
+              "endTime": 23.225
             },
             {
               "text": "复",
               "pinyin": "fù",
-              "startTime": 23.075,
-              "endTime": 23.31
+              "startTime": 23.225,
+              "endTime": 23.46
             },
             {
               "text": "如",
               "pinyin": "rú",
-              "startTime": 23.31,
-              "endTime": 23.545
+              "startTime": 23.46,
+              "endTime": 23.695
             },
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 23.545,
-              "endTime": 23.781
+              "startTime": 23.695,
+              "endTime": 23.931
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 22.84,
-              "lineEnd": 23.781
-            },
-            "male": {
-              "lineStart": 21.548,
-              "lineEnd": 22.404
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 21.139,
-          "endTime": 23.781
-        },
-        "male": {
-          "startTime": 20.156,
-          "endTime": 22.404
-        }
-      }
+      ]
     },
     {
       "id": 8,
-      "startTime": 24.691,
-      "endTime": 27.22,
+      "startTime": 24.841,
+      "endTime": 27.37,
       "lines": [
         {
-          "lineStart": 24.691,
-          "lineEnd": 25.533,
+          "lineStart": 24.841,
+          "lineEnd": 25.683,
           "chars": [
             {
               "text": "舍",
               "pinyin": "shè",
-              "startTime": 24.691,
-              "endTime": 24.972
+              "startTime": 24.841,
+              "endTime": 25.122
             },
             {
               "text": "利",
               "pinyin": "lì",
-              "startTime": 24.972,
-              "endTime": 25.253
+              "startTime": 25.122,
+              "endTime": 25.403
             },
             {
               "text": "子",
               "pinyin": "zǐ",
-              "startTime": 25.253,
-              "endTime": 25.533
+              "startTime": 25.403,
+              "endTime": 25.683
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 24.691,
-              "lineEnd": 25.533
-            },
-            "male": {
-              "lineStart": 23.286,
-              "lineEnd": 24.031
-            }
-          }
+          ]
         },
         {
-          "lineStart": 25.928,
-          "lineEnd": 27.22,
+          "lineStart": 26.078,
+          "lineEnd": 27.37,
           "chars": [
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 25.928,
-              "endTime": 26.186
+              "startTime": 26.078,
+              "endTime": 26.336
             },
             {
               "text": "诸",
               "pinyin": "zhū",
-              "startTime": 26.186,
-              "endTime": 26.444
+              "startTime": 26.336,
+              "endTime": 26.594
             },
             {
               "text": "法",
               "pinyin": "fǎ",
-              "startTime": 26.444,
-              "endTime": 26.703
+              "startTime": 26.594,
+              "endTime": 26.853
             },
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 26.703,
-              "endTime": 26.961
+              "startTime": 26.853,
+              "endTime": 27.111
             },
             {
               "text": "相",
               "pinyin": "xiàng",
-              "startTime": 26.961,
-              "endTime": 27.22
+              "startTime": 27.111,
+              "endTime": 27.37
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 25.928,
-              "lineEnd": 27.22
-            },
-            "male": {
-              "lineStart": 24.425,
-              "lineEnd": 25.59
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 24.691,
-          "endTime": 27.22
-        },
-        "male": {
-          "startTime": 23.286,
-          "endTime": 25.59
-        }
-      }
+      ]
     },
     {
       "id": 9,
-      "startTime": 28.074,
-      "endTime": 31.685,
+      "startTime": 28.224,
+      "endTime": 31.835,
       "lines": [
         {
-          "lineStart": 28.074,
-          "lineEnd": 29.085,
+          "lineStart": 28.224,
+          "lineEnd": 29.235,
           "chars": [
             {
               "text": "不",
               "pinyin": "bù",
-              "startTime": 28.074,
-              "endTime": 28.326
+              "startTime": 28.224,
+              "endTime": 28.476
             },
             {
               "text": "生",
               "pinyin": "shēng",
-              "startTime": 28.326,
-              "endTime": 28.579
+              "startTime": 28.476,
+              "endTime": 28.729
             },
             {
               "text": "不",
               "pinyin": "bú",
-              "startTime": 28.579,
-              "endTime": 28.832
+              "startTime": 28.729,
+              "endTime": 28.982
             },
             {
               "text": "灭",
               "pinyin": "miè",
-              "startTime": 28.832,
-              "endTime": 29.085
+              "startTime": 28.982,
+              "endTime": 29.235
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 28.074,
-              "lineEnd": 29.085
-            },
-            "male": {
-              "lineStart": 26.472,
-              "lineEnd": 27.315
-            }
-          }
+          ]
         },
         {
-          "lineStart": 29.479,
-          "lineEnd": 30.322,
+          "lineStart": 29.629,
+          "lineEnd": 30.472,
           "chars": [
             {
               "text": "不",
               "pinyin": "bú",
-              "startTime": 29.479,
-              "endTime": 29.69
+              "startTime": 29.629,
+              "endTime": 29.84
             },
             {
               "text": "垢",
               "pinyin": "gòu",
-              "startTime": 29.69,
-              "endTime": 29.9
+              "startTime": 29.84,
+              "endTime": 30.05
             },
             {
               "text": "不",
               "pinyin": "bú",
-              "startTime": 29.9,
-              "endTime": 30.111
+              "startTime": 30.05,
+              "endTime": 30.261
             },
             {
               "text": "净",
               "pinyin": "jìng",
-              "startTime": 30.111,
-              "endTime": 30.322
+              "startTime": 30.261,
+              "endTime": 30.472
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 29.479,
-              "lineEnd": 30.322
-            },
-            "male": {
-              "lineStart": 27.709,
-              "lineEnd": 28.454
-            }
-          }
+          ]
         },
         {
-          "lineStart": 30.716,
-          "lineEnd": 31.685,
+          "lineStart": 30.866,
+          "lineEnd": 31.835,
           "chars": [
             {
               "text": "不",
               "pinyin": "bù",
-              "startTime": 30.716,
-              "endTime": 30.958
+              "startTime": 30.866,
+              "endTime": 31.108
             },
             {
               "text": "增",
               "pinyin": "zēng",
-              "startTime": 30.958,
-              "endTime": 31.2
+              "startTime": 31.108,
+              "endTime": 31.35
             },
             {
               "text": "不",
               "pinyin": "bù",
-              "startTime": 31.2,
-              "endTime": 31.442
+              "startTime": 31.35,
+              "endTime": 31.592
             },
             {
               "text": "减",
               "pinyin": "jiǎn",
-              "startTime": 31.442,
-              "endTime": 31.685
+              "startTime": 31.592,
+              "endTime": 31.835
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 30.716,
-              "lineEnd": 31.685
-            },
-            "male": {
-              "lineStart": 28.848,
-              "lineEnd": 29.747
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 28.074,
-          "endTime": 31.685
-        },
-        "male": {
-          "startTime": 26.472,
-          "endTime": 29.747
-        }
-      }
+      ]
     },
     {
       "id": 10,
-      "startTime": 32.567,
-      "endTime": 36.051,
+      "startTime": 32.717,
+      "endTime": 36.201,
       "lines": [
         {
-          "lineStart": 32.567,
-          "lineEnd": 34.168,
+          "lineStart": 32.717,
+          "lineEnd": 34.318,
           "chars": [
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 32.567,
-              "endTime": 32.834
+              "startTime": 32.717,
+              "endTime": 32.984
             },
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 32.834,
-              "endTime": 33.1
+              "startTime": 32.984,
+              "endTime": 33.25
             },
             {
               "text": "空",
               "pinyin": "kōng",
-              "startTime": 33.1,
-              "endTime": 33.367
+              "startTime": 33.25,
+              "endTime": 33.517
             },
             {
               "text": "中",
               "pinyin": "zhōng",
-              "startTime": 33.367,
-              "endTime": 33.634
+              "startTime": 33.517,
+              "endTime": 33.784
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 33.634,
-              "endTime": 33.901
+              "startTime": 33.784,
+              "endTime": 34.051
             },
             {
               "text": "色",
               "pinyin": "sè",
-              "startTime": 33.901,
-              "endTime": 34.168
+              "startTime": 34.051,
+              "endTime": 34.318
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 32.567,
-              "lineEnd": 34.168
-            },
-            "male": {
-              "lineStart": 30.629,
-              "lineEnd": 32.019
-            }
-          }
+          ]
         },
         {
-          "lineStart": 34.66,
-          "lineEnd": 36.051,
+          "lineStart": 34.81,
+          "lineEnd": 36.201,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 34.66,
-              "endTime": 34.938
+              "startTime": 34.81,
+              "endTime": 35.088
             },
             {
               "text": "受",
               "pinyin": "shòu",
-              "startTime": 34.938,
-              "endTime": 35.216
+              "startTime": 35.088,
+              "endTime": 35.366
             },
             {
               "text": "想",
               "pinyin": "xiǎng",
-              "startTime": 35.216,
-              "endTime": 35.494
+              "startTime": 35.366,
+              "endTime": 35.644
             },
             {
               "text": "行",
               "pinyin": "xíng",
-              "startTime": 35.494,
-              "endTime": 35.773
+              "startTime": 35.644,
+              "endTime": 35.923
             },
             {
               "text": "识",
               "pinyin": "shí",
-              "startTime": 35.773,
-              "endTime": 36.051
+              "startTime": 35.923,
+              "endTime": 36.201
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 34.66,
-              "lineEnd": 36.051
-            },
-            "male": {
-              "lineStart": 32.455,
-              "lineEnd": 33.649
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 32.567,
-          "endTime": 36.051
-        },
-        "male": {
-          "startTime": 30.629,
-          "endTime": 33.649
-        }
-      }
+      ]
     },
     {
       "id": 11,
-      "startTime": 36.961,
-      "endTime": 40.782,
+      "startTime": 37.111,
+      "endTime": 40.932,
       "lines": [
         {
-          "lineStart": 36.961,
-          "lineEnd": 38.66,
+          "lineStart": 37.111,
+          "lineEnd": 38.81,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 36.961,
-              "endTime": 37.204
+              "startTime": 37.111,
+              "endTime": 37.354
             },
             {
               "text": "眼",
               "pinyin": "yǎn",
-              "startTime": 37.204,
-              "endTime": 37.446
+              "startTime": 37.354,
+              "endTime": 37.596
             },
             {
               "text": "耳",
               "pinyin": "ěr",
-              "startTime": 37.446,
-              "endTime": 37.689
+              "startTime": 37.596,
+              "endTime": 37.839
             },
             {
               "text": "鼻",
               "pinyin": "bí",
-              "startTime": 37.689,
-              "endTime": 37.932
+              "startTime": 37.839,
+              "endTime": 38.082
             },
             {
               "text": "舌",
               "pinyin": "shé",
-              "startTime": 37.932,
-              "endTime": 38.175
+              "startTime": 38.082,
+              "endTime": 38.325
             },
             {
               "text": "身",
               "pinyin": "shēn",
-              "startTime": 38.175,
-              "endTime": 38.417
+              "startTime": 38.325,
+              "endTime": 38.567
             },
             {
               "text": "意",
               "pinyin": "yì",
-              "startTime": 38.417,
-              "endTime": 38.66
+              "startTime": 38.567,
+              "endTime": 38.81
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 36.961,
-              "lineEnd": 38.66
-            },
-            "male": {
-              "lineStart": 34.531,
-              "lineEnd": 35.992
-            }
-          }
+          ]
         },
         {
-          "lineStart": 39.054,
-          "lineEnd": 40.782,
+          "lineStart": 39.204,
+          "lineEnd": 40.932,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 39.054,
-              "endTime": 39.301
+              "startTime": 39.204,
+              "endTime": 39.451
             },
             {
               "text": "色",
               "pinyin": "sè",
-              "startTime": 39.301,
-              "endTime": 39.548
+              "startTime": 39.451,
+              "endTime": 39.698
             },
             {
               "text": "声",
               "pinyin": "shēng",
-              "startTime": 39.548,
-              "endTime": 39.795
+              "startTime": 39.698,
+              "endTime": 39.945
             },
             {
               "text": "香",
               "pinyin": "xiāng",
-              "startTime": 39.795,
-              "endTime": 40.041
+              "startTime": 39.945,
+              "endTime": 40.191
             },
             {
               "text": "味",
               "pinyin": "wèi",
-              "startTime": 40.041,
-              "endTime": 40.288
+              "startTime": 40.191,
+              "endTime": 40.438
             },
             {
               "text": "触",
               "pinyin": "chù",
-              "startTime": 40.288,
-              "endTime": 40.535
+              "startTime": 40.438,
+              "endTime": 40.685
             },
             {
               "text": "法",
               "pinyin": "fǎ",
-              "startTime": 40.535,
-              "endTime": 40.782
+              "startTime": 40.685,
+              "endTime": 40.932
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 39.054,
-              "lineEnd": 40.782
-            },
-            "male": {
-              "lineStart": 36.4,
-              "lineEnd": 37.889
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 36.961,
-          "endTime": 40.782
-        },
-        "male": {
-          "startTime": 34.531,
-          "endTime": 37.889
-        }
-      }
+      ]
     },
     {
       "id": 12,
-      "startTime": 41.65,
-      "endTime": 44.488,
+      "startTime": 41.8,
+      "endTime": 44.638,
       "lines": [
         {
-          "lineStart": 41.65,
-          "lineEnd": 42.549,
+          "lineStart": 41.8,
+          "lineEnd": 42.699,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 41.65,
-              "endTime": 41.949
+              "startTime": 41.8,
+              "endTime": 42.099
             },
             {
               "text": "眼",
               "pinyin": "yǎn",
-              "startTime": 41.949,
-              "endTime": 42.249
+              "startTime": 42.099,
+              "endTime": 42.399
             },
             {
               "text": "界",
               "pinyin": "jiè",
-              "startTime": 42.249,
-              "endTime": 42.549
+              "startTime": 42.399,
+              "endTime": 42.699
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 41.65,
-              "lineEnd": 42.549
-            },
-            "male": {
-              "lineStart": 38.771,
-              "lineEnd": 39.431
-            }
-          }
+          ]
         },
         {
-          "lineStart": 42.943,
-          "lineEnd": 44.488,
+          "lineStart": 43.093,
+          "lineEnd": 44.638,
           "chars": [
             {
               "text": "乃",
               "pinyin": "nǎi",
-              "startTime": 42.943,
-              "endTime": 43.2
+              "startTime": 43.093,
+              "endTime": 43.35
             },
             {
               "text": "至",
               "pinyin": "zhì",
-              "startTime": 43.2,
-              "endTime": 43.458
+              "startTime": 43.35,
+              "endTime": 43.608
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 43.458,
-              "endTime": 43.715
+              "startTime": 43.608,
+              "endTime": 43.865
             },
             {
               "text": "意",
               "pinyin": "yì",
-              "startTime": 43.715,
-              "endTime": 43.973
+              "startTime": 43.865,
+              "endTime": 44.123
             },
             {
               "text": "识",
               "pinyin": "shí",
-              "startTime": 43.973,
-              "endTime": 44.23
+              "startTime": 44.123,
+              "endTime": 44.38
             },
             {
               "text": "界",
               "pinyin": "jiè",
-              "startTime": 44.23,
-              "endTime": 44.488
+              "startTime": 44.38,
+              "endTime": 44.638
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 42.943,
-              "lineEnd": 44.488
-            },
-            "male": {
-              "lineStart": 39.825,
-              "lineEnd": 41.117
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 41.65,
-          "endTime": 44.488
-        },
-        "male": {
-          "startTime": 38.771,
-          "endTime": 41.117
-        }
-      }
+      ]
     },
     {
       "id": 13,
-      "startTime": 45.37,
-      "endTime": 48.011,
+      "startTime": 45.52,
+      "endTime": 48.161,
       "lines": [
         {
-          "lineStart": 45.37,
-          "lineEnd": 46.297,
+          "lineStart": 45.52,
+          "lineEnd": 46.447,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 45.37,
-              "endTime": 45.679
+              "startTime": 45.52,
+              "endTime": 45.829
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 45.679,
-              "endTime": 45.988
+              "startTime": 45.829,
+              "endTime": 46.138
             },
             {
               "text": "明",
               "pinyin": "míng",
-              "startTime": 45.988,
-              "endTime": 46.297
+              "startTime": 46.138,
+              "endTime": 46.447
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 45.37,
-              "lineEnd": 46.297
-            },
-            "male": {
-              "lineStart": 42.013,
-              "lineEnd": 42.687
-            }
-          }
+          ]
         },
         {
-          "lineStart": 46.733,
-          "lineEnd": 48.011,
+          "lineStart": 46.883,
+          "lineEnd": 48.161,
           "chars": [
             {
               "text": "亦",
               "pinyin": "yì",
-              "startTime": 46.733,
-              "endTime": 46.988
+              "startTime": 46.883,
+              "endTime": 47.138
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 46.988,
-              "endTime": 47.244
+              "startTime": 47.138,
+              "endTime": 47.394
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 47.244,
-              "endTime": 47.5
+              "startTime": 47.394,
+              "endTime": 47.65
             },
             {
               "text": "明",
               "pinyin": "míng",
-              "startTime": 47.5,
-              "endTime": 47.755
+              "startTime": 47.65,
+              "endTime": 47.905
             },
             {
               "text": "尽",
               "pinyin": "jìn",
-              "startTime": 47.755,
-              "endTime": 48.011
+              "startTime": 47.905,
+              "endTime": 48.161
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 46.733,
-              "lineEnd": 48.011
-            },
-            "male": {
-              "lineStart": 43.081,
-              "lineEnd": 44.219
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 45.37,
-          "endTime": 48.011
-        },
-        "male": {
-          "startTime": 42.013,
-          "endTime": 44.219
-        }
-      }
+      ]
     },
     {
       "id": 14,
-      "startTime": 48.893,
-      "endTime": 51.927,
+      "startTime": 49.043,
+      "endTime": 52.077,
       "lines": [
         {
-          "lineStart": 48.893,
-          "lineEnd": 50.311,
+          "lineStart": 49.043,
+          "lineEnd": 50.461,
           "chars": [
             {
               "text": "乃",
               "pinyin": "nǎi",
-              "startTime": 48.893,
-              "endTime": 49.177
+              "startTime": 49.043,
+              "endTime": 49.327
             },
             {
               "text": "至",
               "pinyin": "zhì",
-              "startTime": 49.177,
-              "endTime": 49.46
+              "startTime": 49.327,
+              "endTime": 49.61
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 49.46,
-              "endTime": 49.744
+              "startTime": 49.61,
+              "endTime": 49.894
             },
             {
               "text": "老",
               "pinyin": "lǎo",
-              "startTime": 49.744,
-              "endTime": 50.028
+              "startTime": 49.894,
+              "endTime": 50.178
             },
             {
               "text": "死",
               "pinyin": "sǐ",
-              "startTime": 50.028,
-              "endTime": 50.311
+              "startTime": 50.178,
+              "endTime": 50.461
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 48.893,
-              "lineEnd": 50.311
-            },
-            "male": {
-              "lineStart": 45.101,
-              "lineEnd": 46.337
-            }
-          }
+          ]
         },
         {
-          "lineStart": 50.706,
-          "lineEnd": 51.927,
+          "lineStart": 50.855,
+          "lineEnd": 52.077,
           "chars": [
             {
               "text": "亦",
               "pinyin": "yì",
-              "startTime": 50.706,
-              "endTime": 50.95
+              "startTime": 50.855,
+              "endTime": 51.1
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 50.95,
-              "endTime": 51.194
+              "startTime": 51.1,
+              "endTime": 51.344
             },
             {
               "text": "老",
               "pinyin": "lǎo",
-              "startTime": 51.194,
-              "endTime": 51.439
+              "startTime": 51.344,
+              "endTime": 51.589
             },
             {
               "text": "死",
               "pinyin": "sǐ",
-              "startTime": 51.439,
-              "endTime": 51.683
+              "startTime": 51.589,
+              "endTime": 51.833
             },
             {
               "text": "尽",
               "pinyin": "jìn",
-              "startTime": 51.683,
-              "endTime": 51.927
+              "startTime": 51.833,
+              "endTime": 52.077
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 50.706,
-              "lineEnd": 51.927
-            },
-            "male": {
-              "lineStart": 46.731,
-              "lineEnd": 47.812
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 48.893,
-          "endTime": 51.927
-        },
-        "male": {
-          "startTime": 45.101,
-          "endTime": 47.812
-        }
-      }
+      ]
     },
     {
       "id": 15,
-      "startTime": 52.809,
-      "endTime": 55.984,
+      "startTime": 52.959,
+      "endTime": 56.134,
       "lines": [
         {
-          "lineStart": 52.809,
-          "lineEnd": 54.214,
+          "lineStart": 52.959,
+          "lineEnd": 54.364,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 52.809,
-              "endTime": 53.09
+              "startTime": 52.959,
+              "endTime": 53.24
             },
             {
               "text": "苦",
               "pinyin": "kǔ",
-              "startTime": 53.09,
-              "endTime": 53.371
+              "startTime": 53.24,
+              "endTime": 53.521
             },
             {
               "text": "集",
               "pinyin": "jí",
-              "startTime": 53.371,
-              "endTime": 53.652
+              "startTime": 53.521,
+              "endTime": 53.802
             },
             {
               "text": "灭",
               "pinyin": "miè",
-              "startTime": 53.652,
-              "endTime": 53.933
+              "startTime": 53.802,
+              "endTime": 54.083
             },
             {
               "text": "道",
               "pinyin": "dào",
-              "startTime": 53.933,
-              "endTime": 54.214
+              "startTime": 54.083,
+              "endTime": 54.364
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 52.809,
-              "lineEnd": 54.214
-            },
-            "male": {
-              "lineStart": 48.694,
-              "lineEnd": 49.79
-            }
-          }
+          ]
         },
         {
-          "lineStart": 54.734,
-          "lineEnd": 55.984,
+          "lineStart": 54.884,
+          "lineEnd": 56.134,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 54.734,
-              "endTime": 54.984
+              "startTime": 54.884,
+              "endTime": 55.134
             },
             {
               "text": "智",
               "pinyin": "zhì",
-              "startTime": 54.984,
-              "endTime": 55.234
+              "startTime": 55.134,
+              "endTime": 55.384
             },
             {
               "text": "亦",
               "pinyin": "yì",
-              "startTime": 55.234,
-              "endTime": 55.484
+              "startTime": 55.384,
+              "endTime": 55.634
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 55.484,
-              "endTime": 55.734
+              "startTime": 55.634,
+              "endTime": 55.884
             },
             {
               "text": "得",
               "pinyin": "dé",
-              "startTime": 55.734,
-              "endTime": 55.984
+              "startTime": 55.884,
+              "endTime": 56.134
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 54.734,
-              "lineEnd": 55.984
-            },
-            "male": {
-              "lineStart": 50.198,
-              "lineEnd": 51.35
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 52.809,
-          "endTime": 55.984
-        },
-        "male": {
-          "startTime": 48.694,
-          "endTime": 51.35
-        }
-      }
+      ]
     },
     {
       "id": 16,
-      "startTime": 56.866,
-      "endTime": 59.592,
+      "startTime": 57.016,
+      "endTime": 59.742,
       "lines": [
         {
-          "lineStart": 56.866,
-          "lineEnd": 58.116,
+          "lineStart": 57.016,
+          "lineEnd": 58.266,
           "chars": [
             {
               "text": "以",
               "pinyin": "yǐ",
-              "startTime": 56.866,
-              "endTime": 57.116
+              "startTime": 57.016,
+              "endTime": 57.266
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 57.116,
-              "endTime": 57.366
+              "startTime": 57.266,
+              "endTime": 57.516
             },
             {
               "text": "所",
               "pinyin": "suǒ",
-              "startTime": 57.366,
-              "endTime": 57.616
+              "startTime": 57.516,
+              "endTime": 57.766
             },
             {
               "text": "得",
               "pinyin": "dé",
-              "startTime": 57.616,
-              "endTime": 57.866
+              "startTime": 57.766,
+              "endTime": 58.016
             },
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 57.866,
-              "endTime": 58.116
+              "startTime": 58.016,
+              "endTime": 58.266
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 56.866,
-              "lineEnd": 58.116
-            },
-            "male": {
-              "lineStart": 52.232,
-              "lineEnd": 53.482
-            }
-          }
+          ]
         },
         {
-          "lineStart": 58.539,
-          "lineEnd": 59.592,
+          "lineStart": 58.689,
+          "lineEnd": 59.742,
           "chars": [
             {
               "text": "菩",
               "pinyin": "pú",
-              "startTime": 58.539,
-              "endTime": 58.802
+              "startTime": 58.689,
+              "endTime": 58.952
             },
             {
               "text": "提",
               "pinyin": "tí",
-              "startTime": 58.802,
-              "endTime": 59.065
+              "startTime": 58.952,
+              "endTime": 59.215
             },
             {
               "text": "萨",
               "pinyin": "sà",
-              "startTime": 59.065,
-              "endTime": 59.329
+              "startTime": 59.215,
+              "endTime": 59.479
             },
             {
               "text": "埵",
               "pinyin": "duǒ",
-              "startTime": 59.329,
-              "endTime": 59.592
+              "startTime": 59.479,
+              "endTime": 59.742
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 58.539,
-              "lineEnd": 59.592
-            },
-            "male": {
-              "lineStart": 53.89,
-              "lineEnd": 54.803
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 56.866,
-          "endTime": 59.592
-        },
-        "male": {
-          "startTime": 52.232,
-          "endTime": 54.803
-        }
-      }
+      ]
     },
     {
       "id": 17,
-      "startTime": 60.474,
-      "endTime": 63.705,
+      "startTime": 60.624,
+      "endTime": 63.855,
       "lines": [
         {
-          "lineStart": 60.474,
-          "lineEnd": 62.328,
+          "lineStart": 60.624,
+          "lineEnd": 62.478,
           "chars": [
             {
               "text": "依",
               "pinyin": "yī",
-              "startTime": 60.474,
-              "endTime": 60.706
+              "startTime": 60.624,
+              "endTime": 60.856
             },
             {
               "text": "般",
               "pinyin": "bō",
-              "startTime": 60.706,
-              "endTime": 60.937
+              "startTime": 60.856,
+              "endTime": 61.087
             },
             {
               "text": "若",
               "pinyin": "rě",
-              "startTime": 60.937,
-              "endTime": 61.169
+              "startTime": 61.087,
+              "endTime": 61.319
             },
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 61.169,
-              "endTime": 61.401
+              "startTime": 61.319,
+              "endTime": 61.551
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 61.401,
-              "endTime": 61.633
+              "startTime": 61.551,
+              "endTime": 61.783
             },
             {
               "text": "蜜",
               "pinyin": "mì",
-              "startTime": 61.633,
-              "endTime": 61.864
+              "startTime": 61.783,
+              "endTime": 62.014
             },
             {
               "text": "多",
               "pinyin": "duō",
-              "startTime": 61.864,
-              "endTime": 62.096
+              "startTime": 62.014,
+              "endTime": 62.246
             },
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 62.096,
-              "endTime": 62.328
+              "startTime": 62.246,
+              "endTime": 62.478
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 60.474,
-              "lineEnd": 62.328
-            },
-            "male": {
-              "lineStart": 55.699,
-              "lineEnd": 57.595
-            }
-          }
+          ]
         },
         {
-          "lineStart": 62.778,
-          "lineEnd": 63.705,
+          "lineStart": 62.928,
+          "lineEnd": 63.855,
           "chars": [
             {
               "text": "心",
               "pinyin": "xīn",
-              "startTime": 62.778,
-              "endTime": 63.01
+              "startTime": 62.928,
+              "endTime": 63.16
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 63.01,
-              "endTime": 63.242
+              "startTime": 63.16,
+              "endTime": 63.392
             },
             {
               "text": "挂",
               "pinyin": "guà",
-              "startTime": 63.242,
-              "endTime": 63.473
+              "startTime": 63.392,
+              "endTime": 63.623
             },
             {
               "text": "碍",
               "pinyin": "ài",
-              "startTime": 63.473,
-              "endTime": 63.705
+              "startTime": 63.623,
+              "endTime": 63.855
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 62.778,
-              "lineEnd": 63.705
-            },
-            "male": {
-              "lineStart": 58.031,
-              "lineEnd": 58.86
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 60.474,
-          "endTime": 63.705
-        },
-        "male": {
-          "startTime": 55.699,
-          "endTime": 58.86
-        }
-      }
+      ]
     },
     {
       "id": 18,
-      "startTime": 64.587,
-      "endTime": 69.195,
+      "startTime": 64.737,
+      "endTime": 69.345,
       "lines": [
         {
-          "lineStart": 64.587,
-          "lineEnd": 65.683,
+          "lineStart": 64.737,
+          "lineEnd": 65.833,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 64.587,
-              "endTime": 64.861
+              "startTime": 64.737,
+              "endTime": 65.011
             },
             {
               "text": "挂",
               "pinyin": "guà",
-              "startTime": 64.861,
-              "endTime": 65.135
+              "startTime": 65.011,
+              "endTime": 65.285
             },
             {
               "text": "碍",
               "pinyin": "ài",
-              "startTime": 65.135,
-              "endTime": 65.409
+              "startTime": 65.285,
+              "endTime": 65.559
             },
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 65.409,
-              "endTime": 65.683
+              "startTime": 65.559,
+              "endTime": 65.833
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 64.587,
-              "lineEnd": 65.683
-            },
-            "male": {
-              "lineStart": 59.742,
-              "lineEnd": 60.626
-            }
-          }
+          ]
         },
         {
-          "lineStart": 66.091,
-          "lineEnd": 67.074,
+          "lineStart": 66.241,
+          "lineEnd": 67.224,
           "chars": [
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 66.091,
-              "endTime": 66.336
+              "startTime": 66.241,
+              "endTime": 66.486
             },
             {
               "text": "有",
               "pinyin": "yǒu",
-              "startTime": 66.336,
-              "endTime": 66.582
+              "startTime": 66.486,
+              "endTime": 66.732
             },
             {
               "text": "恐",
               "pinyin": "kǒng",
-              "startTime": 66.582,
-              "endTime": 66.828
+              "startTime": 66.732,
+              "endTime": 66.978
             },
             {
               "text": "怖",
               "pinyin": "bù",
-              "startTime": 66.828,
-              "endTime": 67.074
+              "startTime": 66.978,
+              "endTime": 67.224
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 66.091,
-              "lineEnd": 67.074
-            },
-            "male": {
-              "lineStart": 61.02,
-              "lineEnd": 61.863
-            }
-          }
+          ]
         },
         {
-          "lineStart": 67.566,
-          "lineEnd": 69.195,
+          "lineStart": 67.716,
+          "lineEnd": 69.345,
           "chars": [
             {
               "text": "远",
               "pinyin": "yuǎn",
-              "startTime": 67.566,
-              "endTime": 67.838
+              "startTime": 67.716,
+              "endTime": 67.988
             },
             {
               "text": "离",
               "pinyin": "lí",
-              "startTime": 67.838,
-              "endTime": 68.109
+              "startTime": 67.988,
+              "endTime": 68.259
             },
             {
               "text": "颠",
               "pinyin": "diān",
-              "startTime": 68.109,
-              "endTime": 68.381
+              "startTime": 68.259,
+              "endTime": 68.531
             },
             {
               "text": "倒",
               "pinyin": "dǎo",
-              "startTime": 68.381,
-              "endTime": 68.652
+              "startTime": 68.531,
+              "endTime": 68.802
             },
             {
               "text": "梦",
               "pinyin": "mèng",
-              "startTime": 68.652,
-              "endTime": 68.924
+              "startTime": 68.802,
+              "endTime": 69.074
             },
             {
               "text": "想",
               "pinyin": "xiǎng",
-              "startTime": 68.924,
-              "endTime": 69.195
+              "startTime": 69.074,
+              "endTime": 69.345
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 67.566,
-              "lineEnd": 69.195
-            },
-            "male": {
-              "lineStart": 62.257,
-              "lineEnd": 63.634
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 64.587,
-          "endTime": 69.195
-        },
-        "male": {
-          "startTime": 59.742,
-          "endTime": 63.634
-        }
-      }
+      ]
     },
     {
       "id": 19,
-      "startTime": 70.063,
-      "endTime": 71.257,
+      "startTime": 70.213,
+      "endTime": 71.407,
       "lines": [
         {
-          "lineStart": 70.063,
-          "lineEnd": 71.257,
+          "lineStart": 70.213,
+          "lineEnd": 71.407,
           "chars": [
             {
               "text": "究",
               "pinyin": "jiū",
-              "startTime": 70.063,
-              "endTime": 70.362
+              "startTime": 70.213,
+              "endTime": 70.512
             },
             {
               "text": "竟",
               "pinyin": "jìng",
-              "startTime": 70.362,
-              "endTime": 70.66
+              "startTime": 70.512,
+              "endTime": 70.81
             },
             {
               "text": "涅",
               "pinyin": "niè",
-              "startTime": 70.66,
-              "endTime": 70.959
+              "startTime": 70.81,
+              "endTime": 71.109
             },
             {
               "text": "槃",
               "pinyin": "pán",
-              "startTime": 70.959,
-              "endTime": 71.257
+              "startTime": 71.109,
+              "endTime": 71.407
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 70.063,
-              "lineEnd": 71.257
-            },
-            "male": {
-              "lineStart": 64.53,
-              "lineEnd": 65.653
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 70.063,
-          "endTime": 71.257
-        },
-        "male": {
-          "startTime": 64.53,
-          "endTime": 65.653
-        }
-      }
+      ]
     },
     {
       "id": 20,
-      "startTime": 72.181,
-      "endTime": 75.553,
+      "startTime": 72.331,
+      "endTime": 75.703,
       "lines": [
         {
-          "lineStart": 72.181,
-          "lineEnd": 73.375,
+          "lineStart": 72.331,
+          "lineEnd": 73.525,
           "chars": [
             {
               "text": "三",
               "pinyin": "sān",
-              "startTime": 72.181,
-              "endTime": 72.48
+              "startTime": 72.331,
+              "endTime": 72.63
             },
             {
               "text": "世",
               "pinyin": "shì",
-              "startTime": 72.48,
-              "endTime": 72.778
+              "startTime": 72.63,
+              "endTime": 72.928
             },
             {
               "text": "诸",
               "pinyin": "zhū",
-              "startTime": 72.778,
-              "endTime": 73.077
+              "startTime": 72.928,
+              "endTime": 73.227
             },
             {
               "text": "佛",
               "pinyin": "fó",
-              "startTime": 73.077,
-              "endTime": 73.375
+              "startTime": 73.227,
+              "endTime": 73.525
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 72.181,
-              "lineEnd": 73.375
-            },
-            "male": {
-              "lineStart": 66.549,
-              "lineEnd": 67.617
-            }
-          }
+          ]
         },
         {
-          "lineStart": 73.811,
-          "lineEnd": 75.553,
+          "lineStart": 73.961,
+          "lineEnd": 75.703,
           "chars": [
             {
               "text": "依",
               "pinyin": "yī",
-              "startTime": 73.811,
-              "endTime": 74.029
+              "startTime": 73.961,
+              "endTime": 74.179
             },
             {
               "text": "般",
               "pinyin": "bō",
-              "startTime": 74.029,
-              "endTime": 74.247
+              "startTime": 74.179,
+              "endTime": 74.397
             },
             {
               "text": "若",
               "pinyin": "rě",
-              "startTime": 74.247,
-              "endTime": 74.464
+              "startTime": 74.397,
+              "endTime": 74.614
             },
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 74.464,
-              "endTime": 74.682
+              "startTime": 74.614,
+              "endTime": 74.832
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 74.682,
-              "endTime": 74.9
+              "startTime": 74.832,
+              "endTime": 75.05
             },
             {
               "text": "蜜",
               "pinyin": "mì",
-              "startTime": 74.9,
-              "endTime": 75.118
+              "startTime": 75.05,
+              "endTime": 75.268
             },
             {
               "text": "多",
               "pinyin": "duō",
-              "startTime": 75.118,
-              "endTime": 75.335
+              "startTime": 75.268,
+              "endTime": 75.485
             },
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 75.335,
-              "endTime": 75.553
+              "startTime": 75.485,
+              "endTime": 75.703
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 73.811,
-              "lineEnd": 75.553
-            },
-            "male": {
-              "lineStart": 68.011,
-              "lineEnd": 69.78
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 72.181,
-          "endTime": 75.553
-        },
-        "male": {
-          "startTime": 66.549,
-          "endTime": 69.78
-        }
-      }
+      ]
     },
     {
       "id": 21,
-      "startTime": 76.421,
-      "endTime": 78.865,
+      "startTime": 76.571,
+      "endTime": 79.015,
       "lines": [
         {
-          "lineStart": 76.421,
-          "lineEnd": 78.865,
+          "lineStart": 76.571,
+          "lineEnd": 79.015,
           "chars": [
             {
               "text": "得",
               "pinyin": "dé",
-              "startTime": 76.421,
-              "endTime": 76.665
+              "startTime": 76.571,
+              "endTime": 76.815
             },
             {
               "text": "阿",
               "pinyin": "ā",
-              "startTime": 76.665,
-              "endTime": 76.91
+              "startTime": 76.815,
+              "endTime": 77.06
             },
             {
               "text": "耨",
               "pinyin": "nuò",
-              "startTime": 76.91,
-              "endTime": 77.154
+              "startTime": 77.06,
+              "endTime": 77.304
             },
             {
               "text": "多",
               "pinyin": "duō",
-              "startTime": 77.154,
-              "endTime": 77.398
+              "startTime": 77.304,
+              "endTime": 77.548
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 77.398,
-              "endTime": 77.643
+              "startTime": 77.548,
+              "endTime": 77.793
             },
             {
               "text": "三",
               "pinyin": "sān",
-              "startTime": 77.643,
-              "endTime": 77.887
+              "startTime": 77.793,
+              "endTime": 78.037
             },
             {
               "text": "藐",
               "pinyin": "miǎo",
-              "startTime": 77.887,
-              "endTime": 78.132
+              "startTime": 78.037,
+              "endTime": 78.282
             },
             {
               "text": "三",
               "pinyin": "sān",
-              "startTime": 78.132,
-              "endTime": 78.376
+              "startTime": 78.282,
+              "endTime": 78.526
             },
             {
               "text": "菩",
               "pinyin": "pú",
-              "startTime": 78.376,
-              "endTime": 78.62
+              "startTime": 78.526,
+              "endTime": 78.77
             },
             {
               "text": "提",
               "pinyin": "tí",
-              "startTime": 78.62,
-              "endTime": 78.865
+              "startTime": 78.77,
+              "endTime": 79.015
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 76.421,
-              "lineEnd": 78.865
-            },
-            "male": {
-              "lineStart": 70.662,
-              "lineEnd": 72.811
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 76.421,
-          "endTime": 78.865
-        },
-        "male": {
-          "startTime": 70.662,
-          "endTime": 72.811
-        }
-      }
+      ]
     },
     {
       "id": 22,
-      "startTime": 79.761,
-      "endTime": 84.692,
+      "startTime": 79.911,
+      "endTime": 84.842,
       "lines": [
         {
-          "lineStart": 79.761,
-          "lineEnd": 81.643,
+          "lineStart": 79.911,
+          "lineEnd": 81.793,
           "chars": [
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 79.761,
-              "endTime": 79.996
+              "startTime": 79.911,
+              "endTime": 80.146
             },
             {
               "text": "知",
               "pinyin": "zhī",
-              "startTime": 79.996,
-              "endTime": 80.231
+              "startTime": 80.146,
+              "endTime": 80.381
             },
             {
               "text": "般",
               "pinyin": "bō",
-              "startTime": 80.231,
-              "endTime": 80.467
+              "startTime": 80.381,
+              "endTime": 80.617
             },
             {
               "text": "若",
               "pinyin": "rě",
-              "startTime": 80.467,
-              "endTime": 80.702
+              "startTime": 80.617,
+              "endTime": 80.852
             },
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 80.702,
-              "endTime": 80.937
+              "startTime": 80.852,
+              "endTime": 81.087
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 80.937,
-              "endTime": 81.172
+              "startTime": 81.087,
+              "endTime": 81.322
             },
             {
               "text": "蜜",
               "pinyin": "mì",
-              "startTime": 81.172,
-              "endTime": 81.408
+              "startTime": 81.322,
+              "endTime": 81.558
             },
             {
               "text": "多",
               "pinyin": "duō",
-              "startTime": 81.408,
-              "endTime": 81.643
+              "startTime": 81.558,
+              "endTime": 81.793
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 79.761,
-              "lineEnd": 81.643
-            },
-            "male": {
-              "lineStart": 73.679,
-              "lineEnd": 75.632
-            }
-          }
+          ]
         },
         {
-          "lineStart": 82.149,
-          "lineEnd": 83.217,
+          "lineStart": 82.299,
+          "lineEnd": 83.367,
           "chars": [
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 82.149,
-              "endTime": 82.402
+              "startTime": 82.299,
+              "endTime": 82.552
             },
             {
               "text": "大",
               "pinyin": "dà",
-              "startTime": 82.402,
-              "endTime": 82.655
+              "startTime": 82.552,
+              "endTime": 82.805
             },
             {
               "text": "神",
               "pinyin": "shén",
-              "startTime": 82.655,
-              "endTime": 82.908
+              "startTime": 82.805,
+              "endTime": 83.058
             },
             {
               "text": "咒",
               "pinyin": "zhòu",
-              "startTime": 82.908,
-              "endTime": 83.217
+              "startTime": 83.058,
+              "endTime": 83.367
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 82.149,
-              "lineEnd": 83.217
-            },
-            "male": {
-              "lineStart": 76.04,
-              "lineEnd": 76.91
-            }
-          }
+          ]
         },
         {
-          "lineStart": 83.611,
-          "lineEnd": 84.692,
+          "lineStart": 83.761,
+          "lineEnd": 84.842,
           "chars": [
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 83.611,
-              "endTime": 83.859
+              "startTime": 83.761,
+              "endTime": 84.009
             },
             {
               "text": "大",
               "pinyin": "dà",
-              "startTime": 83.859,
-              "endTime": 84.107
+              "startTime": 84.009,
+              "endTime": 84.257
             },
             {
               "text": "明",
               "pinyin": "míng",
-              "startTime": 84.107,
-              "endTime": 84.355
+              "startTime": 84.257,
+              "endTime": 84.505
             },
             {
               "text": "咒",
               "pinyin": "zhòu",
-              "startTime": 84.355,
-              "endTime": 84.692
+              "startTime": 84.505,
+              "endTime": 84.842
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 83.611,
-              "lineEnd": 84.692
-            },
-            "male": {
-              "lineStart": 77.305,
-              "lineEnd": 78.203
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 79.761,
-          "endTime": 84.692
-        },
-        "male": {
-          "startTime": 73.679,
-          "endTime": 78.203
-        }
-      }
+      ]
     },
     {
       "id": 23,
-      "startTime": 85.56,
-      "endTime": 88.3,
+      "startTime": 85.71,
+      "endTime": 88.45,
       "lines": [
         {
-          "lineStart": 85.56,
-          "lineEnd": 86.628,
+          "lineStart": 85.71,
+          "lineEnd": 86.778,
           "chars": [
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 85.56,
-              "endTime": 85.813
+              "startTime": 85.71,
+              "endTime": 85.963
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 85.813,
-              "endTime": 86.066
+              "startTime": 85.963,
+              "endTime": 86.216
             },
             {
               "text": "上",
               "pinyin": "shàng",
-              "startTime": 86.066,
-              "endTime": 86.319
+              "startTime": 86.216,
+              "endTime": 86.469
             },
             {
               "text": "咒",
               "pinyin": "zhòu",
-              "startTime": 86.319,
-              "endTime": 86.628
+              "startTime": 86.469,
+              "endTime": 86.778
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 85.56,
-              "lineEnd": 86.628
-            },
-            "male": {
-              "lineStart": 79.085,
-              "lineEnd": 79.928
-            }
-          }
+          ]
         },
         {
-          "lineStart": 87.022,
-          "lineEnd": 88.3,
+          "lineStart": 87.172,
+          "lineEnd": 88.45,
           "chars": [
             {
               "text": "是",
               "pinyin": "shì",
-              "startTime": 87.022,
-              "endTime": 87.257
+              "startTime": 87.172,
+              "endTime": 87.407
             },
             {
               "text": "无",
               "pinyin": "wú",
-              "startTime": 87.257,
-              "endTime": 87.492
+              "startTime": 87.407,
+              "endTime": 87.642
             },
             {
               "text": "等",
               "pinyin": "děng",
-              "startTime": 87.492,
-              "endTime": 87.727
+              "startTime": 87.642,
+              "endTime": 87.877
             },
             {
               "text": "等",
               "pinyin": "děng",
-              "startTime": 87.727,
-              "endTime": 87.963
+              "startTime": 87.877,
+              "endTime": 88.113
             },
             {
               "text": "咒",
               "pinyin": "zhòu",
-              "startTime": 87.963,
-              "endTime": 88.3
+              "startTime": 88.113,
+              "endTime": 88.45
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 87.022,
-              "lineEnd": 88.3
-            },
-            "male": {
-              "lineStart": 80.322,
-              "lineEnd": 81.446
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 85.56,
-          "endTime": 88.3
-        },
-        "male": {
-          "startTime": 79.085,
-          "endTime": 81.446
-        }
-      }
+      ]
     },
     {
       "id": 24,
-      "startTime": 89.182,
-      "endTime": 91.921,
+      "startTime": 89.332,
+      "endTime": 92.071,
       "lines": [
         {
-          "lineStart": 89.182,
-          "lineEnd": 90.614,
+          "lineStart": 89.332,
+          "lineEnd": 90.764,
           "chars": [
             {
               "text": "能",
               "pinyin": "néng",
-              "startTime": 89.182,
-              "endTime": 89.468
+              "startTime": 89.332,
+              "endTime": 89.618
             },
             {
               "text": "除",
               "pinyin": "chú",
-              "startTime": 89.468,
-              "endTime": 89.755
+              "startTime": 89.618,
+              "endTime": 89.905
             },
             {
               "text": "一",
               "pinyin": "yí",
-              "startTime": 89.755,
-              "endTime": 90.041
+              "startTime": 89.905,
+              "endTime": 90.191
             },
             {
               "text": "切",
               "pinyin": "qiè",
-              "startTime": 90.041,
-              "endTime": 90.328
+              "startTime": 90.191,
+              "endTime": 90.478
             },
             {
               "text": "苦",
               "pinyin": "kǔ",
-              "startTime": 90.328,
-              "endTime": 90.614
+              "startTime": 90.478,
+              "endTime": 90.764
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 89.182,
-              "lineEnd": 90.614
-            },
-            "male": {
-              "lineStart": 82.328,
-              "lineEnd": 83.592
-            }
-          }
+          ]
         },
         {
-          "lineStart": 91.008,
-          "lineEnd": 91.921,
+          "lineStart": 91.158,
+          "lineEnd": 92.071,
           "chars": [
             {
               "text": "真",
               "pinyin": "zhēn",
-              "startTime": 91.008,
-              "endTime": 91.237
+              "startTime": 91.158,
+              "endTime": 91.387
             },
             {
               "text": "实",
               "pinyin": "shí",
-              "startTime": 91.237,
-              "endTime": 91.465
+              "startTime": 91.387,
+              "endTime": 91.615
             },
             {
               "text": "不",
               "pinyin": "bù",
-              "startTime": 91.465,
-              "endTime": 91.693
+              "startTime": 91.615,
+              "endTime": 91.843
             },
             {
               "text": "虚",
               "pinyin": "xū",
-              "startTime": 91.693,
-              "endTime": 91.921
+              "startTime": 91.843,
+              "endTime": 92.071
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 91.008,
-              "lineEnd": 91.921
-            },
-            "male": {
-              "lineStart": 83.986,
-              "lineEnd": 84.857
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 89.182,
-          "endTime": 91.921
-        },
-        "male": {
-          "startTime": 82.328,
-          "endTime": 84.857
-        }
-      }
+      ]
     },
     {
       "id": 25,
-      "startTime": 92.816,
-      "endTime": 94.979,
+      "startTime": 92.966,
+      "endTime": 95.129,
       "lines": [
         {
-          "lineStart": 92.816,
-          "lineEnd": 94.979,
+          "lineStart": 92.966,
+          "lineEnd": 95.129,
           "chars": [
             {
               "text": "故",
               "pinyin": "gù",
-              "startTime": 92.816,
-              "endTime": 93.056
+              "startTime": 92.966,
+              "endTime": 93.206
             },
             {
               "text": "说",
               "pinyin": "shuō",
-              "startTime": 93.056,
-              "endTime": 93.296
+              "startTime": 93.206,
+              "endTime": 93.446
             },
             {
               "text": "般",
               "pinyin": "bō",
-              "startTime": 93.296,
-              "endTime": 93.537
+              "startTime": 93.446,
+              "endTime": 93.687
             },
             {
               "text": "若",
               "pinyin": "rě",
-              "startTime": 93.537,
-              "endTime": 93.777
+              "startTime": 93.687,
+              "endTime": 93.927
             },
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 93.777,
-              "endTime": 94.017
+              "startTime": 93.927,
+              "endTime": 94.167
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 94.017,
-              "endTime": 94.258
+              "startTime": 94.167,
+              "endTime": 94.408
             },
             {
               "text": "蜜",
               "pinyin": "mì",
-              "startTime": 94.258,
-              "endTime": 94.498
+              "startTime": 94.408,
+              "endTime": 94.648
             },
             {
               "text": "多",
               "pinyin": "duō",
-              "startTime": 94.498,
-              "endTime": 94.738
+              "startTime": 94.648,
+              "endTime": 94.888
             },
             {
               "text": "咒",
               "pinyin": "zhòu",
-              "startTime": 94.738,
-              "endTime": 94.979
+              "startTime": 94.888,
+              "endTime": 95.129
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 92.816,
-              "lineEnd": 94.979
-            },
-            "male": {
-              "lineStart": 85.723,
-              "lineEnd": 88.055
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 92.816,
-          "endTime": 94.979
-        },
-        "male": {
-          "startTime": 85.723,
-          "endTime": 88.055
-        }
-      }
+      ]
     },
     {
       "id": 26,
-      "startTime": 95.848,
-      "endTime": 96.944,
+      "startTime": 95.998,
+      "endTime": 97.094,
       "lines": [
         {
-          "lineStart": 95.848,
-          "lineEnd": 96.944,
+          "lineStart": 95.998,
+          "lineEnd": 97.094,
           "chars": [
             {
               "text": "即",
               "pinyin": "jí",
-              "startTime": 95.848,
-              "endTime": 96.122
+              "startTime": 95.998,
+              "endTime": 96.272
             },
             {
               "text": "说",
               "pinyin": "shuō",
-              "startTime": 96.122,
-              "endTime": 96.396
+              "startTime": 96.272,
+              "endTime": 96.546
             },
             {
               "text": "咒",
               "pinyin": "zhòu",
-              "startTime": 96.396,
-              "endTime": 96.67
+              "startTime": 96.546,
+              "endTime": 96.82
             },
             {
               "text": "曰",
               "pinyin": "yuē",
-              "startTime": 96.67,
-              "endTime": 96.944
+              "startTime": 96.82,
+              "endTime": 97.094
             },
             {
               "text": "："
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 95.848,
-              "lineEnd": 96.944
-            },
-            "male": {
-              "lineStart": 88.938,
-              "lineEnd": 89.907
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 95.848,
-          "endTime": 96.944
-        },
-        "male": {
-          "startTime": 88.938,
-          "endTime": 89.907
-        }
-      }
+      ]
     },
     {
       "id": 27,
-      "startTime": 97.84,
-      "endTime": 103.404,
+      "startTime": 97.99,
+      "endTime": 103.554,
       "lines": [
         {
-          "lineStart": 97.84,
-          "lineEnd": 98.795,
+          "lineStart": 97.99,
+          "lineEnd": 98.945,
           "chars": [
             {
               "text": "揭",
               "pinyin": "jiē",
-              "startTime": 97.84,
-              "endTime": 98.079
+              "startTime": 97.99,
+              "endTime": 98.229
             },
             {
               "text": "谛",
               "pinyin": "dì",
-              "startTime": 98.079,
-              "endTime": 98.317
+              "startTime": 98.229,
+              "endTime": 98.467
             },
             {
               "text": "揭",
               "pinyin": "jiē",
-              "startTime": 98.317,
-              "endTime": 98.556
+              "startTime": 98.467,
+              "endTime": 98.706
             },
             {
               "text": "谛",
               "pinyin": "dì",
-              "startTime": 98.556,
-              "endTime": 98.795
+              "startTime": 98.706,
+              "endTime": 98.945
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 97.84,
-              "lineEnd": 98.795
-            },
-            "male": {
-              "lineStart": 90.789,
-              "lineEnd": 91.66
-            }
-          }
+          ]
         },
         {
-          "lineStart": 99.189,
-          "lineEnd": 100.116,
+          "lineStart": 99.339,
+          "lineEnd": 100.266,
           "chars": [
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 99.189,
-              "endTime": 99.421
+              "startTime": 99.339,
+              "endTime": 99.571
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 99.421,
-              "endTime": 99.652
+              "startTime": 99.571,
+              "endTime": 99.802
             },
             {
               "text": "揭",
               "pinyin": "jiē",
-              "startTime": 99.652,
-              "endTime": 99.884
+              "startTime": 99.802,
+              "endTime": 100.034
             },
             {
               "text": "谛",
               "pinyin": "dì",
-              "startTime": 99.884,
-              "endTime": 100.116
+              "startTime": 100.034,
+              "endTime": 100.266
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 99.189,
-              "lineEnd": 100.116
-            },
-            "male": {
-              "lineStart": 92.054,
-              "lineEnd": 92.869
-            }
-          }
+          ]
         },
         {
-          "lineStart": 100.51,
-          "lineEnd": 101.718,
+          "lineStart": 100.66,
+          "lineEnd": 101.868,
           "chars": [
             {
               "text": "波",
               "pinyin": "bō",
-              "startTime": 100.51,
-              "endTime": 100.751
+              "startTime": 100.66,
+              "endTime": 100.901
             },
             {
               "text": "罗",
               "pinyin": "luó",
-              "startTime": 100.751,
-              "endTime": 100.993
+              "startTime": 100.901,
+              "endTime": 101.143
             },
             {
               "text": "僧",
               "pinyin": "sēng",
-              "startTime": 100.993,
-              "endTime": 101.235
+              "startTime": 101.143,
+              "endTime": 101.385
             },
             {
               "text": "揭",
               "pinyin": "jiē",
-              "startTime": 101.235,
-              "endTime": 101.476
+              "startTime": 101.385,
+              "endTime": 101.626
             },
             {
               "text": "谛",
               "pinyin": "dì",
-              "startTime": 101.476,
-              "endTime": 101.718
+              "startTime": 101.626,
+              "endTime": 101.868
             },
             {
               "text": "，"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 100.51,
-              "lineEnd": 101.718
-            },
-            "male": {
-              "lineStart": 93.263,
-              "lineEnd": 94.344
-            }
-          }
+          ]
         },
         {
-          "lineStart": 102.14,
-          "lineEnd": 103.404,
+          "lineStart": 102.29,
+          "lineEnd": 103.554,
           "chars": [
             {
               "text": "菩",
               "pinyin": "pú",
-              "startTime": 102.14,
-              "endTime": 102.393
+              "startTime": 102.29,
+              "endTime": 102.543
             },
             {
               "text": "提",
               "pinyin": "tí",
-              "startTime": 102.393,
-              "endTime": 102.645
+              "startTime": 102.543,
+              "endTime": 102.795
             },
             {
               "text": "萨",
               "pinyin": "sà",
-              "startTime": 102.645,
-              "endTime": 102.898
+              "startTime": 102.795,
+              "endTime": 103.048
             },
             {
               "text": "婆",
               "pinyin": "pó",
-              "startTime": 102.898,
-              "endTime": 103.151
+              "startTime": 103.048,
+              "endTime": 103.301
             },
             {
               "text": "诃",
               "pinyin": "hē",
-              "startTime": 103.151,
-              "endTime": 103.404
+              "startTime": 103.301,
+              "endTime": 103.554
             },
             {
               "text": "。"
             }
-          ],
-          "voices": {
-            "female": {
-              "lineStart": 102.14,
-              "lineEnd": 103.404
-            },
-            "male": {
-              "lineStart": 94.738,
-              "lineEnd": 95.82
-            }
-          }
+          ]
         }
-      ],
-      "voices": {
-        "female": {
-          "startTime": 97.84,
-          "endTime": 103.404
-        },
-        "male": {
-          "startTime": 90.789,
-          "endTime": 95.82
-        }
-      }
+      ]
     }
   ],
   "titleStart": 0.056,
-  "titleEnd": 2.036,
-  "voices": {
-    "female": {
-      "titleStart": 0.056,
-      "titleEnd": 2.036
-    },
-    "male": {
-      "titleStart": 0.055,
-      "titleEnd": 2.035
-    }
-  }
+  "titleEnd": 2.036
 }

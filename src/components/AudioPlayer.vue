@@ -9,14 +9,10 @@ const props = defineProps({
   currentTime: Number,
   duration: Number,
   isPlaying: Boolean,
-  progress: Number,
-  voice: {
-    type: String,
-    default: 'female'
-  }
+  progress: Number
 })
 
-const emit = defineEmits(['toggle', 'seek', 'update:voice'])
+const emit = defineEmits(['toggle', 'seek'])
 
 /** 格式化时间 mm:ss */
 function fmt(sec) {
@@ -70,25 +66,6 @@ function onProgressClick(e) {
     </div>
 
     <span class="time-display">{{ timeDisplay }}</span>
-    
-    <button 
-      class="voice-btn" 
-      @click="emit('update:voice', voice === 'female' ? 'male' : 'female')"
-      :title="voice === 'female' ? '当前音色：清平女声（Zephyr），点击切换为沉稳男声' : '当前音色：沉稳男声（Charon），点击切换为清平女声'"
-    >
-      <!-- 清平女声：莲花花蕾细线图标 -->
-      <svg v-if="voice === 'female'" class="voice-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-        <path d="M12 3a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9s9-4.03 9-9a9 9 0 0 0-9-9z" opacity="0.3"/>
-        <path d="M12 7c-2 2.5-3 5-3 7a3 3 0 0 0 6 0c0-2-1-4.5-3-7z"/>
-      </svg>
-      <!-- 沉稳男声：禅钟/山岳细线图标 -->
-      <svg v-else class="voice-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-        <path d="M4 20h16"/>
-        <path d="M6 20v-7a6 6 0 0 1 12 0v7"/>
-        <path d="M12 4v3"/>
-      </svg>
-      <span>{{ voice === 'female' ? '女声' : '男声' }}</span>
-    </button>
   </div>
 </template>
 
@@ -201,29 +178,6 @@ function onProgressClick(e) {
   letter-spacing: 0.5px;
 }
 
-.voice-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(212, 175, 55, 0.06);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 14px;
-  cursor: pointer;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-family: 'Noto Serif SC', serif;
-  color: rgba(212, 175, 55, 0.9);
-  transition: all 0.25s ease;
-}
-
-.voice-btn:hover {
-  background: rgba(212, 175, 55, 0.16);
-  border-color: rgba(212, 175, 55, 0.5);
-  color: #fff;
-  transform: translateY(-1px);
-}
-
 @media (max-width: 640px) {
   .audio-player {
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
@@ -239,11 +193,6 @@ function onProgressClick(e) {
   .time-display {
     font-size: 11px;
     min-width: 62px;
-  }
-  .voice-btn {
-    font-size: 11px;
-    padding: 3px 6px;
-    gap: 2px;
   }
 }
 </style>

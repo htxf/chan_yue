@@ -30,45 +30,10 @@ function extractText(val) {
 const bookId = computed(() => route.params.bookId)
 const chapterId = computed(() => route.params.chapterId || 'chapter_1')
 
-const selectedVoice = ref(localStorage.getItem('chanyue_voice') || 'female')
+const paragraphsRef = computed(() => chapterData.value?.paragraphs || [])
 
-/**
- * 响应式动态音色时间戳适配：
- * 根据 selectedVoice 自动提取当前音色的专属时间戳（voices.female / voices.male），
- * 确保男女声切换时，段落 startTime 与行 lineStart 100% 毫秒级对齐。
- */
-const activeParagraphs = computed(() => {
-  const ps = chapterData.value?.paragraphs || []
-  const voice = selectedVoice.value
-  return ps.map(p => {
-    const vTime = p.voices?.[voice]
-    const pStart = vTime?.startTime ?? p.startTime
-    const pEnd = vTime?.endTime ?? p.endTime
-    return {
-      ...p,
-      startTime: pStart,
-      endTime: pEnd,
-      lines: (p.lines || []).map(l => {
-        const lvTime = l.voices?.[voice]
-        return {
-          ...l,
-          lineStart: lvTime?.lineStart ?? l.lineStart,
-          lineEnd: lvTime?.lineEnd ?? l.lineEnd,
-        }
-      })
-    }
-  })
-})
-
-const paragraphsRef = activeParagraphs
-
-function getVoiceAudioUrl(rawUrl, voice = selectedVoice.value) {
-  if (!rawUrl) return rawUrl
-  if (rawUrl.endsWith('.mp3')) {
-    const base = rawUrl.slice(0, -4).replace(/_(female|male)$/, '')
-    return `${base}_${voice}.mp3`
-  }
-  return rawUrl
+function getVoiceAudioUrl(rawUrl) {
+  return rawUrl || ''
 }
 
 const {
@@ -93,17 +58,6 @@ const {
   onNext: () => goToNextChapter(),
   onPrev: () => goToPrevChapter()
 })
-
-function onVoiceChange(newVoice) {
-  selectedVoice.value = newVoice
-  localStorage.setItem('chanyue_voice', newVoice)
-  const rawUrl = chapterData.value?.audioUrl || bookMeta.value?.audioUrl
-  if (rawUrl) {
-    const targetUrl = getVoiceAudioUrl(rawUrl, newVoice)
-    // 无缝接续：在当前播放秒数继续念诵
-    switchVoiceTrack(targetUrl)
-  }
-}
 
 const isTopbarHidden = ref(false)
 let lastScrollY = 0
@@ -575,8 +529,6 @@ function handleToggle() {
           :duration="duration"
           :isPlaying="isPlaying"
           :progress="progress"
-          :voice="selectedVoice"
-          @update:voice="onVoiceChange"
           @toggle="handleToggle"
           @seek="seekByPercent"
           class="audio-player-fixed"

@@ -52,16 +52,8 @@ watch([selectedBookId, selectedChapterId, chapterData], () => {
 // 当前段落数组
 const paragraphsRef = computed(() => chapterData.value?.paragraphs || [])
 
-// 音色偏好
-const selectedVoice = ref(localStorage.getItem('chanyue_voice') || 'female')
-
-function getVoiceAudioUrl(rawUrl, voice = selectedVoice.value) {
-  if (!rawUrl) return rawUrl
-  if (rawUrl.endsWith('.mp3')) {
-    const base = rawUrl.slice(0, -4).replace(/_(female|male)$/, '')
-    return `${base}_${voice}.mp3`
-  }
-  return rawUrl
+function getVoiceAudioUrl(rawUrl) {
+  return rawUrl || ''
 }
 
 // 播放模式: 'sequence' (连播全卷) | 'single' (单品听诵) | 'repeat-one' (循环持诵)
@@ -184,17 +176,6 @@ const {
   onNext: () => goToNextChapter(),
   onPrev: () => goToPrevChapter()
 })
-
-// 无缝切男女声
-function onVoiceChange(newVoice) {
-  selectedVoice.value = newVoice
-  localStorage.setItem('chanyue_voice', newVoice)
-  const rawUrl = chapterData.value?.audioUrl || bookMeta.value?.audioUrl
-  if (rawUrl) {
-    const targetUrl = getVoiceAudioUrl(rawUrl, newVoice)
-    switchVoiceTrack(targetUrl)
-  }
-}
 
 // 格式化时间 mm:ss
 function fmt(sec) {
@@ -368,24 +349,6 @@ onUnmounted(() => {
             <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
           </svg>
           <span>{{ playModeLabel }}</span>
-        </button>
-
-        <span class="tune-sep">·</span>
-
-        <!-- 音色无缝接续切换 -->
-        <button 
-          class="tune-btn" 
-          @click="onVoiceChange(selectedVoice === 'female' ? 'male' : 'female')"
-          title="切换持诵法音"
-        >
-          <svg v-if="selectedVoice === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
-            <path d="M12 3a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9s9-4.03 9-9a9 9 0 0 0-9-9z" opacity="0.3"/>
-            <path d="M12 7c-2 2.5-3 5-3 7a3 3 0 0 0 6 0c0-2-1-4.5-3-7z"/>
-          </svg>
-          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
-            <path d="M4 20h16M6 20v-7a6 6 0 0 1 12 0v7M12 4v3"/>
-          </svg>
-          <span>{{ selectedVoice === 'female' ? '莲华女声' : '暮钟男声' }}</span>
         </button>
 
         <span class="tune-sep">·</span>

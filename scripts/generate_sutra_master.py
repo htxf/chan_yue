@@ -164,32 +164,31 @@ class SutraSSMLCompiler:
         title_chars = [c for c in self.data.get('title', []) if c.get('text', '').strip() and c.get('pinyin', '').strip()]
         if title_chars:
             t_text = "".join([c['text'] for c in title_chars])
-            di_idx = t_text.find("第")
-            # 智能经题解耦：若经题包含卷序（如“善现启请分第二”之“第二”），拆分为品名与序数两段
-            # 消除大模型在长标题末尾生成的播音腔悬念上扬拖音，令序数干脆利落收定
-            if di_idx > 0 and di_idx < len(title_chars):
-                p_chars = title_chars[:di_idx]
+            pin_idx = t_text.find("品")
+            # 经题全面对标 B 站听读版标准：品序前置（如“第一品”） + 500ms 庄严气口 + 品名平落（如“法会因由分”） + 700ms 开经留白
+            if pin_idx > 0 and pin_idx < len(title_chars) - 1:
+                p_chars = title_chars[:pin_idx + 1]
                 p_text = "".join([c['text'] for c in p_chars])
                 p_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in p_chars]
                 p_sapis = self._apply_sandhi(p_sapis)
                 p_sapi = " ".join(p_sapis)
 
-                s_chars = title_chars[di_idx:]
+                s_chars = title_chars[pin_idx + 1:]
                 s_text = "".join([c['text'] for c in s_chars])
                 s_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in s_chars]
                 s_sapis = self._apply_sandhi(s_sapis)
                 s_sapi = " ".join(s_sapis)
 
-                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{p_sapi}">{p_text}</phoneme>，<break time="160ms"/>')
+                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{p_sapi}">{p_text}</phoneme>，<break time="500ms"/>')
                 self.clauses_meta.append(('title', p_chars))
 
-                ssml_clauses.append(f'<prosody rate="+15%"><phoneme alphabet="sapi" ph="{s_sapi}">{s_text}</phoneme></prosody>。<break time="550ms"/>')
+                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{s_sapi}">{s_text}</phoneme>。<break time="700ms"/>')
                 self.clauses_meta.append(('title', s_chars))
             else:
                 t_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in title_chars]
                 t_sapis = self._apply_sandhi(t_sapis)
                 t_sapi = " ".join(t_sapis)
-                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{t_sapi}">{t_text}</phoneme>。<break time="550ms"/>')
+                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{t_sapi}">{t_text}</phoneme>。<break time="700ms"/>')
                 self.clauses_meta.append(('title', title_chars))
 
         # 2. 编译经文段落（Paragraphs）
@@ -416,29 +415,12 @@ class TimestampAligner:
     def align_and_save(cls, data: Dict[str, Any], clauses_meta: List[Tuple[str, List[Dict[str, Any]]]],
                        word_events: List[Dict[str, Any]], json_path: str, voice_key: str = "female"):
         """执行对齐并保存更新后的经文 JSON"""
-        # 如果文件已存在，先读取一次磁盘最新 JSON 合并已有 voices，确保男女声时间戳共存互不覆盖
-        if os.path.exists(json_path):
-            try:
-                with open(json_path, 'r', encoding='utf-8') as f:
-                    disk_data = json.load(f)
-                if 'voices' in disk_data and isinstance(disk_data['voices'], dict):
-                    data['voices'] = disk_data['voices']
-                for p_idx, p in enumerate(data.get('paragraphs', [])):
-                    if p_idx < len(disk_data.get('paragraphs', [])):
-                        disk_p = disk_data['paragraphs'][p_idx]
-                        if 'voices' in disk_p and isinstance(disk_p['voices'], dict):
-                            p['voices'] = disk_p['voices']
-                        for l_idx, line in enumerate(p.get('lines', [])):
-                            if l_idx < len(disk_p.get('lines', [])):
-                                disk_line = disk_p['lines'][l_idx]
-                                if 'voices' in disk_line and isinstance(disk_line['voices'], dict):
-                                    line['voices'] = disk_line['voices']
-            except Exception:
-                pass
-
         # 0. 先行数据净化：彻底清理所有非发音字符（无 pinyin 的标点/引号等）的残留时间戳，杜绝历史脏数据污染
+        data.pop('voices', None)
         for p in data.get('paragraphs', []):
+            p.pop('voices', None)
             for line in p.get('lines', []):
+                line.pop('voices', None)
                 for c in line.get('chars', []):
                     if not c.get('pinyin') or not c.get('pinyin').strip():
                         c.pop('startTime', None)
@@ -470,12 +452,8 @@ class TimestampAligner:
                 if p_start < last_p_start:
                     raise ValueError(f"🚨 时间戳单调性异常熔断: 段落{p_idx} startTime ({p_start}) 小于前一段 ({last_p_start})")
                 last_p_start = p_start
-                if 'voices' not in p or not isinstance(p['voices'], dict):
-                    p['voices'] = {}
-                p['voices'][voice_key] = {'startTime': p_start, 'endTime': p_end}
-                if voice_key == "female":
-                    p['startTime'] = p_start
-                    p['endTime'] = p_end
+                p['startTime'] = p_start
+                p['endTime'] = p_end
 
                 last_l_start = -1.0
                 for l_idx, line in enumerate(p.get('lines', [])):
@@ -486,24 +464,16 @@ class TimestampAligner:
                         if l_start < last_l_start:
                             raise ValueError(f"🚨 时间戳单调性异常熔断: 段落{p_idx} 行{l_idx} lineStart ({l_start}) 倒退")
                         last_l_start = l_start
-                        if 'voices' not in line or not isinstance(line['voices'], dict):
-                            line['voices'] = {}
-                        line['voices'][voice_key] = {'lineStart': l_start, 'lineEnd': l_end}
-                        if voice_key == "female":
-                            line['lineStart'] = l_start
-                            line['lineEnd'] = l_end
+                        line['lineStart'] = l_start
+                        line['lineEnd'] = l_end
 
         # 汇总经题时间戳
         title_chars = [c for c in data.get('title', []) if c.get('pinyin') and 'startTime' in c]
         if title_chars:
             t_start = title_chars[0]['startTime']
             t_end = title_chars[-1]['endTime']
-            if 'voices' not in data or not isinstance(data['voices'], dict):
-                data['voices'] = {}
-            data['voices'][voice_key] = {'titleStart': t_start, 'titleEnd': t_end}
-            if voice_key == "female":
-                data['titleStart'] = t_start
-                data['titleEnd'] = t_end
+            data['titleStart'] = t_start
+            data['titleEnd'] = t_end
 
         # 备份原 JSON 并写入
         shutil.copyfile(json_path, json_path + '.backup')
@@ -571,11 +541,6 @@ def generate_sutra_master(book: str, chapter: str, voice: str, output: str = Non
     dur_sec = len(audio) / 1000.0
     print(f"✅ 合成成功！音频总时长: {dur_sec:.2f} 秒 ({dur_sec/60:.2f} 分钟)")
 
-    # 自动同步副本为带音色后缀的文件 (如 chapter_2_female.mp3)
-    if book != "xinjing":
-        suffixed_out = os.path.join(PROJECT_ROOT, 'public', 'audio', book, f"{chapter}_{voice_key}.mp3")
-        shutil.copy2(output, suffixed_out)
-        print(f"📦 已自动同步音色专用母带 -> {suffixed_out}")
 
     # 4. 对齐并更新 JSON
     if update_json:
