@@ -105,6 +105,18 @@ function onTimerBtnClick() {
   isTimerModalOpen.value = true
 }
 
+let timerTargetTimestamp = null
+
+function clearSleepTimer() {
+  if (sleepTimerInterval) {
+    clearInterval(sleepTimerInterval)
+    sleepTimerInterval = null
+  }
+  sleepTimerMinutes.value = 0
+  sleepTimerRemaining.value = 0
+  timerTargetTimestamp = null
+}
+
 function setSleepTimer(val) {
   sleepTimerMinutes.value = val
   if (sleepTimerInterval) {
@@ -112,23 +124,28 @@ function setSleepTimer(val) {
     sleepTimerInterval = null
   }
   if (val > 0) {
+    timerTargetTimestamp = Date.now() + val * 60 * 1000
     sleepTimerRemaining.value = val * 60
     sleepTimerInterval = setInterval(() => {
       // 方案 A 纯粹修持时长：只有在真正播放（isPlaying）时才消耗倒计时！
-      // 未点播放或中途暂停时，倒计时绝对冻结，实打实听满设定时长
-      if (!isPlaying.value) return
+      // 未点播放或中途暂停时，推迟结束时间戳，实打实听满设定时长
+      if (!isPlaying.value) {
+        timerTargetTimestamp += 1000
+        return
+      }
 
-      sleepTimerRemaining.value--
-      if (sleepTimerRemaining.value === 8) {
+      const rem = Math.max(0, Math.round((timerTargetTimestamp - Date.now()) / 1000))
+      sleepTimerRemaining.value = rem
+
+      if (rem === 8) {
         fadeOutAndStop(8000)
       }
-      if (sleepTimerRemaining.value <= 0) {
-        clearInterval(sleepTimerInterval)
-        sleepTimerInterval = null
-        sleepTimerMinutes.value = 0
+      if (rem <= 0) {
+        clearSleepTimer()
       }
     }, 1000)
   } else {
+    timerTargetTimestamp = null
     sleepTimerRemaining.value = 0
   }
 }
@@ -145,6 +162,12 @@ const timerSummaryText = computed(() => {
   }
   return '禅修定时'
 })
+
+// 同步计算章节音频地址，用于锁屏零延迟接力
+function getChapterAudioUrl(bookId, chId) {
+  if (bookId === 'xinjing') return '/audio/xinjing.mp3'
+  return `/audio/${bookId}/${chId}.mp3`
+}
 
 // --- 初始化 Audio Engine ---
 const {
@@ -165,16 +188,23 @@ const {
 } = useAudioSync(paragraphsRef, {
   getPlayMode: () => playMode.value,
   onEnded: () => {
+    // 1. 播完本品即止模式
     if (sleepTimerMinutes.value === -1) {
       sleepTimerMinutes.value = 0
       return
     }
+    // 2. 禅修定时物理时间戳到期检查
+    if (timerTargetTimestamp && Date.now() >= timerTargetTimestamp) {
+      clearSleepTimer()
+      return
+    }
+    // 3. 连播全卷：极速同步交接，保住移动端锁屏音频上下文与会话
     if (playMode.value === 'sequence' && hasNextChapter.value) {
       goToNextChapter(true)
     }
   },
-  onNext: () => goToNextChapter(),
-  onPrev: () => goToPrevChapter()
+  onNext: () => goToNextChapter(true),
+  onPrev: () => goToPrevChapter(true)
 })
 
 // 格式化时间 mm:ss
@@ -203,17 +233,39 @@ const currentChapterIdx = computed(() => {
 const hasPrevChapter = computed(() => currentChapterIdx.value > 0)
 const hasNextChapter = computed(() => currentChapterIdx.value !== -1 && currentChapterIdx.value < chaptersList.value.length - 1)
 
-function goToPrevChapter() {
+function goToPrevChapter(forcePlay = false) {
   if (hasPrevChapter.value) {
     const target = chaptersList.value[currentChapterIdx.value - 1]
-    changeChapter(target.id || target.chapterId, isPlaying.value)
+    const chId = target.id || target.chapterId
+    const shouldPlay = forcePlay || isPlaying.value
+    if (shouldPlay) {
+      const nextUrl = getChapterAudioUrl(selectedBookId.value, chId)
+      playNextTrack(nextUrl)
+      updateMediaSession({
+        title: extractText(target.title),
+        artist: extractText(bookMeta.value?.title),
+        album: '禅阅 · 禅听台'
+      })
+    }
+    changeChapter(chId, false)
   }
 }
 
-function goToNextChapter(autoPlayNext = false) {
+function goToNextChapter(forcePlay = false) {
   if (hasNextChapter.value) {
     const target = chaptersList.value[currentChapterIdx.value + 1]
-    changeChapter(target.id || target.chapterId, autoPlayNext || isPlaying.value)
+    const chId = target.id || target.chapterId
+    const shouldPlay = forcePlay || isPlaying.value
+    if (shouldPlay) {
+      const nextUrl = getChapterAudioUrl(selectedBookId.value, chId)
+      playNextTrack(nextUrl)
+      updateMediaSession({
+        title: extractText(target.title),
+        artist: extractText(bookMeta.value?.title),
+        album: '禅阅 · 禅听台'
+      })
+    }
+    changeChapter(chId, false)
   }
 }
 

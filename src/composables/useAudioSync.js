@@ -12,6 +12,8 @@ import { ref, onUnmounted, computed, unref } from 'vue'
 export function useAudioSync(paragraphs, options = {}) {
   const audio = new Audio()
   audio.preload = 'auto'
+  audio.setAttribute('playsinline', 'true')
+  audio.setAttribute('webkit-playsinline', 'true')
   const currentTime = ref(0)
   const duration = ref(0)
   const isPlaying = ref(false)
@@ -82,45 +84,67 @@ export function useAudioSync(paragraphs, options = {}) {
   audio.addEventListener('play', () => {
     isPlaying.value = true
     startLoop()
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'playing'
+    }
+    updatePositionState()
   })
 
   audio.addEventListener('playing', () => {
     isPlaying.value = true
     startLoop()
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'playing'
+    }
+    updatePositionState()
   })
 
   audio.addEventListener('pause', () => {
     isPlaying.value = false
     stopLoop()
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused'
+    }
+    updatePositionState()
+  })
+
+  // 原生 timeupdate 事件驱动：在手机锁屏/熄屏导致 rAF 循环被挂起时，依然保证时间与高亮段落精准对齐！
+  audio.addEventListener('timeupdate', () => {
+    if (!_isVoiceSwitching) {
+      currentTime.value = audio.currentTime
+      currentParagraphId.value = findCurrentParagraph(audio.currentTime)
+    }
   })
 
   audio.addEventListener('ended', () => {
     isPlaying.value = false
     stopLoop()
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused'
+    }
     // 检查是否开启单品循环
     if (options.getPlayMode && options.getPlayMode() === 'repeat-one') {
       audio.currentTime = 0
       safePlay()
       return
     }
-    // 连播由外部通过 playNextTrack 在同步栈内完成
+    // 连播由外部通过 playNextTrack 在同步栈内完成，保住锁屏音频上下文
     if (options.onEnded) options.onEnded()
   })
 
   // 网络卡顿 / 系统挂起 —— 标记缓冲中但不影响意图
   audio.addEventListener('waiting', () => {
-    // 保持 isPlaying = true（因为意图仍是播放），
-    // 但可以在这里添加 loading 指示器
+    // 保持 isPlaying = true（因为意图仍是播放）
   })
 
   audio.addEventListener('suspend', () => {
     // iOS 后台可能触发 suspend，不主动改 isPlaying
-    // 真正停止时系统会触发 pause 事件
   })
 
   audio.addEventListener('loadedmetadata', () => {
     duration.value = audio.duration
     isLoaded.value = true
+    updatePositionState()
   })
 
   // ============================================================
@@ -138,6 +162,7 @@ export function useAudioSync(paragraphs, options = {}) {
       if (!audio.paused && !rafId) {
         startLoop()
       }
+      updatePositionState()
     }
   }
 
@@ -153,7 +178,6 @@ export function useAudioSync(paragraphs, options = {}) {
       promise.catch((err) => {
         console.warn('[ChanYue] 播放被系统拒绝:', err.message)
         // 系统拒绝后，isPlaying 会被 pause 事件自动置 false
-        // 但以防万一，手动兜底
         _intendPlaying = false
         isPlaying.value = false
         stopLoop()
@@ -162,16 +186,37 @@ export function useAudioSync(paragraphs, options = {}) {
   }
 
   // ---- Media Session API ----
+  function updatePositionState() {
+    if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
+      if (duration.value > 0 && !isNaN(duration.value) && !isNaN(audio.currentTime)) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: Math.max(0.1, duration.value),
+            playbackRate: audio.playbackRate || 1,
+            position: Math.min(Math.max(0, audio.currentTime), duration.value)
+          })
+        } catch (e) {}
+      }
+    }
+  }
+
   function setupMediaSession() {
     if ('mediaSession' in navigator) {
       navigator.mediaSession.setActionHandler('play', () => { play() })
       navigator.mediaSession.setActionHandler('pause', () => { pause() })
       if (options.onPrev) {
-        navigator.mediaSession.setActionHandler('previoustrack', options.onPrev)
+        navigator.mediaSession.setActionHandler('previoustrack', () => { options.onPrev() })
       }
       if (options.onNext) {
-        navigator.mediaSession.setActionHandler('nexttrack', options.onNext)
+        navigator.mediaSession.setActionHandler('nexttrack', () => { options.onNext() })
       }
+      try {
+        navigator.mediaSession.setActionHandler('seekto', (details) => {
+          if (details.seekTime !== undefined) {
+            seek(details.seekTime)
+          }
+        })
+      } catch (e) {}
     }
   }
 
@@ -182,10 +227,11 @@ export function useAudioSync(paragraphs, options = {}) {
         artist: meta.artist || '禅阅',
         album: meta.album || '禅阅',
         artwork: [
-          { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
+          { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' }
         ]
       })
+      updatePositionState()
     }
   }
 
@@ -203,10 +249,15 @@ export function useAudioSync(paragraphs, options = {}) {
   }
 
   function loadAudio(url) {
-    resetAudio()
-    if (!audio.src.endsWith(url)) {
-      audio.src = url
+    if (!url) return
+    const currentSrc = audio.src ? audio.src.split('?')[0] : ''
+    // 关键优化：如果当前 audio 已经指向该音频且正在播放或已就绪，不可重复 resetAudio 造成截断
+    if (currentSrc && currentSrc.endsWith(url)) {
+      setupMediaSession()
+      return
     }
+    resetAudio()
+    audio.src = url
     setupMediaSession()
   }
 
@@ -291,7 +342,11 @@ export function useAudioSync(paragraphs, options = {}) {
    * 路由跳转和数据加载由调用方异步处理。
    */
   function playNextTrack(url) {
-    audio.src = url
+    if (!url) return
+    const currentSrc = audio.src ? audio.src.split('?')[0] : ''
+    if (!currentSrc.endsWith(url)) {
+      audio.src = url
+    }
     try {
       audio.currentTime = 0
     } catch (e) {}
@@ -299,6 +354,7 @@ export function useAudioSync(paragraphs, options = {}) {
     currentParagraphId.value = -1
     _intendPlaying = true
     safePlay()
+    setupMediaSession()
   }
 
   function play() {
