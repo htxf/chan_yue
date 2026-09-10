@@ -43,17 +43,8 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        // 运行时缓存：音频文件走 NetworkFirst，确保母带更新立刻生效，离线自动回退缓存
+        // 运行时缓存：音频放行给原生浏览器 HTTP 管道处理 Range 206 流式播放
         runtimeCaching: [
-          {
-            urlPattern: /\/audio\/.+\.(mp3|ogg|wav)$/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'chan-yue-audio-v2',
-              networkTimeoutSeconds: 3,
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'StaleWhileRevalidate',

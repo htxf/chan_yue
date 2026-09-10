@@ -183,6 +183,7 @@ const {
   seekByPercent,
   updateMediaSession,
   playNextTrack,
+  preloadTrack,
   switchVoiceTrack,
   fadeOutAndStop,
 } = useAudioSync(paragraphsRef, {
@@ -191,16 +192,20 @@ const {
     // 1. 播完本品即止模式
     if (sleepTimerMinutes.value === -1) {
       sleepTimerMinutes.value = 0
+      pause()
       return
     }
     // 2. 禅修定时物理时间戳到期检查
     if (timerTargetTimestamp && Date.now() >= timerTargetTimestamp) {
       clearSleepTimer()
+      pause()
       return
     }
     // 3. 连播全卷：极速同步交接，保住移动端锁屏音频上下文与会话
     if (playMode.value === 'sequence' && hasNextChapter.value) {
       goToNextChapter(true)
+    } else {
+      pause()
     }
   },
   onNext: () => goToNextChapter(true),
@@ -233,21 +238,71 @@ const currentChapterIdx = computed(() => {
 const hasPrevChapter = computed(() => currentChapterIdx.value > 0)
 const hasNextChapter = computed(() => currentChapterIdx.value !== -1 && currentChapterIdx.value < chaptersList.value.length - 1)
 
+// 章节数据内存缓存，彻底杜绝后台网络节流对 JSON import 的阻塞
+const chapterDataCache = new Map()
+
+// 静默预加载下一品数据及音频文件（0ms 无缝接力）
+function preloadNextChapter() {
+  if (playMode.value === 'sequence' && hasNextChapter.value) {
+    const nextTarget = chaptersList.value[currentChapterIdx.value + 1]
+    if (nextTarget) {
+      const nextChId = nextTarget.id || nextTarget.chapterId
+      const bookId = selectedBookId.value
+      // 1. 预载下一品 JSON 数据到内存缓存
+      const cacheKey = `${bookId}/${nextChId}`
+      if (!chapterDataCache.has(cacheKey)) {
+        import(`../data/${bookId}/${nextChId}.json`).then(mod => {
+          chapterDataCache.set(cacheKey, mod.default || mod)
+        }).catch(() => {})
+      }
+      // 2. 预载下一品音频文件到浏览器缓存
+      const nextAudioUrl = getChapterAudioUrl(bookId, nextChId)
+      if (nextAudioUrl) {
+        preloadTrack(nextAudioUrl)
+      }
+    }
+  }
+}
+
+// 预加载当前经卷所有章节数据，消除后台环境下的脚本请求失败
+function preloadAllChapters(bookId) {
+  if (bookId !== 'jingangjing') return
+  const runPreload = () => {
+    for (let i = 1; i <= 32; i++) {
+      const chId = `chapter_${i}`
+      const cacheKey = `${bookId}/${chId}`
+      if (!chapterDataCache.has(cacheKey)) {
+        import(`../data/${bookId}/${chId}.json`).then(mod => {
+          chapterDataCache.set(cacheKey, mod.default || mod)
+        }).catch(() => {})
+      }
+    }
+  }
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(runPreload, { timeout: 3000 })
+  } else {
+    setTimeout(runPreload, 1000)
+  }
+}
+
 function goToPrevChapter(forcePlay = false) {
   if (hasPrevChapter.value) {
     const target = chaptersList.value[currentChapterIdx.value - 1]
     const chId = target.id || target.chapterId
     const shouldPlay = forcePlay || isPlaying.value
     if (shouldPlay) {
-      const nextUrl = getChapterAudioUrl(selectedBookId.value, chId)
-      playNextTrack(nextUrl)
+      const prevUrl = getChapterAudioUrl(selectedBookId.value, chId)
+      playNextTrack(prevUrl)
       updateMediaSession({
         title: extractText(target.title),
         artist: extractText(bookMeta.value?.title),
         album: '禅阅 · 禅听台'
       })
     }
-    changeChapter(chId, false)
+    selectedChapterId.value = chId
+    localStorage.setItem('chanyue_listen_chapter', chId)
+    isChapterDrawerOpen.value = false
+    loadChapterData(false, shouldPlay)
   }
 }
 
@@ -265,7 +320,10 @@ function goToNextChapter(forcePlay = false) {
         album: '禅阅 · 禅听台'
       })
     }
-    changeChapter(chId, false)
+    selectedChapterId.value = chId
+    localStorage.setItem('chanyue_listen_chapter', chId)
+    isChapterDrawerOpen.value = false
+    loadChapterData(false, shouldPlay)
   }
 }
 
@@ -281,6 +339,7 @@ async function switchBook(bookId) {
     playMode.value = 'single'
   }
   await loadChapterData(false)
+  preloadAllChapters(bookId)
 }
 
 // 切换章节
@@ -302,16 +361,22 @@ async function loadBookMeta() {
 }
 
 // 加载章节数据
-async function loadChapterData(autoPlay = false) {
+async function loadChapterData(autoPlay = false, skipAudio = false) {
   isLoading.value = true
   try {
-    const chMod = await import(`../data/${selectedBookId.value}/${selectedChapterId.value}.json`)
-    chapterData.value = chMod.default || chMod
+    const cacheKey = `${selectedBookId.value}/${selectedChapterId.value}`
+    let data = chapterDataCache.get(cacheKey)
+    if (!data) {
+      const chMod = await import(`../data/${selectedBookId.value}/${selectedChapterId.value}.json`)
+      data = chMod.default || chMod
+      chapterDataCache.set(cacheKey, data)
+    }
+    chapterData.value = data
 
     const rawUrl = chapterData.value.audioUrl || bookMeta.value?.audioUrl
     const audioUrl = getVoiceAudioUrl(rawUrl)
 
-    if (audioUrl) {
+    if (!skipAudio && audioUrl) {
       if (autoPlay) {
         playNextTrack(audioUrl)
       } else {
@@ -324,6 +389,9 @@ async function loadChapterData(autoPlay = false) {
       artist: extractText(bookMeta.value?.title),
       album: '禅阅 · 禅听台'
     })
+
+    // 静默预加载下一品（音频与数据），确保持续连播 0 阻塞
+    preloadNextChapter()
   } catch (e) {
     console.error('Failed to load chapter in ZenAudioStation', e)
   } finally {
@@ -346,6 +414,7 @@ function goToReader() {
 onMounted(async () => {
   await loadBookMeta()
   await loadChapterData(false)
+  preloadAllChapters(selectedBookId.value)
   checkTitleOverflow()
   window.addEventListener('resize', checkTitleOverflow)
 })

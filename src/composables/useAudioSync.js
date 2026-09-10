@@ -10,10 +10,38 @@
 import { ref, onUnmounted, computed, unref } from 'vue'
 
 export function useAudioSync(paragraphs, options = {}) {
-  const audio = new Audio()
+  const audio = typeof document !== 'undefined' ? document.createElement('audio') : new Audio()
+  audio.style.display = 'none'
   audio.preload = 'auto'
   audio.setAttribute('playsinline', 'true')
   audio.setAttribute('webkit-playsinline', 'true')
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.appendChild(audio)
+  }
+
+  // 专用静默预载器：提前将下一品拉入浏览器媒体缓存，确保切品 0ms 启动
+  let preloaderAudio = null
+  function preloadTrack(url) {
+    if (!url || typeof document === 'undefined') return
+    try {
+      if (!preloaderAudio) {
+        preloaderAudio = document.createElement('audio')
+        preloaderAudio.style.display = 'none'
+        preloaderAudio.preload = 'auto'
+        if (document.body) {
+          document.body.appendChild(preloaderAudio)
+        }
+      }
+      const fullUrl = url.startsWith('http') ? url : (typeof window !== 'undefined' ? window.location.origin + url : url)
+      if (preloaderAudio.src !== fullUrl) {
+        preloaderAudio.src = url
+        preloaderAudio.load()
+      }
+    } catch (e) {
+      console.warn('[ChanYue] Preload failed:', e)
+    }
+  }
+
   const currentTime = ref(0)
   const duration = ref(0)
   const isPlaying = ref(false)
@@ -21,8 +49,10 @@ export function useAudioSync(paragraphs, options = {}) {
   const currentParagraphId = ref(-1)
 
   // 内部意图标记：业务逻辑认为"应该在播放"
-  // 用于 Visibility API 回前台时判断是否需要恢复播放
+  // 用于切曲过渡与 Visibility API 回前台判断
   let _intendPlaying = false
+  let _retryTimer = null
+  let _retryCount = 0
 
   /** 进度百分比 0-100 */
   const progress = computed(() =>
@@ -91,6 +121,7 @@ export function useAudioSync(paragraphs, options = {}) {
   })
 
   audio.addEventListener('playing', () => {
+    _retryCount = 0
     isPlaying.value = true
     startLoop()
     if ('mediaSession' in navigator) {
@@ -100,12 +131,15 @@ export function useAudioSync(paragraphs, options = {}) {
   })
 
   audio.addEventListener('pause', () => {
-    isPlaying.value = false
-    stopLoop()
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.playbackState = 'paused'
+    // 关键：如果内部意图仍在播放（如切曲接力中途触发的短暂原生 pause），不提前置 false，避免锁屏状态抖动
+    if (!_intendPlaying) {
+      isPlaying.value = false
+      stopLoop()
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused'
+      }
+      updatePositionState()
     }
-    updatePositionState()
   })
 
   // 原生 timeupdate 事件驱动：在手机锁屏/熄屏导致 rAF 循环被挂起时，依然保证时间与高亮段落精准对齐！
@@ -117,19 +151,53 @@ export function useAudioSync(paragraphs, options = {}) {
   })
 
   audio.addEventListener('ended', () => {
-    isPlaying.value = false
     stopLoop()
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.playbackState = 'paused'
-    }
     // 检查是否开启单品循环
-    if (options.getPlayMode && options.getPlayMode() === 'repeat-one') {
+    const mode = options.getPlayMode ? options.getPlayMode() : ''
+    if (mode === 'repeat-one') {
       audio.currentTime = 0
       safePlay()
       return
     }
-    // 连播由外部通过 playNextTrack 在同步栈内完成，保住锁屏音频上下文
-    if (options.onEnded) options.onEnded()
+
+    // 连播由外部通过 onEnded -> playNextTrack 在同一同步栈内完成
+    // 关键：不要在此处将 mediaSession.playbackState 盲目设为 paused，避免手机系统判定会话结束而销毁后台常驻锁！
+    if (options.onEnded) {
+      options.onEnded()
+    }
+
+    // 若外部未发起接力播放（未触发 playNextTrack），此时 audio 仍为暂停且意图结束，正式设为 paused
+    if (audio.paused && !_intendPlaying) {
+      isPlaying.value = false
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused'
+      }
+    }
+  })
+
+  // 健壮容错与网络自愈重试
+  audio.addEventListener('error', (e) => {
+    const err = audio.error
+    console.warn('[ChanYue Audio Error]:', err ? `code=${err.code}, message=${err.message}` : e)
+    if (_intendPlaying && _retryCount < 3) {
+      _retryCount++
+      console.info(`[ChanYue Audio] 网络自愈重试第 ${_retryCount} 次...`)
+      if (_retryTimer) clearTimeout(_retryTimer)
+      _retryTimer = setTimeout(() => {
+        if (_intendPlaying && audio.paused) {
+          audio.load()
+          safePlay()
+        }
+      }, 600 * _retryCount)
+    } else {
+      _retryCount = 0
+      isPlaying.value = false
+      _intendPlaying = false
+      stopLoop()
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused'
+      }
+    }
   })
 
   // 网络卡顿 / 系统挂起 —— 标记缓冲中但不影响意图
@@ -176,11 +244,13 @@ export function useAudioSync(paragraphs, options = {}) {
     const promise = audio.play()
     if (promise && typeof promise.catch === 'function') {
       promise.catch((err) => {
-        console.warn('[ChanYue] 播放被系统拒绝:', err.message)
-        // 系统拒绝后，isPlaying 会被 pause 事件自动置 false
-        _intendPlaying = false
-        isPlaying.value = false
-        stopLoop()
+        // AbortError 是切曲打断上一曲请求的正常现象，不应取消当前播放意图
+        if (err.name !== 'AbortError') {
+          console.warn('[ChanYue] 播放被系统拒绝:', err.message)
+          _intendPlaying = false
+          isPlaying.value = false
+          stopLoop()
+        }
       })
     }
   }
@@ -352,7 +422,11 @@ export function useAudioSync(paragraphs, options = {}) {
     } catch (e) {}
     currentTime.value = 0
     currentParagraphId.value = -1
+    _retryCount = 0
     _intendPlaying = true
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'playing'
+    }
     safePlay()
     setupMediaSession()
   }
@@ -413,10 +487,19 @@ export function useAudioSync(paragraphs, options = {}) {
 
   onUnmounted(() => {
     if (_fadeTimer) clearInterval(_fadeTimer)
+    if (_retryTimer) clearTimeout(_retryTimer)
     _intendPlaying = false
     stopLoop()
     audio.pause()
     audio.src = ''
+    if (audio.parentNode) {
+      audio.parentNode.removeChild(audio)
+    }
+    if (preloaderAudio && preloaderAudio.parentNode) {
+      preloaderAudio.src = ''
+      preloaderAudio.parentNode.removeChild(preloaderAudio)
+      preloaderAudio = null
+    }
     document.removeEventListener('visibilitychange', onVisibilityChange)
   })
 
@@ -435,6 +518,7 @@ export function useAudioSync(paragraphs, options = {}) {
     seekByPercent,
     updateMediaSession,
     playNextTrack,
+    preloadTrack,
     switchVoiceTrack,
     fadeOutAndStop,
     resetAudio,
