@@ -116,8 +116,8 @@ def assert_phonetics_gatekeeper(data: Dict[str, Any]):
                 nxt_t = chars[i+1].get('text', '') if i + 1 < len(chars) else ''
                 nxt_py = chars[i+1].get('pinyin', '') if i + 1 < len(chars) else ''
 
-                if t == '相' and prev_t == '空' and py != 'xiāng':
-                    errors.append(f"段落{p.get('id')}: 空相之'相'必须为 xiāng，当前为 {py}")
+                if t == '相' and prev_t == '空' and py != 'xiàng':
+                    errors.append(f"段落{p.get('id')}: 空相之'相'必须为四声 xiàng，当前为 {py}")
                 if t == '若' and prev_t == '般' and py != 'rě':
                     errors.append(f"段落{p.get('id')}: 般若之'若'必须为 rě，当前为 {py}")
                 if t == '般' and nxt_t == '若' and py != 'bō':
@@ -164,12 +164,33 @@ class SutraSSMLCompiler:
         title_chars = [c for c in self.data.get('title', []) if c.get('text', '').strip() and c.get('pinyin', '').strip()]
         if title_chars:
             t_text = "".join([c['text'] for c in title_chars])
-            t_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in title_chars]
-            # 汉语连读上声变调（如“启请”qi 3 qing 3 -> qi 2 qing 3，杜绝启字后生硬气口卡顿）
-            t_sapis = self._apply_sandhi(t_sapis)
-            t_sapi = " ".join(t_sapis)
-            ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{t_sapi}">{t_text}</phoneme>。<break time="550ms"/>')
-            self.clauses_meta.append(('title', title_chars))
+            di_idx = t_text.find("第")
+            # 智能经题解耦：若经题包含卷序（如“善现启请分第二”之“第二”），拆分为品名与序数两段
+            # 消除大模型在长标题末尾生成的播音腔悬念上扬拖音，令序数干脆利落收定
+            if di_idx > 0 and di_idx < len(title_chars):
+                p_chars = title_chars[:di_idx]
+                p_text = "".join([c['text'] for c in p_chars])
+                p_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in p_chars]
+                p_sapis = self._apply_sandhi(p_sapis)
+                p_sapi = " ".join(p_sapis)
+
+                s_chars = title_chars[di_idx:]
+                s_text = "".join([c['text'] for c in s_chars])
+                s_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in s_chars]
+                s_sapis = self._apply_sandhi(s_sapis)
+                s_sapi = " ".join(s_sapis)
+
+                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{p_sapi}">{p_text}</phoneme>，<break time="160ms"/>')
+                self.clauses_meta.append(('title', p_chars))
+
+                ssml_clauses.append(f'<prosody rate="+15%"><phoneme alphabet="sapi" ph="{s_sapi}">{s_text}</phoneme></prosody>。<break time="550ms"/>')
+                self.clauses_meta.append(('title', s_chars))
+            else:
+                t_sapis = [PinyinSapiConverter.to_sapi(c.get('pinyin', '')) for c in title_chars]
+                t_sapis = self._apply_sandhi(t_sapis)
+                t_sapi = " ".join(t_sapis)
+                ssml_clauses.append(f'<phoneme alphabet="sapi" ph="{t_sapi}">{t_text}</phoneme>。<break time="550ms"/>')
+                self.clauses_meta.append(('title', title_chars))
 
         # 2. 编译经文段落（Paragraphs）
         for p in self.data.get('paragraphs', []):
