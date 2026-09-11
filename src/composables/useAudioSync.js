@@ -19,27 +19,13 @@ export function useAudioSync(paragraphs, options = {}) {
     document.body.appendChild(audio)
   }
 
-  // 专用静默预载器：提前将下一品拉入浏览器媒体缓存，确保切品 0ms 启动
-  let preloaderAudio = null
+  // 纯网络层预载器：使用 fetch 静默预拉音频到 HTTP 磁盘/内存缓存，
+  // 绝不创建第二个 <audio> 硬件节点，彻底杜绝移动端（iOS Safari/Android Chrome）AudioSession 锁冲突与解码器抢占
   function preloadTrack(url) {
-    if (!url || typeof document === 'undefined') return
+    if (!url || typeof window === 'undefined') return
     try {
-      if (!preloaderAudio) {
-        preloaderAudio = document.createElement('audio')
-        preloaderAudio.style.display = 'none'
-        preloaderAudio.preload = 'auto'
-        if (document.body) {
-          document.body.appendChild(preloaderAudio)
-        }
-      }
-      const fullUrl = url.startsWith('http') ? url : (typeof window !== 'undefined' ? window.location.origin + url : url)
-      if (preloaderAudio.src !== fullUrl) {
-        preloaderAudio.src = url
-        preloaderAudio.load()
-      }
-    } catch (e) {
-      console.warn('[ChanYue] Preload failed:', e)
-    }
+      fetch(url, { mode: 'no-cors' }).catch(() => {})
+    } catch (e) {}
   }
 
   const currentTime = ref(0)
@@ -220,10 +206,9 @@ export function useAudioSync(paragraphs, options = {}) {
   // ============================================================
   function onVisibilityChange() {
     if (document.visibilityState === 'visible') {
-      // 回到前台：对齐检查
+      // 回到前台：对齐检查，若此前应在播放但处于暂停或异常中断，自动自愈唤醒
       if (_intendPlaying && audio.paused) {
-        // 业务认为应该播放，但原生已暂停 → 重新激活
-        safePlay()
+        play()
       }
       // 同步一次时间，防止 rAF 在后台被冻结导致进度条跳跃
       currentTime.value = audio.currentTime
@@ -237,19 +222,40 @@ export function useAudioSync(paragraphs, options = {}) {
   document.addEventListener('visibilitychange', onVisibilityChange)
 
   // ============================================================
-  //  3. 防御性 safePlay —— 统一入口，捕获系统拒绝
+  //  3. 防御性 safePlay —— 统一入口，捕获系统拒绝并自愈
   // ============================================================
   function safePlay() {
     _intendPlaying = true
     const promise = audio.play()
     if (promise && typeof promise.catch === 'function') {
       promise.catch((err) => {
-        // AbortError 是切曲打断上一曲请求的正常现象，不应取消当前播放意图
-        if (err.name !== 'AbortError') {
-          console.warn('[ChanYue] 播放被系统拒绝:', err.message)
+        if (err.name === 'AbortError') {
+          // 切曲或重载打断上一曲请求属于正常竞态，保留播放意图
+          return
+        }
+        console.warn('[ChanYue] 播放暂未就绪或被拦截:', err.message || err.name)
+        // 若业务意图仍在播放中（如后台切品），绝不立即放弃，执行自愈重载重试
+        if (_intendPlaying && _retryCount < 3) {
+          _retryCount++
+          console.info(`[ChanYue] 正在执行第 ${_retryCount} 次起播自愈...`)
+          if (_retryTimer) clearTimeout(_retryTimer)
+          _retryTimer = setTimeout(() => {
+            if (_intendPlaying && audio.paused) {
+              try {
+                audio.load()
+              } catch (e) {}
+              const p = audio.play()
+              if (p && p.catch) p.catch(() => {})
+            }
+          }, 600 * _retryCount)
+        } else {
+          _retryCount = 0
           _intendPlaying = false
           isPlaying.value = false
           stopLoop()
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused'
+          }
         }
       })
     }
@@ -321,13 +327,16 @@ export function useAudioSync(paragraphs, options = {}) {
   function loadAudio(url) {
     if (!url) return
     const currentSrc = audio.src ? audio.src.split('?')[0] : ''
-    // 关键优化：如果当前 audio 已经指向该音频且正在播放或已就绪，不可重复 resetAudio 造成截断
-    if (currentSrc && currentSrc.endsWith(url)) {
+    // 若当前 audio 已指向该音频且处于健康就绪状态，无需重复 reset
+    if (currentSrc && currentSrc.endsWith(url) && !audio.error && audio.readyState > 0) {
       setupMediaSession()
       return
     }
     resetAudio()
     audio.src = url
+    try {
+      audio.load()
+    } catch (e) {}
     setupMediaSession()
   }
 
@@ -408,14 +417,17 @@ export function useAudioSync(paragraphs, options = {}) {
    * 零延迟同步接力 —— 连播核心
    * 
    * 在 onEnded 的同步执行栈内调用，
-   * 立刻切 src + play()，让 OS 保持音频焦点不释放。
+   * 立刻切 src + load() + play()，让 OS 保持音频焦点不释放。
    * 路由跳转和数据加载由调用方异步处理。
    */
   function playNextTrack(url) {
     if (!url) return
     const currentSrc = audio.src ? audio.src.split('?')[0] : ''
-    if (!currentSrc.endsWith(url)) {
+    if (!currentSrc.endsWith(url) || audio.error) {
       audio.src = url
+      try {
+        audio.load()
+      } catch (e) {}
     }
     try {
       audio.currentTime = 0
@@ -432,6 +444,18 @@ export function useAudioSync(paragraphs, options = {}) {
   }
 
   function play() {
+    _retryCount = 0
+    _intendPlaying = true
+    // 自愈防御：若当前处于错误状态、无源或未就绪，重载音频管道，彻底消除“必须刷新页面才能重新播放”的问题
+    if (audio.error || !audio.src || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || audio.readyState === 0) {
+      console.info('[ChanYue] audio 处于异常或未就绪状态，强制重载管道...')
+      try {
+        if (!audio.src && options.getCurrentAudioUrl) {
+          audio.src = options.getCurrentAudioUrl()
+        }
+        audio.load()
+      } catch (e) {}
+    }
     safePlay()
   }
 
@@ -494,11 +518,6 @@ export function useAudioSync(paragraphs, options = {}) {
     audio.src = ''
     if (audio.parentNode) {
       audio.parentNode.removeChild(audio)
-    }
-    if (preloaderAudio && preloaderAudio.parentNode) {
-      preloaderAudio.src = ''
-      preloaderAudio.parentNode.removeChild(preloaderAudio)
-      preloaderAudio = null
     }
     document.removeEventListener('visibilitychange', onVisibilityChange)
   })

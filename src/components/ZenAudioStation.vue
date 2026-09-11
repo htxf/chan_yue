@@ -188,6 +188,7 @@ const {
   fadeOutAndStop,
 } = useAudioSync(paragraphsRef, {
   getPlayMode: () => playMode.value,
+  getCurrentAudioUrl: () => getChapterAudioUrl(selectedBookId.value, selectedChapterId.value),
   onEnded: () => {
     // 1. 播完本品即止模式
     if (sleepTimerMinutes.value === -1) {
