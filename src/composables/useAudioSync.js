@@ -138,18 +138,18 @@ export function useAudioSync(paragraphs, options = {}) {
 
   audio.addEventListener('ended', () => {
     stopLoop()
-    // 检查是否开启单品循环
-    const mode = options.getPlayMode ? options.getPlayMode() : ''
-    if (mode === 'repeat-one') {
-      audio.currentTime = 0
-      safePlay()
-      return
-    }
 
-    // 连播由外部通过 onEnded -> playNextTrack 在同一同步栈内完成
-    // 关键：不要在此处将 mediaSession.playbackState 盲目设为 paused，避免手机系统判定会话结束而销毁后台常驻锁！
+    // 优先交由外部 onEnded 统一调度（连播全卷、计遍修持与业务定制）
     if (options.onEnded) {
       options.onEnded()
+    } else {
+      // 默认兜底：单品循环
+      const mode = options.getPlayMode ? options.getPlayMode() : ''
+      if (mode === 'repeat-one') {
+        audio.currentTime = 0
+        safePlay()
+        return
+      }
     }
 
     // 若外部未发起接力播放（未触发 playNextTrack），此时 audio 仍为暂停且意图结束，正式设为 paused

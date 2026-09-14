@@ -69,17 +69,57 @@ function cyclePlayMode() {
   const nextMode = modes[(idx + 1) % modes.length]
   playMode.value = nextMode
 
-  // 联动逻辑：切到“单品听诵”，自动重置定时为“播完即止”（清除分钟定时冲突）
+  // 切换模式时重置遍数与定时冲突
+  targetLoops.value = 0
+  completedLoops.value = 0
   if (nextMode === 'single') {
     setSleepTimer(-1)
+  } else {
+    clearSleepTimer()
   }
+  updateMediaSessionInfo()
 }
 
 const playModeLabel = computed(() => {
+  if (targetLoops.value > 0) return `计遍持诵 (${targetLoops.value}遍)`
   if (playMode.value === 'repeat-one') return '循环持诵'
   if (playMode.value === 'single') return '单品听诵'
   return chaptersList.value.length > 1 ? '连播全卷' : '单品听诵'
 })
+
+// --- 禅修定时与计遍定修 ---
+// 弹窗 Tab: 'loop' (计遍修持) | 'time' (随眠定时)
+const timerActiveTab = ref('loop')
+
+// 目标持诵遍数: 0(不限/关闭计遍), 1, 3, 7, 21, 49, 108
+const targetLoops = ref(0)
+const completedLoops = ref(0)
+
+const loopOptions = [
+  { label: '循环 1 遍 · 播完即止', value: 1 },
+  { label: '循环 3 遍 · 消灾增慧', value: 3 },
+  { label: '循环 7 遍 · 晨夕常课', value: 7 },
+  { label: '循环 21 遍 · 净心祈福', value: 21 },
+  { label: '循环 49 遍 · 孝亲回向', value: 49 },
+  { label: '循环 108 遍 · 圆满持诵', value: 108 },
+  { label: '无限循环 · 持续持诵', value: 0 },
+]
+
+function selectLoopOption(val) {
+  clearSleepTimer()
+  if (val > 0) {
+    targetLoops.value = val
+    completedLoops.value = 0
+    playMode.value = 'repeat-one' // 计遍自动切入循环持诵模式
+  } else {
+    // 0: 无限循环
+    targetLoops.value = 0
+    completedLoops.value = 0
+    playMode.value = 'repeat-one'
+  }
+  isTimerModalOpen.value = false
+  updateMediaSessionInfo()
+}
 
 // 禅修定时 (分钟): 0(不限), 15, 30, 45, 60, -1(播完本品)
 const sleepTimerMinutes = ref(0)
@@ -96,12 +136,14 @@ const timerOptions = [
 ]
 
 function selectTimerOption(val) {
+  targetLoops.value = 0
+  completedLoops.value = 0
   setSleepTimer(val)
   isTimerModalOpen.value = false
+  updateMediaSessionInfo()
 }
 
 function onTimerBtnClick() {
-  if (playMode.value === 'single') return
   isTimerModalOpen.value = true
 }
 
@@ -127,8 +169,7 @@ function setSleepTimer(val) {
     timerTargetTimestamp = Date.now() + val * 60 * 1000
     sleepTimerRemaining.value = val * 60
     sleepTimerInterval = setInterval(() => {
-      // 方案 A 纯粹修持时长：只有在真正播放（isPlaying）时才消耗倒计时！
-      // 未点播放或中途暂停时，推迟结束时间戳，实打实听满设定时长
+      // 纯粹修持时长：只有在真正播放（isPlaying）时才消耗倒计时
       if (!isPlaying.value) {
         timerTargetTimestamp += 1000
         return
@@ -151,15 +192,18 @@ function setSleepTimer(val) {
 }
 
 const timerSummaryText = computed(() => {
-  if (playMode.value === 'single') {
-    return '播完即止'
+  if (targetLoops.value > 0) {
+    const cur = Math.min(completedLoops.value + 1, targetLoops.value)
+    return `🔁 第 ${cur}/${targetLoops.value} 遍`
   }
-  if (sleepTimerMinutes.value === -1) return '播完即止'
   if (sleepTimerRemaining.value > 0) {
     const m = Math.floor(sleepTimerRemaining.value / 60)
     const s = sleepTimerRemaining.value % 60
     return `⏳ ${m}:${s.toString().padStart(2, '0')}`
   }
+  if (sleepTimerMinutes.value === -1) return '播完即止'
+  if (playMode.value === 'repeat-one') return '循环不息'
+  if (playMode.value === 'single') return '播完即止'
   return '禅修定时'
 })
 
@@ -190,19 +234,43 @@ const {
   getPlayMode: () => playMode.value,
   getCurrentAudioUrl: () => getChapterAudioUrl(selectedBookId.value, selectedChapterId.value),
   onEnded: () => {
-    // 1. 播完本品即止模式
-    if (sleepTimerMinutes.value === -1) {
+    // 1. 计遍修持优先处理
+    if (targetLoops.value > 0) {
+      completedLoops.value++
+      if (completedLoops.value >= targetLoops.value) {
+        // 遍数圆满达标：8秒暮钟渐弱淡出停止，法音圆满
+        fadeOutAndStop(8000)
+        targetLoops.value = 0
+        completedLoops.value = 0
+        updateMediaSessionInfo()
+        return
+      }
+      // 遍数未满：无缝复播当前经品
+      replayCurrentChapter()
+      return
+    }
+
+    // 2. 播完本品即止模式
+    if (sleepTimerMinutes.value === -1 || playMode.value === 'single') {
       sleepTimerMinutes.value = 0
       pause()
       return
     }
-    // 2. 禅修定时物理时间戳到期检查
+
+    // 3. 禅修定时物理时间戳到期检查
     if (timerTargetTimestamp && Date.now() >= timerTargetTimestamp) {
       clearSleepTimer()
       pause()
       return
     }
-    // 3. 连播全卷：极速同步交接，保住移动端锁屏音频上下文与会话
+
+    // 4. 无限循环持诵（单品循环模式且未设定限额遍数）
+    if (playMode.value === 'repeat-one') {
+      replayCurrentChapter()
+      return
+    }
+
+    // 5. 连播全卷：极速同步交接，保住移动端锁屏音频上下文与会话
     if (playMode.value === 'sequence' && hasNextChapter.value) {
       goToNextChapter(true)
     } else {
@@ -238,6 +306,29 @@ const currentChapterIdx = computed(() => {
 
 const hasPrevChapter = computed(() => currentChapterIdx.value > 0)
 const hasNextChapter = computed(() => currentChapterIdx.value !== -1 && currentChapterIdx.value < chaptersList.value.length - 1)
+
+// 无缝复播当前经品（计遍定修 / 单品循环接力）
+function replayCurrentChapter() {
+  const currentUrl = getChapterAudioUrl(selectedBookId.value, selectedChapterId.value)
+  playNextTrack(currentUrl)
+  updateMediaSessionInfo()
+}
+
+// 统一更新锁屏与通知栏 MediaSession（动态附加遍数打卡标记）
+function updateMediaSessionInfo(customTitle = null) {
+  const currentCh = chaptersList.value[currentChapterIdx.value]
+  const chTitle = customTitle || extractText(chapterData.value?.title) || (currentCh ? extractText(currentCh.title) : '')
+  let titleWithLoop = chTitle
+  if (targetLoops.value > 0) {
+    const cur = Math.min(completedLoops.value + 1, targetLoops.value)
+    titleWithLoop = `${chTitle} (第${cur}/${targetLoops.value}遍)`
+  }
+  updateMediaSession({
+    title: titleWithLoop,
+    artist: extractText(bookMeta.value?.title) || '禅阅',
+    album: '禅阅 · 禅听台'
+  })
+}
 
 // 章节数据内存缓存，彻底杜绝后台网络节流对 JSON import 的阻塞
 const chapterDataCache = new Map()
@@ -294,15 +385,12 @@ function goToPrevChapter(forcePlay = false) {
     if (shouldPlay) {
       const prevUrl = getChapterAudioUrl(selectedBookId.value, chId)
       playNextTrack(prevUrl)
-      updateMediaSession({
-        title: extractText(target.title),
-        artist: extractText(bookMeta.value?.title),
-        album: '禅阅 · 禅听台'
-      })
+      updateMediaSessionInfo(extractText(target.title))
     }
     selectedChapterId.value = chId
     localStorage.setItem('chanyue_listen_chapter', chId)
     isChapterDrawerOpen.value = false
+    completedLoops.value = 0
     loadChapterData(false, shouldPlay)
   }
 }
@@ -315,15 +403,12 @@ function goToNextChapter(forcePlay = false) {
     if (shouldPlay) {
       const nextUrl = getChapterAudioUrl(selectedBookId.value, chId)
       playNextTrack(nextUrl)
-      updateMediaSession({
-        title: extractText(target.title),
-        artist: extractText(bookMeta.value?.title),
-        album: '禅阅 · 禅听台'
-      })
+      updateMediaSessionInfo(extractText(target.title))
     }
     selectedChapterId.value = chId
     localStorage.setItem('chanyue_listen_chapter', chId)
     isChapterDrawerOpen.value = false
+    completedLoops.value = 0
     loadChapterData(false, shouldPlay)
   }
 }
@@ -335,6 +420,8 @@ async function switchBook(bookId) {
   selectedChapterId.value = 'chapter_1'
   localStorage.setItem('chanyue_listen_book', bookId)
   localStorage.setItem('chanyue_listen_chapter', 'chapter_1')
+  targetLoops.value = 0
+  completedLoops.value = 0
   await loadBookMeta()
   if (chaptersList.value.length <= 1 && playMode.value === 'sequence') {
     playMode.value = 'single'
@@ -348,6 +435,7 @@ async function changeChapter(chId, autoPlay = false) {
   selectedChapterId.value = chId
   localStorage.setItem('chanyue_listen_chapter', chId)
   isChapterDrawerOpen.value = false
+  completedLoops.value = 0
   await loadChapterData(autoPlay)
 }
 
@@ -385,11 +473,7 @@ async function loadChapterData(autoPlay = false, skipAudio = false) {
       }
     }
 
-    updateMediaSession({
-      title: extractText(chapterData.value?.title),
-      artist: extractText(bookMeta.value?.title),
-      album: '禅阅 · 禅听台'
-    })
+    updateMediaSessionInfo()
 
     // 静默预加载下一品（音频与数据），确保持续连播 0 阻塞
     preloadNextChapter()
@@ -475,13 +559,12 @@ onUnmounted(() => {
 
         <span class="tune-sep">·</span>
 
-        <!-- 禅修定时设定（单品听诵模式下天然播完即止，禁用点击防止逻辑错乱） -->
+        <!-- 禅修定时与计遍修持设定 -->
         <button 
           class="tune-btn" 
-          :class="{ 'is-disabled': playMode === 'single', active: playMode !== 'single' && sleepTimerMinutes !== 0 }" 
-          :disabled="playMode === 'single'"
+          :class="{ active: targetLoops > 0 || sleepTimerMinutes !== 0 }" 
           @click="onTimerBtnClick"
-          :title="playMode === 'single' ? '单品听诵播完本品自动停止，无需定时' : '设定禅修定时'"
+          title="设定计遍修持或随眠定时"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12">
             <circle cx="12" cy="12" r="10"/>
@@ -602,21 +685,49 @@ onUnmounted(() => {
       </transition>
     </Teleport>
 
-    <!-- 弹窗二：禅修定时轻雅气泡（Teleport至body，纯净胶囊轻触即定，无多余技术说明废话） -->
+    <!-- 弹窗二：定修与随眠定时（Teleport至body，双Tab：计遍修持 vs 随眠定时） -->
     <Teleport to="body">
       <transition name="zen-modal-fade">
         <div v-if="isTimerModalOpen" class="zen-modal-backdrop" @click.self="isTimerModalOpen = false">
           <div class="zen-dialog-box timer-dialog">
-            <div class="dialog-header timer-header-center">
-              <h3>禅 修 定 时</h3>
+            <!-- 切换标签：计遍修持 vs 随眠定时 -->
+            <div class="timer-tabs">
+              <button 
+                class="timer-tab-btn" 
+                :class="{ active: timerActiveTab === 'loop' }"
+                @click="timerActiveTab = 'loop'"
+              >
+                计遍修持
+              </button>
+              <button 
+                class="timer-tab-btn" 
+                :class="{ active: timerActiveTab === 'time' }"
+                @click="timerActiveTab = 'time'"
+              >
+                随眠定时
+              </button>
             </div>
 
-            <div class="timer-chips-grid">
+            <!-- Tab 1: 计遍修持（吉祥循环定数） -->
+            <div v-if="timerActiveTab === 'loop'" class="timer-chips-grid">
+              <button
+                v-for="opt in loopOptions"
+                :key="opt.value"
+                class="timer-chip-btn"
+                :class="{ active: targetLoops === opt.value }"
+                @click="selectLoopOption(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+
+            <!-- Tab 2: 随眠定时（物理时长倒计时） -->
+            <div v-else class="timer-chips-grid">
               <button
                 v-for="opt in timerOptions"
                 :key="opt.value"
                 class="timer-chip-btn"
-                :class="{ active: (playMode === 'single' && opt.value === -1) || (playMode !== 'single' && sleepTimerMinutes === opt.value) }"
+                :class="{ active: targetLoops === 0 && ((playMode === 'single' && opt.value === -1) || (playMode !== 'single' && sleepTimerMinutes === opt.value)) }"
                 @click="selectTimerOption(opt.value)"
               >
                 {{ opt.label }}
@@ -1126,6 +1237,37 @@ onUnmounted(() => {
 .timer-dialog {
   max-width: 360px;
   text-align: center;
+}
+
+/* 定时与计遍双Tab */
+.timer-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px;
+  border-radius: 9999px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(212, 165, 116, 0.15);
+}
+
+.timer-tab-btn {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12.5px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.timer-tab-btn.active {
+  background: rgba(212, 165, 116, 0.2);
+  color: var(--gold);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .timer-chips-grid {
