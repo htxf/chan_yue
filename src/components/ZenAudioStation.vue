@@ -194,12 +194,12 @@ function setSleepTimer(val) {
 const timerSummaryText = computed(() => {
   if (targetLoops.value > 0) {
     const cur = Math.min(completedLoops.value + 1, targetLoops.value)
-    return `🔁 第 ${cur}/${targetLoops.value} 遍`
+    return `第 ${cur}/${targetLoops.value} 遍`
   }
   if (sleepTimerRemaining.value > 0) {
     const m = Math.floor(sleepTimerRemaining.value / 60)
     const s = sleepTimerRemaining.value % 60
-    return `⏳ ${m}:${s.toString().padStart(2, '0')}`
+    return `${m}:${s.toString().padStart(2, '0')}`
   }
   if (sleepTimerMinutes.value === -1) return '播完即止'
   if (playMode.value === 'repeat-one') return '循环不息'
