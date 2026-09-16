@@ -116,6 +116,9 @@ function selectChapter(id) {
   showDrawer.value = false
   resetAudio()
   scrollToTop()
+  if (typeof document !== 'undefined' && document.activeElement && typeof document.activeElement.blur === 'function') {
+    document.activeElement.blur()
+  }
   router.push({ path: `/${bookId.value}/${id}`, query: { mode: mode.value } })
 }
 
@@ -306,6 +309,10 @@ async function loadChapterData() {
       requestAnimationFrame(() => {
         isLoading.value = false
         scrollToTop()
+        nextTick(() => {
+          checkNavOverflow()
+          setTimeout(checkNavOverflow, 350)
+        })
       })
     })
   }
@@ -470,6 +477,7 @@ function handleToggle() {
               <!-- 上一品 -->
               <button 
                 v-if="prevChapter" 
+                :key="`prev-${prevChapter.id || prevChapter.chapterId}`"
                 @click.stop="selectChapter(prevChapter.id || prevChapter.chapterId)"
                 class="nav-btn prev"
                 :title="`上一品：${prevChapter.title}`"
@@ -494,6 +502,7 @@ function handleToggle() {
               <!-- 下一品 -->
               <button 
                 v-if="nextChapter" 
+                :key="`next-${nextChapter.id || nextChapter.chapterId}`"
                 @click.stop="selectChapter(nextChapter.id || nextChapter.chapterId)"
                 class="nav-btn next"
                 :title="`下一品：${nextChapter.title}`"
@@ -785,6 +794,8 @@ function handleToggle() {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   overflow: hidden;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .chapter-nav-bar.is-single .nav-btn {
@@ -793,16 +804,30 @@ function handleToggle() {
   padding: 8px 24px;
 }
 
-.nav-btn:hover {
-  background: rgba(32, 32, 44, 0.75);
-  border-color: rgba(212, 165, 116, 0.48);
-  color: var(--gold);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+@media (hover: hover) and (pointer: fine) {
+  .nav-btn:hover {
+    background: rgba(32, 32, 44, 0.75);
+    border-color: rgba(212, 165, 116, 0.48);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .nav-btn.prev:hover .nav-arrow {
+    transform: translateX(-3px);
+  }
+
+  .nav-btn.next:hover .nav-arrow {
+    transform: translateX(3px);
+  }
 }
 
 .nav-btn:active {
   transform: scale(0.97);
+  background: rgba(32, 32, 44, 0.8);
+}
+
+.nav-btn:focus {
+  outline: none;
 }
 
 .nav-arrow {
@@ -811,14 +836,6 @@ function handleToggle() {
   font-size: 12px;
   flex-shrink: 0;
   transition: transform 0.25s ease;
-}
-
-.nav-btn.prev:hover .nav-arrow {
-  transform: translateX(-3px);
-}
-
-.nav-btn.next:hover .nav-arrow {
-  transform: translateX(3px);
 }
 
 .nav-label {
@@ -844,6 +861,15 @@ function handleToggle() {
   white-space: nowrap;
 }
 
+.nav-btn.next .nav-title-track {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-btn.next .nav-title-track.is-scrolling {
+  display: block;
+}
+
 .nav-title-track.is-scrolling {
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
@@ -866,11 +892,6 @@ function handleToggle() {
 
 .nav-title-track.is-scrolling .nav-marquee-loop {
   animation: continuousNavMarquee 9s linear infinite;
-}
-
-.nav-btn:hover .nav-marquee-loop,
-.nav-btn:active .nav-marquee-loop {
-  animation-play-state: paused;
 }
 
 @keyframes continuousNavMarquee {
