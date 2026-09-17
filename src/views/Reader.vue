@@ -72,8 +72,16 @@ function handleWindowScroll() {
   lastScrollY = currentY
 }
 
+function handleShortcut(e) {
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault()
+    isSearchOpen.value = true
+  }
+}
+
 onMounted(() => {
   window.addEventListener('scroll', handleWindowScroll, { passive: true })
+  window.addEventListener('keydown', handleShortcut)
   checkNavOverflow()
   setupNavObserver()
   if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
@@ -85,6 +93,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (autoPlayTimer) clearTimeout(autoPlayTimer)
   window.removeEventListener('scroll', handleWindowScroll)
+  window.removeEventListener('keydown', handleShortcut)
   window.removeEventListener('resize', checkNavOverflow)
   if (navResizeObserver) {
     navResizeObserver.disconnect()

@@ -170,7 +170,8 @@ function onProgressClick(e) {
 
 .time-display {
   flex-shrink: 0;
-  font-family: 'Noto Serif SC', monospace;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', monospace;
+  font-variant-numeric: tabular-nums;
   font-size: 12px;
   color: var(--text-muted);
   min-width: 76px;

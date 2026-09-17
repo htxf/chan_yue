@@ -21,7 +21,8 @@ const isTimerModalOpen = ref(false)
 // 章节列表与简名
 const chaptersList = computed(() => bookMeta.value?.chapters || [])
 const bookShortName = computed(() => {
-  return selectedBookId.value === 'xinjing' ? '般若心经' : '金刚经'
+  const cur = catalog.find(item => item.id === selectedBookId.value)
+  return cur?.shortName || cur?.name || extractText(bookMeta.value?.title) || '经文'
 })
 
 // 跑马灯状态检测（自适应容器溢出）
@@ -209,6 +210,10 @@ const timerSummaryText = computed(() => {
 
 // 同步计算章节音频地址，用于锁屏零延迟接力
 function getChapterAudioUrl(bookId, chId) {
+  if (chapterData.value?.audioUrl) return chapterData.value.audioUrl
+  if (bookMeta.value?.audioUrl && (!chaptersList.value || chaptersList.value.length <= 1)) {
+    return bookMeta.value.audioUrl
+  }
   if (bookId === 'xinjing') return '/audio/xinjing.mp3'
   return `/audio/${bookId}/${chId}.mp3`
 }
@@ -660,7 +665,7 @@ onUnmounted(() => {
                 :class="{ active: selectedBookId === item.id }"
                 @click="switchBook(item.id)"
               >
-                {{ item.id === 'xinjing' ? '心经' : '金刚经' }}
+                {{ item.shortName || item.name }}
               </button>
             </div>
 
@@ -897,9 +902,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  padding: 3px 6px;
+  padding: 4px 8px;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease, transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.tune-btn:active {
+  transform: scale(0.96);
 }
 
 .tune-btn:hover:not(:disabled) {
@@ -946,8 +956,9 @@ onUnmounted(() => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, rgba(212, 165, 116, 0.7), var(--gold));
+  background: linear-gradient(90deg, rgba(212, 165, 116, 0.4), var(--gold));
   border-radius: 9999px;
+  transition: width 0.1s linear;
 }
 
 .progress-thumb {
@@ -965,7 +976,8 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   font-size: 10.5px;
-  font-family: monospace;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', monospace;
+  font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import catalog from '../data/catalog.json'
 import { useRouter } from 'vue-router'
 import SearchModal from '../components/SearchModal.vue'
@@ -16,13 +16,25 @@ watch(activeTab, (val) => {
 
 const isSearchOpen = ref(false)
 
+function handleShortcut(e) {
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault()
+    isSearchOpen.value = true
+  }
+}
+
 onMounted(() => {
+  window.addEventListener('keydown', handleShortcut)
   try {
     const raw = localStorage.getItem('chanyue_last_read')
     if (raw) {
       lastRead.value = JSON.parse(raw)
     }
   } catch (e) {}
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleShortcut)
 })
 
 function goToBook(item) {
@@ -180,8 +192,14 @@ function goToBook(item) {
   font-size: 12.5px;
   letter-spacing: 2px;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  position: relative;
   transition: all 0.25s ease;
+}
+
+.tab-btn:active {
+  transform: scale(0.95);
 }
 
 .tab-btn:hover {
