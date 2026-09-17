@@ -1,0 +1,165 @@
+{
+  "id": "dizangjing",
+  "title": [
+    {
+      "text": "地",
+      "pinyin": "dì"
+    },
+    {
+      "text": "藏",
+      "pinyin": "zàng"
+    },
+    {
+      "text": "菩",
+      "pinyin": "pú"
+    },
+    {
+      "text": "萨",
+      "pinyin": "sà"
+    },
+    {
+      "text": "本",
+      "pinyin": "běn"
+    },
+    {
+      "text": "愿",
+      "pinyin": "yuàn"
+    },
+    {
+      "text": "经",
+      "pinyin": "jīng"
+    }
+  ],
+  "author": [
+    {
+      "text": "唐",
+      "pinyin": "táng"
+    },
+    {
+      "text": "于",
+      "pinyin": "yú"
+    },
+    {
+      "text": "阗",
+      "pinyin": "tián"
+    },
+    {
+      "text": "三",
+      "pinyin": "sān"
+    },
+    {
+      "text": "藏",
+      "pinyin": "zàng"
+    },
+    {
+      "text": "沙",
+      "pinyin": "shā"
+    },
+    {
+      "text": "门",
+      "pinyin": "mén"
+    },
+    {
+      "text": "实",
+      "pinyin": "shí"
+    },
+    {
+      "text": "叉",
+      "pinyin": "chā"
+    },
+    {
+      "text": "难",
+      "pinyin": "nán"
+    },
+    {
+      "text": "陀",
+      "pinyin": "tuó"
+    },
+    {
+      "text": "译",
+      "pinyin": "yì"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "chapter_1",
+      "title": "第一品 忉利天宫神通品",
+      "volume": "卷上",
+      "part_idx": 1
+    },
+    {
+      "id": "chapter_2",
+      "title": "第二品 分身集会品",
+      "volume": "卷上",
+      "part_idx": 2
+    },
+    {
+      "id": "chapter_3",
+      "title": "第三品 观众生业缘品",
+      "volume": "卷上",
+      "part_idx": 3
+    },
+    {
+      "id": "chapter_4",
+      "title": "第四品 阎浮众生业感品",
+      "volume": "卷上",
+      "part_idx": 4
+    },
+    {
+      "id": "chapter_5",
+      "title": "第五品 地狱名号品",
+      "volume": "卷中",
+      "part_idx": 5,
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_6",
+      "title": "第六品 如来赞叹品",
+      "volume": "卷中",
+      "part_idx": 6,
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_7",
+      "title": "第七品 利益存亡品",
+      "volume": "卷中",
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_8",
+      "title": "第八品 阎罗王众赞叹品",
+      "volume": "卷中",
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_9",
+      "title": "第九品 称佛名号品",
+      "volume": "卷中",
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_10",
+      "title": "第十品 校量布施功德缘品",
+      "volume": "卷下",
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_11",
+      "title": "第十一品 地神护法品",
+      "volume": "卷下",
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_12",
+      "title": "第十二品 见闻利益品",
+      "volume": "卷下",
+      "isUpcoming": true
+    },
+    {
+      "id": "chapter_13",
+      "title": "第十三品 嘱累人天品",
+      "volume": "卷下",
+      "isUpcoming": true
+    }
+  ]
+}

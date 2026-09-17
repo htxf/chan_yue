@@ -143,7 +143,10 @@ const nextChapter = computed(() => {
   if (!bookMeta.value || !bookMeta.value.chapters) return null
   const chapters = bookMeta.value.chapters
   const currentIndex = chapters.findIndex(c => (c.id || c.chapterId) === chapterId.value)
-  if (currentIndex >= 0 && currentIndex < chapters.length - 1) return chapters[currentIndex + 1]
+  if (currentIndex >= 0 && currentIndex < chapters.length - 1) {
+    const next = chapters[currentIndex + 1]
+    if (next && !next.isUpcoming) return next
+  }
   return null
 })
 
@@ -426,18 +429,30 @@ function handleToggle() {
             </button>
           </div>
           <div class="drawer-body">
-            <div 
-              v-for="(chapter, idx) in bookMeta.chapters" 
-              :key="chapter.id || chapter.chapterId"
-              class="chapter-item"
-              :class="{ active: (chapter.id || chapter.chapterId) === chapterId }"
-              @click="selectChapter(chapter.id || chapter.chapterId)"
-            >
-              <div class="ch-left">
-                <span class="ch-num">{{ String(idx + 1).padStart(2, '0') }}</span>
-                <span class="ch-title">{{ chapter.title }}</span>
+            <template v-for="(chapter, idx) in bookMeta.chapters" :key="chapter.id || chapter.chapterId">
+              <!-- 分卷标牌（若经文定义了 volume 卷次） -->
+              <div 
+                v-if="chapter.volume && (idx === 0 || chapter.volume !== bookMeta.chapters[idx - 1]?.volume)" 
+                class="volume-divider"
+              >
+                <span>{{ chapter.volume }}</span>
               </div>
-            </div>
+
+              <div 
+                class="chapter-item"
+                :class="{ 
+                  active: (chapter.id || chapter.chapterId) === chapterId,
+                  disabled: chapter.isUpcoming
+                }"
+                @click="!chapter.isUpcoming && selectChapter(chapter.id || chapter.chapterId)"
+              >
+                <div class="ch-left">
+                  <span class="ch-num">{{ String(idx + 1).padStart(2, '0') }}</span>
+                  <span class="ch-title">{{ chapter.title }}</span>
+                </div>
+                <span v-if="chapter.isUpcoming" class="ch-upcoming-badge">待演录</span>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -704,7 +719,21 @@ function handleToggle() {
   gap: 12px;
 }
 
-.chapter-item:hover {
+.volume-divider {
+  padding: 14px 20px 6px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  font-weight: 600;
+  opacity: 0.85;
+  background: rgba(212, 165, 116, 0.04);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.12);
+  margin-top: 6px;
+  margin-bottom: 2px;
+}
+
+.chapter-item:hover:not(.disabled) {
   background: rgba(212, 165, 116, 0.06);
   color: var(--gold);
 }
@@ -712,6 +741,21 @@ function handleToggle() {
 .chapter-item.active {
   color: var(--gold);
   background: rgba(212, 165, 116, 0.12);
+}
+
+.chapter-item.disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.ch-upcoming-badge {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .ch-left {

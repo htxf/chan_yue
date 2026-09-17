@@ -88,7 +88,10 @@ class PinyinSapiConverter:
                 tone = t
             else:
                 clean += char
+        # 微软 SAPI 音标系统兼容：复韵母 üe 必须映射为 ue（如 lüe->lue, nüe->nue），单韵母 ü 保持为 v（如 lv, nv）
+        clean = clean.replace('ve', 'ue')
         return f"{clean} {tone}"
+
 
 
 class PhoneticGatekeeperError(Exception):

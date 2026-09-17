@@ -310,7 +310,11 @@ const currentChapterIdx = computed(() => {
 })
 
 const hasPrevChapter = computed(() => currentChapterIdx.value > 0)
-const hasNextChapter = computed(() => currentChapterIdx.value !== -1 && currentChapterIdx.value < chaptersList.value.length - 1)
+const hasNextChapter = computed(() => {
+  if (currentChapterIdx.value === -1 || currentChapterIdx.value >= chaptersList.value.length - 1) return false
+  const nextTarget = chaptersList.value[currentChapterIdx.value + 1]
+  return !nextTarget?.isUpcoming
+})
 
 // 无缝复播当前经品（计遍定修 / 单品循环接力）
 function replayCurrentChapter() {
@@ -671,19 +675,29 @@ onUnmounted(() => {
 
             <!-- 纵向品目列表 -->
             <div class="dialog-chapter-list">
-              <div 
-                v-for="(ch, idx) in chaptersList" 
-                :key="ch.id || ch.chapterId"
-                class="dialog-ch-item"
-                :class="{ active: (ch.id || ch.chapterId) === selectedChapterId }"
-                @click="changeChapter(ch.id || ch.chapterId, isPlaying)"
-              >
-                <div class="ch-meta">
-                  <span class="ch-idx-num">{{ String(idx + 1).padStart(2, '0') }}</span>
-                  <span class="ch-name">{{ ch.title }}</span>
+              <template v-for="(ch, idx) in chaptersList" :key="ch.id || ch.chapterId">
+                <div 
+                  v-if="ch.volume && (idx === 0 || ch.volume !== chaptersList[idx - 1]?.volume)"
+                  class="volume-dialog-divider"
+                >
+                  <span>{{ ch.volume }}</span>
                 </div>
-                <span v-if="(ch.id || ch.chapterId) === selectedChapterId" class="ch-playing-badge">当前诵读</span>
-              </div>
+                <div 
+                  class="dialog-ch-item"
+                  :class="{ 
+                    active: (ch.id || ch.chapterId) === selectedChapterId,
+                    disabled: ch.isUpcoming
+                  }"
+                  @click="!ch.isUpcoming && changeChapter(ch.id || ch.chapterId, isPlaying)"
+                >
+                  <div class="ch-meta">
+                    <span class="ch-idx-num">{{ String(idx + 1).padStart(2, '0') }}</span>
+                    <span class="ch-name">{{ ch.title }}</span>
+                  </div>
+                  <span v-if="(ch.id || ch.chapterId) === selectedChapterId" class="ch-playing-badge">当前诵读</span>
+                  <span v-else-if="ch.isUpcoming" class="ch-upcoming-badge">待演录</span>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -1198,12 +1212,31 @@ onUnmounted(() => {
   transition: all 0.2s ease;
 }
 
-.dialog-ch-item:hover {
+.volume-dialog-divider {
+  padding: 12px 14px 4px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  font-weight: 600;
+  opacity: 0.85;
+  background: rgba(212, 165, 116, 0.04);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.12);
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.dialog-ch-item:hover:not(.disabled) {
   background: rgba(212, 165, 116, 0.08);
 }
 
 .dialog-ch-item.active {
   background: rgba(212, 165, 116, 0.14);
+}
+
+.dialog-ch-item.disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
 }
 
 .ch-meta {
