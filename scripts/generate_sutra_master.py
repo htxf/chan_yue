@@ -116,8 +116,14 @@ def assert_phonetics_gatekeeper(data: Dict[str, Any]):
                 t = c.get('text', '')
                 py = c.get('pinyin', '')
                 prev_t = chars[i-1].get('text', '') if i > 0 else ''
-                nxt_t = chars[i+1].get('text', '') if i + 1 < len(chars) else ''
-                nxt_py = chars[i+1].get('pinyin', '') if i + 1 < len(chars) else ''
+                nxt_t = ''
+                nxt_py = ''
+                for k in range(i + 1, len(chars)):
+                    cand_t = chars[k].get('text', '')
+                    if cand_t.strip():
+                        nxt_t = cand_t
+                        nxt_py = chars[k].get('pinyin', '')
+                        break
 
                 if t == '相' and prev_t == '空' and py != 'xiàng':
                     errors.append(f"段落{p.get('id')}: 空相之'相'必须为四声 xiàng，当前为 {py}")
