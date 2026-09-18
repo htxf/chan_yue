@@ -91,20 +91,22 @@ function goToBook(item) {
           “{{ item.coverText }}”
         </p>
 
-        <!-- 续读指引（静谧内嵌） -->
-        <div 
-          v-if="lastRead && lastRead.bookId === item.id" 
-          class="resume-whisper"
-        >
-          <span class="whisper-dot">●</span>
-          <span>上次持诵至 {{ lastRead.chapterTitle }}</span>
-          <span class="whisper-arrow">· 继续持诵 →</span>
-        </div>
-
-        <!-- 卡片底栏微光入静指引 -->
-        <div class="card-action-bar">
-          <span class="action-text">翻阅入静</span>
-          <span class="action-arrow">→</span>
+        <!-- 卡片底栏操作指引（统一节律：未读为翻阅入静，读过为自适应续读药丸） -->
+        <div class="card-footer-action">
+          <div 
+            v-if="lastRead && lastRead.bookId === item.id" 
+            class="resume-pill"
+            :title="`续读至：${lastRead.chapterTitle}`"
+          >
+            <span class="pill-prefix">续读</span>
+            <span class="pill-sep">·</span>
+            <span class="pill-title">{{ lastRead.chapterTitle }}</span>
+            <span class="pill-arrow">→</span>
+          </div>
+          <div v-else class="card-action-bar">
+            <span class="action-text">翻阅入静</span>
+            <span class="action-arrow">→</span>
+          </div>
         </div>
       </section>
 
@@ -332,44 +334,80 @@ function goToBook(item) {
   opacity: 1;
 }
 
-/* 续读低语（内嵌精致胶囊） */
-.resume-whisper {
+/* 卡片底栏操作区（统一定高节律，杜绝卡片高度失衡） */
+.card-footer-action {
   margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 28px;
+}
+
+/* 续读药丸胶囊（UI/UX Pro Max 紧凑自适应标准：单行防折、弹性截断、消除多余红点杂质） */
+.resume-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: 'Noto Serif SC', serif;
-  font-size: 12px;
-  color: var(--gold);
-  opacity: 0.95;
-  letter-spacing: 0.8px;
-  padding: 4px 14px;
+  justify-content: center;
+  max-width: min(100%, 340px);
+  padding: 4.5px 14px;
   border-radius: 9999px;
-  background: rgba(212, 165, 116, 0.1);
+  background: rgba(212, 165, 116, 0.09);
   border: 1px solid rgba(212, 165, 116, 0.28);
-  transition: all 0.25s ease;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 11.5px;
+  color: var(--gold);
+  letter-spacing: 0.6px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.sutra-card:hover .resume-whisper {
-  background: rgba(212, 165, 116, 0.2);
+.sutra-card:hover .resume-pill {
+  background: rgba(212, 165, 116, 0.18);
   border-color: rgba(212, 165, 116, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 165, 116, 0.15);
 }
 
-.whisper-dot {
-  font-size: 8px;
-  color: #d95340;
+.pill-prefix {
+  flex-shrink: 0;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.pill-sep {
+  flex-shrink: 0;
+  margin: 0 5px;
+  opacity: 0.45;
+}
+
+.pill-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0.95;
 }
 
-.whisper-arrow {
-  color: var(--gold);
-  font-weight: 500;
+.pill-arrow {
+  flex-shrink: 0;
+  margin-left: 5px;
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  opacity: 0.85;
+}
+
+.sutra-card:hover .pill-arrow {
+  transform: translateX(3px);
+  opacity: 1;
 }
 
 /* 翻阅入静指引 */
 .card-action-bar {
-  margin-top: 12px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   font-family: 'Noto Serif SC', serif;
@@ -378,6 +416,7 @@ function goToBook(item) {
   letter-spacing: 2px;
   opacity: 0.72;
   transition: all 0.3s ease;
+  padding: 4px 0;
 }
 
 .sutra-card:hover .card-action-bar {
