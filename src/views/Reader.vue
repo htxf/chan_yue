@@ -36,6 +36,15 @@ function getVoiceAudioUrl(rawUrl) {
   return rawUrl || ''
 }
 
+function resolveChapterAudioUrl(chData, meta, bId, chId) {
+  if (chData?.audioUrl) return chData.audioUrl
+  if (meta?.audioUrl && (!meta.chapters || meta.chapters.length <= 1)) {
+    return meta.audioUrl
+  }
+  if (bId === 'xinjing') return '/audio/xinjing.mp3'
+  return `/audio/${bId}/${chId}.mp3`
+}
+
 const {
   currentTime,
   duration,
@@ -52,6 +61,7 @@ const {
   switchVoiceTrack,
   resetAudio,
 } = useAudioSync(paragraphsRef, {
+  getCurrentAudioUrl: () => resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chapterId.value),
   onEnded: () => {
     // 播完单品自然停止
   },
@@ -270,12 +280,14 @@ async function loadChapterData() {
       album: '禅阅'
     })
     
-    // Check if the current book has a global audioUrl or chapter-specific
-    // Prefer chapter specific audio, fallback to book audio
-    const rawAudioUrl = chapterData.value.audioUrl || bookMeta.value?.audioUrl
-    const audioUrl = getVoiceAudioUrl(rawAudioUrl)
+    // 优雅解析章节音频（数据源优先，规范路径确定性兜底）
+    const resolvedUrl = resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chId)
+    const audioUrl = getVoiceAudioUrl(resolvedUrl)
     if (audioUrl) {
       loadAudio(audioUrl)
+      if (isAutoPlayingNext) {
+        play()
+      }
     } else {
       if (!isAutoPlayingNext) pause()
       mode.value = 'reading'
@@ -341,10 +353,18 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkNavOverflow)
 })
 
-/* 切换到阅读模式时暂停播放 */
+/* 模式切换响应：切换到阅读模式暂停播放；切换到禅听模式即刻就绪音频管道并起播 */
 watch(mode, (newMode) => {
   if (newMode === 'reading') {
     pause()
+  } else if (newMode === 'listening') {
+    const chId = chapterId.value
+    const resolvedUrl = resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chId)
+    const audioUrl = getVoiceAudioUrl(resolvedUrl)
+    if (audioUrl) {
+      loadAudio(audioUrl)
+      play()
+    }
   }
 })
 
@@ -362,10 +382,16 @@ watch(isTitleActive, (active) => {
   }
 })
 
-/* 点击播放时，自动切换到禅听模式并第一时间聚焦经题 */
+/* 点击播放时，自动切换到禅听模式、补齐音频加载并第一时间聚焦经题 */
 function handleToggle() {
   if (mode.value === 'reading' && !isPlaying.value) {
     mode.value = 'listening'
+  }
+  const chId = chapterId.value
+  const resolvedUrl = resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chId)
+  const audioUrl = getVoiceAudioUrl(resolvedUrl)
+  if (audioUrl) {
+    loadAudio(audioUrl)
   }
   if (!isPlaying.value && currentTime.value < currentFirstPStart.value) {
     window.scrollTo({ top: 0, behavior: 'smooth' })

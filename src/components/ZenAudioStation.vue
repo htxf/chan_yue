@@ -210,8 +210,11 @@ const timerSummaryText = computed(() => {
 
 // 同步计算章节音频地址，用于锁屏零延迟接力
 function getChapterAudioUrl(bookId, chId) {
-  if (chapterData.value?.audioUrl) return chapterData.value.audioUrl
-  if (bookMeta.value?.audioUrl && (!chaptersList.value || chaptersList.value.length <= 1)) {
+  const currentChId = chapterData.value?.chapterId || chapterData.value?.id || (selectedBookId.value === 'xinjing' ? 'chapter_1' : '')
+  if (chapterData.value?.audioUrl && selectedBookId.value === bookId && (currentChId === chId || (bookId === 'xinjing' && chId === 'chapter_1'))) {
+    return chapterData.value.audioUrl
+  }
+  if (bookMeta.value?.audioUrl && (!chaptersList.value || chaptersList.value.length <= 1) && selectedBookId.value === bookId) {
     return bookMeta.value.audioUrl
   }
   if (bookId === 'xinjing') return '/audio/xinjing.mp3'
@@ -367,9 +370,10 @@ function preloadNextChapter() {
 
 // 预加载当前经卷所有章节数据，消除后台环境下的脚本请求失败
 function preloadAllChapters(bookId) {
-  if (bookId !== 'jingangjing') return
+  const totalChapters = bookId === 'jingangjing' ? 32 : (bookId === 'dizangjing' ? 13 : 0)
+  if (totalChapters === 0) return
   const runPreload = () => {
-    for (let i = 1; i <= 32; i++) {
+    for (let i = 1; i <= totalChapters; i++) {
       const chId = `chapter_${i}`
       const cacheKey = `${bookId}/${chId}`
       if (!chapterDataCache.has(cacheKey)) {
@@ -425,8 +429,10 @@ function goToNextChapter(forcePlay = false) {
 // 切换经书
 async function switchBook(bookId) {
   if (selectedBookId.value === bookId) return
+  const wasPlaying = isPlaying.value
   selectedBookId.value = bookId
   selectedChapterId.value = 'chapter_1'
+  chapterData.value = null
   localStorage.setItem('chanyue_listen_book', bookId)
   localStorage.setItem('chanyue_listen_chapter', 'chapter_1')
   targetLoops.value = 0
@@ -435,7 +441,7 @@ async function switchBook(bookId) {
   if (chaptersList.value.length <= 1 && playMode.value === 'sequence') {
     playMode.value = 'single'
   }
-  await loadChapterData(false)
+  await loadChapterData(wasPlaying)
   preloadAllChapters(bookId)
 }
 
@@ -471,8 +477,9 @@ async function loadChapterData(autoPlay = false, skipAudio = false) {
     }
     chapterData.value = data
 
-    const rawUrl = chapterData.value.audioUrl || bookMeta.value?.audioUrl
-    const audioUrl = getVoiceAudioUrl(rawUrl)
+    // 优雅解析章节音频（优先从数据取，保底走规范路径计算，杜绝残留）
+    const nextUrl = chapterData.value?.audioUrl || getChapterAudioUrl(selectedBookId.value, selectedChapterId.value)
+    const audioUrl = getVoiceAudioUrl(nextUrl)
 
     if (!skipAudio && audioUrl) {
       if (autoPlay) {

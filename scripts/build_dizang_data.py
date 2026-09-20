@@ -332,6 +332,7 @@ for meta in chapters_meta[:4]:
     chapter_data = {
         "chapterId": meta["id"],
         "title": title_chars,
+        "audioUrl": f"/audio/dizangjing/{meta['id']}.mp3",
         "paragraphs": paragraphs
     }
 

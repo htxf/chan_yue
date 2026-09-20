@@ -296,6 +296,7 @@ for meta in lower_chapters:
     chapter_data = {
         "chapterId": cid,
         "title": title_chars,
+        "audioUrl": f"/audio/dizangjing/{cid}.mp3",
         "paragraphs": paragraphs
     }
 
