@@ -50,25 +50,31 @@ const activeLineIndex = computed(() => {
 })
 
 let lastScrolledLine = -1
-let userTouchTimer = null
+
+// 模块级单例监听器：全生命周期仅向 window 挂载一次，杜绝多实例重复绑定导致的内存泄露
 let isUserTouching = false
+let userTouchTimer = null
+let isTouchListenerInitialized = false
 
-function onUserTouchActivity(e) {
-  // 排除点击控制栏、播放器或导航按钮触发的误判
-  if (e && e.target && e.target.closest && e.target.closest('.audio-player-fixed, .audio-player-card, button, .nav-top-btn, .mode-selector')) {
-    return
+function initSingletonTouchListener() {
+  if (isTouchListenerInitialized || typeof window === 'undefined') return
+  const onUserTouchActivity = (e) => {
+    // 排除点击控制栏、播放器或导航按钮触发的误判
+    if (e?.target?.closest?.('.audio-player-fixed, .audio-player-card, button, .nav-top-btn, .mode-selector')) {
+      return
+    }
+    isUserTouching = true
+    if (userTouchTimer) clearTimeout(userTouchTimer)
+    userTouchTimer = setTimeout(() => {
+      isUserTouching = false
+    }, 2000)
   }
-  isUserTouching = true
-  if (userTouchTimer) clearTimeout(userTouchTimer)
-  userTouchTimer = setTimeout(() => {
-    isUserTouching = false
-  }, 2000)
-}
-
-if (typeof window !== 'undefined') {
   window.addEventListener('touchstart', onUserTouchActivity, { passive: true })
   window.addEventListener('wheel', onUserTouchActivity, { passive: true })
+  isTouchListenerInitialized = true
 }
+
+initSingletonTouchListener()
 
 /* 仅在激活行真正前进变化时丝滑居中滚动，用户手动翻阅时智能防打架 */
 watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {

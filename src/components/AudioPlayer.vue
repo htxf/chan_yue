@@ -117,13 +117,26 @@ function onProgressClick(e) {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* 扩展移动端触控热区至 44px×44px 工业标准 */
+.play-btn::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
 }
 
 .play-btn:hover {
   background: rgba(212, 165, 116, 0.18);
   border-color: var(--gold-muted);
   transform: scale(1.05);
+}
+
+.play-btn:active {
+  transform: scale(0.95);
 }
 
 .play-btn.playing {
@@ -133,7 +146,7 @@ function onProgressClick(e) {
 
 .progress-area {
   flex: 1;
-  padding: 8px 0;
+  padding: 12px 0;
   cursor: pointer;
 }
 
@@ -160,12 +173,20 @@ function onProgressClick(e) {
   height: 12px;
   border-radius: 50%;
   background: var(--gold);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
   box-shadow: 0 0 10px rgba(212, 165, 116, 0.5);
 }
 
 .progress-area:hover .progress-thumb {
   transform: translate(-50%, -50%) scale(1);
+}
+
+/* 触屏无 hover 界面：保持温润小滑块可见，便于用户精准定位当前进度 */
+@media (hover: none) {
+  .progress-thumb {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0.9;
+  }
 }
 
 .time-display {

@@ -219,13 +219,14 @@ let isAutoPlayingNext = false
 
 function goToNextChapter(isAutoPlay = false) {
   if (nextChapter.value) {
-    if (isAutoPlay) isAutoPlayingNext = true
+    if (isAutoPlay || isPlaying.value) isAutoPlayingNext = true
     selectChapter(nextChapter.value.id || nextChapter.value.chapterId)
   }
 }
 
 function goToPrevChapter() {
   if (prevChapter.value) {
+    if (isPlaying.value) isAutoPlayingNext = true
     selectChapter(prevChapter.value.id || prevChapter.value.chapterId)
   }
 }
@@ -311,18 +312,7 @@ async function loadChapterData() {
 
     // 若携带索经定位参数 hl，平滑滚动至对应经文并微光闪烁
     if (route.query.hl) {
-      setTimeout(() => {
-        const needle = decodeURIComponent(route.query.hl)
-        const allLines = document.querySelectorAll('.sutra-line')
-        for (const el of allLines) {
-          if (el.textContent.includes(needle)) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            el.classList.add('search-jump-flash')
-            setTimeout(() => el.classList.remove('search-jump-flash'), 2500)
-            break
-          }
-        }
-      }, 500)
+      scrollToHighlightedSnippet(route.query.hl)
     }
   } catch (err) {
     console.error('Failed to load chapter data', err)
@@ -349,8 +339,39 @@ onMounted(async () => {
   window.addEventListener('resize', checkNavOverflow)
 })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', checkNavOverflow)
+// 平滑滚动定位至索经命中语句并微光呼吸闪烁（最多重试3次应对移动端DOM挂载延迟）
+function scrollToHighlightedSnippet(rawNeedle, retries = 3) {
+  if (!rawNeedle) return
+  const needle = decodeURIComponent(rawNeedle).trim()
+  if (!needle) return
+
+  const attemptScroll = (remainingRetries) => {
+    const allLines = document.querySelectorAll('.sutra-line')
+    let matched = false
+    for (const el of allLines) {
+      if (el.textContent.includes(needle)) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.classList.add('search-jump-flash')
+        setTimeout(() => el.classList.remove('search-jump-flash'), 2500)
+        matched = true
+        break
+      }
+    }
+    if (!matched && remainingRetries > 0) {
+      setTimeout(() => attemptScroll(remainingRetries - 1), 150)
+    }
+  }
+
+  nextTick(() => {
+    attemptScroll(retries)
+  })
+}
+
+// 实时监听索经参数，支持同品内检索实时跳转与高亮
+watch(() => route.query.hl, (newHl) => {
+  if (newHl) {
+    scrollToHighlightedSnippet(newHl)
+  }
 })
 
 /* 模式切换响应：切换到阅读模式暂停播放；切换到禅听模式即刻就绪音频管道并起播 */

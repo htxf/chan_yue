@@ -140,7 +140,7 @@ function goToBook(item) {
 <style scoped>
 .home-container {
   min-height: 100vh;
-  padding: 36px 20px 40px;
+  padding: 36px 20px calc(40px + env(safe-area-inset-bottom, 0px));
   max-width: 580px;
   margin: 0 auto;
   display: flex;
@@ -298,6 +298,12 @@ function goToBook(item) {
   border-color: rgba(212, 165, 116, 0.42);
   transform: translateY(-2px);
   box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.6), 0 0 24px rgba(212, 165, 116, 0.08);
+}
+
+.sutra-card:active {
+  transform: scale(0.985);
+  background: rgba(22, 22, 28, 0.7);
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* 经名：典雅修长的宋体大字 */

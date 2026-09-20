@@ -895,11 +895,12 @@ onUnmounted(() => {
   background: rgba(18, 18, 26, 0.75);
   border: 1px solid rgba(212, 165, 116, 0.18);
   border-radius: 22px;
-  padding: 16px 20px 20px;
+  padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 14px;
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
@@ -1207,6 +1208,23 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 4px;
   padding-right: 4px;
+}
+
+.dialog-chapter-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dialog-chapter-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dialog-chapter-list::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 116, 0.2);
+  border-radius: 2px;
+}
+
+.dialog-chapter-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 116, 0.4);
 }
 
 .dialog-ch-item {
