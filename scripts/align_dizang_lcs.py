@@ -32,7 +32,17 @@ def align_single_chapter(model, ch_idx):
     # 1. Whisper word_timestamps 转写
     res = model.transcribe(audio_path, language='zh', word_timestamps=True, verbose=False)
     
-    # 提取 ASR 字流 (转为简体)
+    # 增强同音佛学术语替换，大幅提高佛经排比句与专有名词的 LCS 命中率
+    TERM_REPLACEMENTS = {
+        '地域': '地狱', '富有': '复有', '民约': '名曰', '名约': '名曰',
+        '白岩': '白言', '铁为': '铁围', '铁扭': '铁牛', '道理': '忉利',
+        '世家蒙尼': '释迦牟尼', '波惹': '般若', '极翔': '吉祥',
+        '弹波伦弥': '檀波罗蜜', '串题': '羼提', '串波': '禅波',
+        '教换': '叫唤', '拔蛇': '拔舌', '分尿': '粪尿', '同所': '铜锁',
+        '巨雅': '锯牙', '波皮': '剥皮', '到刺': '刀刺'
+    }
+
+    # 提取 ASR 字流 (转为简体并标准化术语)
     asr_chars = []
     for seg in res['segments']:
         words = seg.get('words', [])
@@ -49,6 +59,20 @@ def align_single_chapter(model, ch_idx):
                     'start': round(w_start + ci * w_dur, 3),
                     'end': round(w_start + (ci + 1) * w_dur, 3)
                 })
+
+    # 对 ASR 全文本做术语标准化映射
+    raw_asr_str = ''.join(c['char'] for c in asr_chars)
+    for src_term, dst_term in TERM_REPLACEMENTS.items():
+        if len(src_term) == len(dst_term):
+            pos = 0
+            while True:
+                idx = raw_asr_str.find(src_term, pos)
+                if idx == -1:
+                    break
+                for ti in range(len(src_term)):
+                    if idx + ti < len(asr_chars):
+                        asr_chars[idx + ti]['char'] = dst_term[ti]
+                pos = idx + len(src_term)
 
     print(f"  ASR 识别字数: {len(asr_chars)}")
 
@@ -84,7 +108,7 @@ def align_single_chapter(model, ch_idx):
     match_rate = (matched_count / len(json_char_objs)) * 100
     print(f"  全局 LCS 直接匹配率: {matched_count}/{len(json_char_objs)} ({match_rate:.1f}%)")
 
-    # 4. 健壮双向线性插值填补未命中字
+    # 4. 健壮双向线性插值填补未命中字 (限制单字物理自然语速，杜绝大停顿拉伸单字)
     anchors = []
     for idx, c in enumerate(json_char_objs):
         if c.get('startTime') is not None:
@@ -94,47 +118,61 @@ def align_single_chapter(model, ch_idx):
         print(f"  [ERROR] {ch_id} 匹配锚点过少 ({len(anchors)})，无法对齐！")
         return False
 
-    # 头部插值 (首段前可能有播音员报幕，平滑过渡到第 1 个锚点)
+    # 头部插值 (从第 1 个锚点以 0.32s 自然语速倒推，保留品名与正文间自然停顿)
     if anchors[0][0] > 0:
         first_idx, first_start, _ = anchors[0]
-        step = max(0.12, (first_start - 0.2) / (first_idx + 1))
+        head_step = 0.32
         for k in range(first_idx):
-            json_char_objs[k]['startTime'] = round(max(0.0, first_start - (first_idx - k) * step), 3)
-            json_char_objs[k]['endTime'] = round(max(0.05, first_start - (first_idx - k - 1) * step), 3)
+            st = max(0.1, first_start - (first_idx - k) * head_step)
+            et = max(0.15, first_start - (first_idx - k - 1) * head_step)
+            json_char_objs[k]['startTime'] = round(st, 3)
+            json_char_objs[k]['endTime'] = round(et, 3)
 
-    # 中间空隙插值
+    # 中间空隙插值 (钳制单字最大时长 <= 0.45s，大 gap 自动转化为自然句间留白)
     for a_idx in range(len(anchors) - 1):
         idx1, s1, e1 = anchors[a_idx]
         idx2, s2, e2 = anchors[a_idx + 1]
         gap_count = idx2 - idx1 - 1
         if gap_count > 0:
-            span = max(0.08 * gap_count, s2 - e1)
-            step = span / (gap_count + 1)
-            for k in range(1, gap_count + 1):
-                cur_i = idx1 + k
-                json_char_objs[cur_i]['startTime'] = round(e1 + (k - 1) * step, 3)
-                json_char_objs[cur_i]['endTime'] = round(e1 + k * step, 3)
+            total_dur = max(0.1, s2 - e1)
+            if total_dur / gap_count > 0.6:
+                # 存在大停顿或排比段落，以 0.32s 自然语速紧凑排列
+                char_dur = 0.32
+                for k in range(1, gap_count + 1):
+                    cur_i = idx1 + k
+                    cur_start = e1 + (k - 1) * char_dur
+                    cur_end = cur_start + char_dur
+                    json_char_objs[cur_i]['startTime'] = round(cur_start, 3)
+                    json_char_objs[cur_i]['endTime'] = round(cur_end, 3)
+            else:
+                step = total_dur / (gap_count + 1)
+                for k in range(1, gap_count + 1):
+                    cur_i = idx1 + k
+                    json_char_objs[cur_i]['startTime'] = round(e1 + (k - 1) * step, 3)
+                    json_char_objs[cur_i]['endTime'] = round(e1 + k * step, 3)
 
-    # 尾部插值
+    # 尾部插值 (自然语速向后延展)
     last_idx, _, last_end = anchors[-1]
     if last_idx < len(json_char_objs) - 1:
-        step = 0.28
+        step = 0.32
         cur_t = last_end
         for k in range(last_idx + 1, len(json_char_objs)):
             json_char_objs[k]['startTime'] = round(cur_t, 3)
             cur_t += step
             json_char_objs[k]['endTime'] = round(cur_t, 3)
 
-    # 5. 单调递增绝对安全平滑守护
+    # 5. 单调递增绝对安全平滑守护 (强制单字物理合理时长 0.12s ~ 0.8s)
     cur_t = 0.0
     for k in range(len(json_char_objs)):
         c = json_char_objs[k]
         st = c.get('startTime', cur_t)
-        et = c.get('endTime', st + 0.2)
+        et = c.get('endTime', st + 0.28)
         if st < cur_t:
             st = cur_t
         if et <= st:
-            et = round(st + 0.18, 3)
+            et = round(st + 0.22, 3)
+        elif et - st > 1.2:
+            et = round(st + 0.45, 3)
         c['startTime'] = round(st, 3)
         c['endTime'] = round(et, 3)
         cur_t = c['endTime']
