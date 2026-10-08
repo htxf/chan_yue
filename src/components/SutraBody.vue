@@ -35,7 +35,6 @@ defineProps({
 <style scoped>
 .sutra-body {
   flex: 1;
-  overflow-y: auto;
   padding: 0 20px 20px;
   max-width: 680px;
   margin: 0 auto;

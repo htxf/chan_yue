@@ -2,68 +2,57 @@
   "chapterId": "chapter_8",
   "title": [
     {
-      "text": "第",
-      "pinyin": "dì",
-      "startTime": 0.1,
-      "endTime": 0.441
-    },
-    {
-      "text": "八",
-      "pinyin": "bā",
-      "startTime": 0.441,
-      "endTime": 0.781
-    },
-    {
-      "text": "品",
-      "pinyin": "pǐn",
-      "startTime": 0.781,
-      "endTime": 1.122
-    },
-    {
-      "text": " ",
-      "startTime": 1.122,
-      "endTime": 1.463
-    },
-    {
       "text": "阎",
       "pinyin": "yán",
-      "startTime": 1.463,
-      "endTime": 1.803
+      "startTime": 0.1,
+      "endTime": 0.516
     },
     {
       "text": "罗",
       "pinyin": "luó",
-      "startTime": 1.803,
-      "endTime": 2.144
+      "startTime": 0.516,
+      "endTime": 0.933
     },
     {
       "text": "王",
       "pinyin": "wáng",
-      "startTime": 2.144,
-      "endTime": 2.484
+      "startTime": 0.933,
+      "endTime": 1.349
     },
     {
       "text": "众",
       "pinyin": "zhòng",
-      "startTime": 2.484,
-      "endTime": 2.825
+      "startTime": 1.349,
+      "endTime": 1.765
     },
     {
       "text": "赞",
       "pinyin": "zàn",
-      "startTime": 2.825,
-      "endTime": 3.166
+      "startTime": 1.765,
+      "endTime": 2.182
     },
     {
       "text": "叹",
       "pinyin": "tàn",
-      "startTime": 3.166,
-      "endTime": 3.506
+      "startTime": 2.182,
+      "endTime": 2.598
     },
     {
       "text": "品",
       "pinyin": "pǐn",
-      "startTime": 3.506,
+      "startTime": 2.598,
+      "endTime": 3.014
+    },
+    {
+      "text": "第",
+      "pinyin": "dì",
+      "startTime": 3.014,
+      "endTime": 3.431
+    },
+    {
+      "text": "八",
+      "pinyin": "bā",
+      "startTime": 3.431,
       "endTime": 3.847
     }
   ],
@@ -3109,7 +3098,7 @@
               "endTime": 164.6
             },
             {
-              "text": "彊",
+              "text": "强",
               "pinyin": "qiáng",
               "startTime": 164.6,
               "endTime": 165.034

@@ -2,63 +2,52 @@
   "chapterId": "chapter_3",
   "title": [
     {
-      "text": "第",
-      "pinyin": "dì",
-      "startTime": 0.1,
-      "endTime": 0.301
-    },
-    {
-      "text": "三",
-      "pinyin": "sān",
-      "startTime": 0.301,
-      "endTime": 0.502
-    },
-    {
-      "text": "品",
-      "pinyin": "pǐn",
-      "startTime": 0.502,
-      "endTime": 0.703
-    },
-    {
-      "text": " ",
-      "startTime": 0.703,
-      "endTime": 0.904
-    },
-    {
       "text": "观",
       "pinyin": "guān",
-      "startTime": 0.904,
-      "endTime": 1.105
+      "startTime": 0.1,
+      "endTime": 0.412
     },
     {
       "text": "众",
       "pinyin": "zhòng",
-      "startTime": 1.105,
-      "endTime": 1.306
+      "startTime": 0.412,
+      "endTime": 0.725
     },
     {
       "text": "生",
       "pinyin": "shēng",
-      "startTime": 1.306,
-      "endTime": 1.507
+      "startTime": 0.725,
+      "endTime": 1.038
     },
     {
       "text": "业",
       "pinyin": "yè",
-      "startTime": 1.507,
-      "endTime": 1.708
+      "startTime": 1.038,
+      "endTime": 1.35
     },
     {
       "text": "缘",
       "pinyin": "yuán",
-      "startTime": 1.708,
-      "endTime": 1.909
+      "startTime": 1.35,
+      "endTime": 1.663
     },
     {
       "text": "品",
       "pinyin": "pǐn",
-      "startTime": 1.909,
-      "endTime": 2.11
+      "startTime": 1.663,
+      "endTime": 1.975
+    },
+    {
+      "text": "第",
+      "pinyin": "dì",
+      "startTime": 1.975,
+      "endTime": 2.288
+    },
+    {
+      "text": "三",
+      "pinyin": "sān",
+      "startTime": 2.288,
+      "endTime": 2.6
     }
   ],
   "paragraphs": [

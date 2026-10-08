@@ -52,12 +52,14 @@ def align_single_chapter(model, ch_idx):
 
     print(f"  ASR 识别字数: {len(asr_chars)}")
 
-    # 2. 收集 JSON 中有效经文字符
+    # 2. 收集 JSON 中有效经文字符并彻底清空旧时间戳
     json_char_objs = []
     for p in data['paragraphs']:
         for line in p['lines']:
             for c in line['chars']:
                 if 'pinyin' in c and c.get('text'):
+                    c.pop('startTime', None)
+                    c.pop('endTime', None)
                     json_char_objs.append(c)
 
     print(f"  JSON 目标字数: {len(json_char_objs)}")
@@ -123,12 +125,19 @@ def align_single_chapter(model, ch_idx):
             cur_t += step
             json_char_objs[k]['endTime'] = round(cur_t, 3)
 
-    # 5. 单调递增安全平滑
-    for k in range(len(json_char_objs) - 1):
-        if json_char_objs[k]['endTime'] > json_char_objs[k + 1]['startTime']:
-            mid = (json_char_objs[k]['endTime'] + json_char_objs[k + 1]['startTime']) / 2
-            json_char_objs[k]['endTime'] = round(mid, 3)
-            json_char_objs[k + 1]['startTime'] = round(mid, 3)
+    # 5. 单调递增绝对安全平滑守护
+    cur_t = 0.0
+    for k in range(len(json_char_objs)):
+        c = json_char_objs[k]
+        st = c.get('startTime', cur_t)
+        et = c.get('endTime', st + 0.2)
+        if st < cur_t:
+            st = cur_t
+        if et <= st:
+            et = round(st + 0.18, 3)
+        c['startTime'] = round(st, 3)
+        c['endTime'] = round(et, 3)
+        cur_t = c['endTime']
 
     # 6. 回算行与段落时间戳
     first_p_start = None
