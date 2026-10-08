@@ -430,6 +430,8 @@ function goToNextChapter(forcePlay = false) {
 async function switchBook(bookId) {
   if (selectedBookId.value === bookId) return
   const wasPlaying = isPlaying.value
+  pause()
+  resetAudio()
   selectedBookId.value = bookId
   selectedChapterId.value = 'chapter_1'
   chapterData.value = null
@@ -447,6 +449,10 @@ async function switchBook(bookId) {
 
 // 切换章节
 async function changeChapter(chId, autoPlay = false) {
+  if (selectedChapterId.value === chId && !autoPlay) {
+    isChapterDrawerOpen.value = false
+    return
+  }
   selectedChapterId.value = chId
   localStorage.setItem('chanyue_listen_chapter', chId)
   isChapterDrawerOpen.value = false

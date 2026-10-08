@@ -384,7 +384,9 @@ watch(mode, (newMode) => {
     const audioUrl = getVoiceAudioUrl(resolvedUrl)
     if (audioUrl) {
       loadAudio(audioUrl)
-      play()
+      if (!isPlaying.value) {
+        play()
+      }
     }
   }
 })
@@ -403,16 +405,17 @@ watch(isTitleActive, (active) => {
   }
 })
 
-/* 点击播放时，自动切换到禅听模式、补齐音频加载并第一时间聚焦经题 */
+/* 点击播放/暂停浮动条：自动切换到禅听模式并触发播放 */
 function handleToggle() {
-  if (mode.value === 'reading' && !isPlaying.value) {
-    mode.value = 'listening'
-  }
   const chId = chapterId.value
   const resolvedUrl = resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chId)
   const audioUrl = getVoiceAudioUrl(resolvedUrl)
   if (audioUrl) {
     loadAudio(audioUrl)
+  }
+  if (mode.value === 'reading') {
+    mode.value = 'listening'
+    return
   }
   if (!isPlaying.value && currentTime.value < currentFirstPStart.value) {
     window.scrollTo({ top: 0, behavior: 'smooth' })

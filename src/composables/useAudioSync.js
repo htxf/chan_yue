@@ -326,9 +326,8 @@ export function useAudioSync(paragraphs, options = {}) {
 
   function loadAudio(url) {
     if (!url) return
-    const currentSrc = audio.src ? audio.src.split('?')[0] : ''
-    // 若当前 audio 已指向该音频且处于健康就绪状态，无需重复 reset
-    if (currentSrc && currentSrc.endsWith(url) && !audio.error && audio.readyState > 0) {
+    // 若当前 audio 已指向该音频且无错误，无需重复 reset
+    if (currentSrc && currentSrc.endsWith(url) && !audio.error) {
       setupMediaSession()
       return
     }
@@ -446,9 +445,9 @@ export function useAudioSync(paragraphs, options = {}) {
   function play() {
     _retryCount = 0
     _intendPlaying = true
-    // 自愈防御：若当前处于错误状态、无源或未就绪，重载音频管道，彻底消除“必须刷新页面才能重新播放”的问题
-    if (audio.error || !audio.src || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || audio.readyState === 0) {
-      console.info('[ChanYue] audio 处于异常或未就绪状态，强制重载管道...')
+    // 自愈防御：若当前处于错误状态、无源或未分配源，重载音频管道
+    if (audio.error || !audio.src || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+      console.info('[ChanYue] audio 处于异常或无源状态，重载管道...')
       try {
         if (!audio.src && options.getCurrentAudioUrl) {
           audio.src = options.getCurrentAudioUrl()
