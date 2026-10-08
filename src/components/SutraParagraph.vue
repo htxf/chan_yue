@@ -102,6 +102,61 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
     }
   }
 })
+
+// 避头尾标点符号集合 (W3C CLReq 中文排版国际标准规范)
+const LEADING_PUNCT = new Set(['「', '『', '（', '(', '[', '{', '“', '‘', '《'])
+const TRAILING_PUNCT = new Set(['，', '。', '、', '：', '；', '？', '！', '”', '’', '』', '」', '）', ')', ']', '}', '》', '—', '…'])
+
+/**
+ * 将行内字符与标点组合为不可拆分的字标物理单元 (GlyphUnit)
+ * 彻底杜绝手机小屏幕上标点被挤到下一行开头或独立成行的不友好现象
+ */
+function getLineUnits(chars) {
+  if (!chars || chars.length === 0) return []
+  const units = []
+  let pendingLeading = ''
+
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i]
+    const t = c.text
+    if (!t || t === '\n' || t === '\r' || t.trim() === '') continue
+
+    // 前置避尾标点：暂存并与下一个汉字绑定
+    if (LEADING_PUNCT.has(t)) {
+      pendingLeading += t
+      continue
+    }
+
+    // 后置避头标点：紧密粘合在上一个汉字后面
+    if (TRAILING_PUNCT.has(t)) {
+      if (units.length > 0) {
+        units[units.length - 1].trailing += t
+      } else {
+        pendingLeading += t
+      }
+      continue
+    }
+
+    // 汉字主体
+    units.push({
+      char: c,
+      leading: pendingLeading,
+      trailing: ''
+    })
+    pendingLeading = ''
+  }
+
+  // 极端纯标点兜底
+  if (units.length === 0 && pendingLeading) {
+    units.push({
+      char: { text: pendingLeading },
+      leading: '',
+      trailing: ''
+    })
+  }
+
+  return units
+}
 </script>
 
 <template>
@@ -120,11 +175,15 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
         'line-dim':    mode === 'listening' && activeLineIndex !== li,
       }"
     >
-      <template v-for="(char, ci) in line.chars" :key="ci">
-        <ruby v-if="char.pinyin" class="sutra-char">
-          {{ char.text }}<rt>{{ char.pinyin }}</rt>
-        </ruby>
-        <span v-else class="sutra-punct">{{ char.text }}</span>
+      <template v-for="(unit, ui) in getLineUnits(line.chars)" :key="ui">
+        <span class="sutra-glyph-unit">
+          <span v-if="unit.leading" class="sutra-punct leading">{{ unit.leading }}</span>
+          <ruby v-if="unit.char.pinyin" class="sutra-char">
+            {{ unit.char.text }}<rt>{{ unit.char.pinyin }}</rt>
+          </ruby>
+          <span v-else class="sutra-char">{{ unit.char.text }}</span>
+          <span v-if="unit.trailing" class="sutra-punct trailing">{{ unit.trailing }}</span>
+        </span>
       </template>
     </div>
   </div>
@@ -162,9 +221,9 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 4px;
-  line-height: 2.4;
-  margin-bottom: 4px;
+  gap: 2px 4px;
+  line-height: 2.3;
+  margin-bottom: 6px;
   /* 呼吸过渡：opacity + text-shadow 同步渐变，绝不闪烁 */
   transition: opacity 0.8s ease-in-out,
               text-shadow 0.8s ease-in-out;
@@ -226,17 +285,32 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   opacity: 0.8;
 }
 
-/* 标点光学微排印：收紧过宽空白，更具雕版印刷致密感 */
+/* ===== 字标原子粘合单元 (Glyph Unit) ===== */
+.sutra-glyph-unit {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap; /* 核心铁律：汉字与前后附丽标点同生共进，绝对杜绝被折行拆散 */
+  flex-shrink: 0;
+}
+
+/* 标点光学微排印：收紧过宽空白，避免小屏无意义断行 */
 .sutra-punct {
   font-family: 'Noto Serif SC', 'SimSun', serif;
   font-size: 24px;
   color: var(--text-muted);
   opacity: 0.8;
-  margin: 0 -2px;
-  display: inline-flex;
-  align-items: flex-end;
-  padding-bottom: 2px;
+  display: inline-block;
+  line-height: 1;
   transition: opacity 0.8s ease-in-out, color 0.8s ease-in-out;
+}
+
+.sutra-punct.leading {
+  margin-right: -2px;
+}
+
+.sutra-punct.trailing {
+  margin-left: 1px;
+  margin-right: -4px; /* 标点右侧留白光学压缩，提升每行排字密度 */
 }
 
 .sutra-line.line-active .sutra-punct {
@@ -244,13 +318,12 @@ watch([() => props.active, activeLineIndex], async ([isActive, lineIdx]) => {
   opacity: 0.85;
 }
 
-
-
 /* ===== 移动端 ===== */
 @media (max-width: 640px) {
-  .sutra-char    { font-size: 22px; }
-  .sutra-char rt { font-size: 9px; }
-  .sutra-punct   { font-size: 22px; }
-  .sutra-paragraph { padding: 12px 4px; }
+  .sutra-line    { gap: 2px 3px; line-height: 2.2; }
+  .sutra-char    { font-size: 21px; letter-spacing: 1px; }
+  .sutra-char rt { font-size: 9px; padding-bottom: 2px; }
+  .sutra-punct   { font-size: 20px; }
+  .sutra-paragraph { padding: 10px 2px; }
 }
 </style>
