@@ -375,6 +375,23 @@ watch(() => route.query.hl, (newHl) => {
 })
 
 /* 模式切换响应：切换到阅读模式暂停播放；切换到禅听模式即刻就绪音频管道并起播 */
+function handleModeChange(newMode) {
+  mode.value = newMode
+  if (newMode === 'reading') {
+    pause()
+  } else if (newMode === 'listening') {
+    const chId = chapterId.value
+    const resolvedUrl = resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chId)
+    const audioUrl = getVoiceAudioUrl(resolvedUrl)
+    if (audioUrl) {
+      loadAudio(audioUrl)
+      if (!isPlaying.value) {
+        play()
+      }
+    }
+  }
+}
+
 watch(mode, (newMode) => {
   if (newMode === 'reading') {
     pause()
@@ -405,17 +422,16 @@ watch(isTitleActive, (active) => {
   }
 })
 
-/* 点击播放/暂停浮动条：自动切换到禅听模式并触发播放 */
+/* 点击播放/暂停浮动条：自动切换到禅听模式并在当前用户手势栈中直接触发播放 */
 function handleToggle() {
+  if (mode.value === 'reading') {
+    mode.value = 'listening'
+  }
   const chId = chapterId.value
   const resolvedUrl = resolveChapterAudioUrl(chapterData.value, bookMeta.value, bookId.value, chId)
   const audioUrl = getVoiceAudioUrl(resolvedUrl)
   if (audioUrl) {
     loadAudio(audioUrl)
-  }
-  if (mode.value === 'reading') {
-    mode.value = 'listening'
-    return
   }
   if (!isPlaying.value && currentTime.value < currentFirstPStart.value) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -524,7 +540,7 @@ function handleToggle() {
           :isTitleActive="isTitleActive"
         />
 
-        <ModeSelector v-model:mode="mode" />
+        <ModeSelector :mode="mode" @update:mode="handleModeChange" />
 
         <SutraBody
           :paragraphs="activeParagraphs"

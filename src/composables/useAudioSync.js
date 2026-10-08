@@ -326,6 +326,7 @@ export function useAudioSync(paragraphs, options = {}) {
 
   function loadAudio(url) {
     if (!url) return
+    const currentSrc = audio.src ? audio.src.split('?')[0] : ''
     // 若当前 audio 已指向该音频且无错误，无需重复 reset
     if (currentSrc && currentSrc.endsWith(url) && !audio.error) {
       setupMediaSession()
