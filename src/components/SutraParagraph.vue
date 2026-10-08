@@ -219,7 +219,7 @@ function getLineUnits(chars) {
 /* ===== 行级呼吸高亮 ===== */
 .sutra-line {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 2px 4px;
   line-height: 2.3;
