@@ -61,6 +61,8 @@
       "id": 1,
       "lines": [
         {
+          "lineStart": 10.8,
+          "lineEnd": 18.62,
           "chars": [
             {
               "text": "尔",
@@ -224,11 +226,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 10.8,
-          "lineEnd": 18.62
+          ]
         },
         {
+          "lineStart": 18.62,
+          "lineEnd": 66.38,
           "chars": [
             {
               "text": "所",
@@ -1178,9 +1180,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 18.62,
-          "lineEnd": 66.38
+          ]
         }
       ],
       "startTime": 10.8,
@@ -1190,6 +1190,8 @@
       "id": 2,
       "lines": [
         {
+          "lineStart": 66.38,
+          "lineEnd": 75.9,
           "chars": [
             {
               "text": "如",
@@ -1374,11 +1376,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 66.38,
-          "lineEnd": 75.9
+          ]
         },
         {
+          "lineStart": 76.74,
+          "lineEnd": 87.076,
           "chars": [
             {
               "text": "是",
@@ -1578,11 +1580,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 76.74,
-          "lineEnd": 87.076
+          ]
         },
         {
+          "lineStart": 87.076,
+          "lineEnd": 92.96,
           "chars": [
             {
               "text": "尔",
@@ -1692,11 +1694,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 87.076,
-          "lineEnd": 92.96
+          ]
         },
         {
+          "lineStart": 92.96,
+          "lineEnd": 103.9,
           "chars": [
             {
               "text": "我",
@@ -1935,11 +1937,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 92.96,
-          "lineEnd": 103.9
+          ]
         },
         {
+          "lineStart": 103.9,
+          "lineEnd": 110.47,
           "chars": [
             {
               "text": "我",
@@ -2064,11 +2066,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 103.9,
-          "lineEnd": 110.47
+          ]
         },
         {
+          "lineStart": 111.6,
+          "lineEnd": 117.3,
           "chars": [
             {
               "text": "佛",
@@ -2166,9 +2168,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 111.6,
-          "lineEnd": 117.3
+          ]
         }
       ],
       "startTime": 66.38,
@@ -2178,6 +2178,8 @@
       "id": 3,
       "lines": [
         {
+          "lineStart": 117.3,
+          "lineEnd": 127.12,
           "chars": [
             {
               "text": "」"
@@ -2338,11 +2340,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 117.3,
-          "lineEnd": 127.12
+          ]
         },
         {
+          "lineStart": 127.12,
+          "lineEnd": 134.88,
           "chars": [
             {
               "text": "我",
@@ -2503,11 +2505,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 127.12,
-          "lineEnd": 134.88
+          ]
         },
         {
+          "lineStart": 134.88,
+          "lineEnd": 139.46,
           "chars": [
             {
               "text": "是",
@@ -2605,11 +2607,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 134.88,
-          "lineEnd": 139.46
+          ]
         },
         {
+          "lineStart": 139.46,
+          "lineEnd": 145.18,
           "chars": [
             {
               "text": "然",
@@ -2719,11 +2721,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 139.46,
-          "lineEnd": 145.18
+          ]
         },
         {
+          "lineStart": 145.18,
+          "lineEnd": 154.62,
           "chars": [
             {
               "text": "世",
@@ -2739,13 +2741,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 145.18,
-          "lineEnd": 146.2
-        },
-        {
-          "chars": [
+            },
             {
               "text": "是",
               "pinyin": "shì",
@@ -2929,11 +2925,11 @@
             {
               "text": "？"
             }
-          ],
-          "lineStart": 146.2,
-          "lineEnd": 154.62
+          ]
         },
         {
+          "lineStart": 154.62,
+          "lineEnd": 157.8,
           "chars": [
             {
               "text": "唯",
@@ -2992,11 +2988,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 154.62,
-          "lineEnd": 157.8
+          ]
         },
         {
+          "lineStart": 159.28,
+          "lineEnd": 166.733,
           "chars": [
             {
               "text": "佛",
@@ -3133,9 +3129,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 159.28,
-          "lineEnd": 166.733
+          ]
         }
       ],
       "startTime": 117.3,
@@ -3145,6 +3139,8 @@
       "id": 4,
       "lines": [
         {
+          "lineStart": 166.733,
+          "lineEnd": 173.5,
           "chars": [
             {
               "text": "是",
@@ -3278,11 +3274,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 166.733,
-          "lineEnd": 173.5
+          ]
         },
         {
+          "lineStart": 173.5,
+          "lineEnd": 176.836,
           "chars": [
             {
               "text": "是",
@@ -3350,11 +3346,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 173.5,
-          "lineEnd": 176.836
+          ]
         },
         {
+          "lineStart": 177.06,
+          "lineEnd": 183.1,
           "chars": [
             {
               "text": "菩",
@@ -3479,11 +3475,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 177.06,
-          "lineEnd": 183.1
+          ]
         },
         {
+          "lineStart": 183.96,
+          "lineEnd": 189.1,
           "chars": [
             {
               "text": "自",
@@ -3578,11 +3574,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 183.96,
-          "lineEnd": 189.1
+          ]
         },
         {
+          "lineStart": 189.1,
+          "lineEnd": 192.94,
           "chars": [
             {
               "text": "劳",
@@ -3665,11 +3661,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 189.1,
-          "lineEnd": 192.94
+          ]
         },
         {
+          "lineStart": 192.94,
+          "lineEnd": 197.127,
           "chars": [
             {
               "text": "「"
@@ -3755,11 +3751,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 192.94,
-          "lineEnd": 197.127
+          ]
         },
         {
+          "lineStart": 197.34,
+          "lineEnd": 203.66,
           "chars": [
             {
               "text": "其",
@@ -3875,11 +3871,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 197.34,
-          "lineEnd": 203.66
+          ]
         },
         {
+          "lineStart": 203.66,
+          "lineEnd": 209.46,
           "chars": [
             {
               "text": "如",
@@ -3989,11 +3985,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 203.66,
-          "lineEnd": 209.46
+          ]
         },
         {
+          "lineStart": 209.46,
+          "lineEnd": 216.74,
           "chars": [
             {
               "text": "有",
@@ -4127,9 +4123,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 209.46,
-          "lineEnd": 216.74
+          ]
         }
       ],
       "startTime": 166.733,
@@ -4139,6 +4133,8 @@
       "id": 5,
       "lines": [
         {
+          "lineStart": 216.74,
+          "lineEnd": 221.62,
           "chars": [
             {
               "text": "忽",
@@ -4239,11 +4235,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 216.74,
-          "lineEnd": 221.62
+          ]
         },
         {
+          "lineStart": 222.62,
+          "lineEnd": 226.14,
           "chars": [
             {
               "text": "男",
@@ -4259,13 +4255,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 222.62,
-          "lineEnd": 223.32
-        },
-        {
-          "chars": [
+            },
             {
               "text": "为",
               "pinyin": "wéi",
@@ -4320,11 +4310,11 @@
             {
               "text": "？"
             }
-          ],
-          "lineStart": 223.76,
-          "lineEnd": 226.14
+          ]
         },
         {
+          "lineStart": 226.14,
+          "lineEnd": 228.78,
           "chars": [
             {
               "text": "有",
@@ -4383,11 +4373,11 @@
             {
               "text": "』"
             }
-          ],
-          "lineStart": 226.14,
-          "lineEnd": 228.78
+          ]
         },
         {
+          "lineStart": 229.92,
+          "lineEnd": 237.1,
           "chars": [
             {
               "text": "是",
@@ -4524,11 +4514,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 229.92,
-          "lineEnd": 237.1
+          ]
         },
         {
+          "lineStart": 237.1,
+          "lineEnd": 248.42,
           "chars": [
             {
               "text": "是",
@@ -4737,11 +4727,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 237.1,
-          "lineEnd": 248.42
+          ]
         },
         {
+          "lineStart": 249.48,
+          "lineEnd": 252.6,
           "chars": [
             {
               "text": "迷",
@@ -4757,13 +4747,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 249.48,
-          "lineEnd": 250.06
-        },
-        {
-          "chars": [
+            },
             {
               "text": "自",
               "pinyin": "zì",
@@ -4818,11 +4802,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 250.58,
-          "lineEnd": 252.6
+          ]
         },
         {
+          "lineStart": 252.6,
+          "lineEnd": 256.98,
           "chars": [
             {
               "text": "此",
@@ -4908,11 +4892,11 @@
             {
               "text": "』"
             }
-          ],
-          "lineStart": 252.6,
-          "lineEnd": 256.98
+          ]
         },
         {
+          "lineStart": 256.98,
+          "lineEnd": 260.02,
           "chars": [
             {
               "text": "是",
@@ -4968,11 +4952,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 256.98,
-          "lineEnd": 260.02
+          ]
         },
         {
+          "lineStart": 260.9,
+          "lineEnd": 272.08,
           "chars": [
             {
               "text": "临",
@@ -5187,9 +5171,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 260.9,
-          "lineEnd": 272.08
+          ]
         }
       ],
       "startTime": 216.74,
@@ -5199,6 +5181,8 @@
       "id": 6,
       "lines": [
         {
+          "lineStart": 272.08,
+          "lineEnd": 274.8,
           "chars": [
             {
               "text": "无",
@@ -5257,11 +5241,11 @@
             {
               "text": "』"
             }
-          ],
-          "lineStart": 272.08,
-          "lineEnd": 274.8
+          ]
         },
         {
+          "lineStart": 274.8,
+          "lineEnd": 284.06,
           "chars": [
             {
               "text": "「"
@@ -5422,11 +5406,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 274.8,
-          "lineEnd": 284.06
+          ]
         },
         {
+          "lineStart": 284.66,
+          "lineEnd": 290.127,
           "chars": [
             {
               "text": "是",
@@ -5536,11 +5520,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 284.66,
-          "lineEnd": 290.127
+          ]
         },
         {
+          "lineStart": 290.32,
+          "lineEnd": 296.94,
           "chars": [
             {
               "text": "如",
@@ -5677,11 +5661,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 290.32,
-          "lineEnd": 296.94
+          ]
         },
         {
+          "lineStart": 296.94,
+          "lineEnd": 304.5,
           "chars": [
             {
               "text": "逢",
@@ -5839,11 +5823,11 @@
             {
               "text": "』"
             }
-          ],
-          "lineStart": 296.94,
-          "lineEnd": 304.5
+          ]
         },
         {
+          "lineStart": 305.18,
+          "lineEnd": 313.52,
           "chars": [
             {
               "text": "若",
@@ -6004,11 +5988,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 305.18,
-          "lineEnd": 313.52
+          ]
         },
         {
+          "lineStart": 313.52,
+          "lineEnd": 318.7,
           "chars": [
             {
               "text": "地",
@@ -6115,9 +6099,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 313.52,
-          "lineEnd": 318.7
+          ]
         }
       ],
       "startTime": 272.08,
@@ -6127,6 +6109,8 @@
       "id": 7,
       "lines": [
         {
+          "lineStart": 319.3,
+          "lineEnd": 324.92,
           "chars": [
             {
               "text": "旋",
@@ -6239,11 +6223,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 319.3,
-          "lineEnd": 324.92
+          ]
         },
         {
+          "lineStart": 324.92,
+          "lineEnd": 332.3,
           "chars": [
             {
               "text": "尔",
@@ -6350,11 +6334,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 324.92,
-          "lineEnd": 332.3
+          ]
         },
         {
+          "lineStart": 332.3,
+          "lineEnd": 340.68,
           "chars": [
             {
               "text": "我",
@@ -6524,11 +6508,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 332.3,
-          "lineEnd": 340.68
+          ]
         },
         {
+          "lineStart": 341.2,
+          "lineEnd": 346.66,
           "chars": [
             {
               "text": "然",
@@ -6638,11 +6622,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 341.2,
-          "lineEnd": 346.66
+          ]
         },
         {
+          "lineStart": 346.66,
+          "lineEnd": 351.107,
           "chars": [
             {
               "text": "过",
@@ -6731,11 +6715,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 346.66,
-          "lineEnd": 351.107
+          ]
         },
         {
+          "lineStart": 351.34,
+          "lineEnd": 366.26,
           "chars": [
             {
               "text": "或",
@@ -7016,11 +7000,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 351.34,
-          "lineEnd": 366.26
+          ]
         },
         {
+          "lineStart": 366.56,
+          "lineEnd": 372.06,
           "chars": [
             {
               "text": "我",
@@ -7139,9 +7123,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 366.56,
-          "lineEnd": 372.06
+          ]
         }
       ],
       "startTime": 319.3,
@@ -7151,6 +7133,8 @@
       "id": 8,
       "lines": [
         {
+          "lineStart": 372.06,
+          "lineEnd": 377.78,
           "chars": [
             {
               "text": "勅",
@@ -7260,11 +7244,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 372.06,
-          "lineEnd": 377.78
+          ]
         },
         {
+          "lineStart": 377.98,
+          "lineEnd": 386.74,
           "chars": [
             {
               "text": "不",
@@ -7440,11 +7424,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 377.98,
-          "lineEnd": 386.74
+          ]
         },
         {
+          "lineStart": 387.88,
+          "lineEnd": 390.94,
           "chars": [
             {
               "text": "佛",
@@ -7491,11 +7475,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 387.88,
-          "lineEnd": 390.94
+          ]
         },
         {
+          "lineStart": 391.18,
+          "lineEnd": 400.42,
           "chars": [
             {
               "text": "善",
@@ -7511,13 +7495,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 391.18,
-          "lineEnd": 392.033
-        },
-        {
-          "chars": [
+            },
             {
               "text": "汝",
               "pinyin": "rǔ",
@@ -7689,11 +7667,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 392.033,
-          "lineEnd": 400.42
+          ]
         },
         {
+          "lineStart": 401.58,
+          "lineEnd": 409.42,
           "chars": [
             {
               "text": "说",
@@ -7827,11 +7805,11 @@
             {
               "text": "！"
             }
-          ],
-          "lineStart": 401.58,
-          "lineEnd": 409.42
+          ]
         },
         {
+          "lineStart": 409.84,
+          "lineEnd": 415.84,
           "chars": [
             {
               "text": "我",
@@ -7947,11 +7925,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 409.84,
-          "lineEnd": 415.84
+          ]
         },
         {
+          "lineStart": 415.84,
+          "lineEnd": 418.78,
           "chars": [
             {
               "text": "在",
@@ -8007,11 +7985,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 415.84,
-          "lineEnd": 418.78
+          ]
         },
         {
+          "lineStart": 419.12,
+          "lineEnd": 423.86,
           "chars": [
             {
               "text": "自",
@@ -8121,9 +8099,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 419.12,
-          "lineEnd": 423.86
+          ]
         }
       ],
       "startTime": 372.06,
@@ -8133,6 +8109,8 @@
       "id": 9,
       "lines": [
         {
+          "lineStart": 424.44,
+          "lineEnd": 425.208,
           "chars": [
             {
               "text": "「"
@@ -8158,11 +8136,11 @@
             {
               "text": "？"
             }
-          ],
-          "lineStart": 424.44,
-          "lineEnd": 425.208
+          ]
         },
         {
+          "lineStart": 425.208,
+          "lineEnd": 433.3,
           "chars": [
             {
               "text": "是",
@@ -8332,11 +8310,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 425.208,
-          "lineEnd": 433.3
+          ]
         },
         {
+          "lineStart": 433.68,
+          "lineEnd": 440.18,
           "chars": [
             {
               "text": "自",
@@ -8470,11 +8448,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 433.68,
-          "lineEnd": 440.18
+          ]
         },
         {
+          "lineStart": 440.82,
+          "lineEnd": 446.02,
           "chars": [
             {
               "text": "或",
@@ -8584,11 +8562,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 440.82,
-          "lineEnd": 446.02
+          ]
         },
         {
+          "lineStart": 446.02,
+          "lineEnd": 453.06,
           "chars": [
             {
               "text": "及",
@@ -8731,11 +8709,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 446.02,
-          "lineEnd": 453.06
+          ]
         },
         {
+          "lineStart": 453.64,
+          "lineEnd": 454.74,
           "chars": [
             {
               "text": "「"
@@ -8761,11 +8739,11 @@
             {
               "text": "？"
             }
-          ],
-          "lineStart": 453.64,
-          "lineEnd": 454.74
+          ]
         },
         {
+          "lineStart": 454.74,
+          "lineEnd": 460.9,
           "chars": [
             {
               "text": "是",
@@ -8887,11 +8865,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 454.74,
-          "lineEnd": 460.9
+          ]
         },
         {
+          "lineStart": 461.1,
+          "lineEnd": 468.34,
           "chars": [
             {
               "text": "是",
@@ -9037,11 +9015,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 461.1,
-          "lineEnd": 468.34
+          ]
         },
         {
+          "lineStart": 468.34,
+          "lineEnd": 474.56,
           "chars": [
             {
               "text": "如",
@@ -9151,9 +9129,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 468.34,
-          "lineEnd": 474.56
+          ]
         }
       ],
       "startTime": 424.44,
@@ -9163,6 +9139,8 @@
       "id": 10,
       "lines": [
         {
+          "lineStart": 475.0,
+          "lineEnd": 482.36,
           "chars": [
             {
               "text": "翻",
@@ -9299,11 +9277,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 475.0,
-          "lineEnd": 482.36
+          ]
         },
         {
+          "lineStart": 483.18,
+          "lineEnd": 493.84,
           "chars": [
             {
               "text": "「"
@@ -9530,11 +9508,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 483.18,
-          "lineEnd": 493.84
+          ]
         },
         {
+          "lineStart": 494.48,
+          "lineEnd": 509.62,
           "chars": [
             {
               "text": "是",
@@ -9824,11 +9802,11 @@
             {
               "text": "？"
             }
-          ],
-          "lineStart": 494.48,
-          "lineEnd": 509.62
+          ]
         },
         {
+          "lineStart": 510.4,
+          "lineEnd": 520.844,
           "chars": [
             {
               "text": "「"
@@ -9847,13 +9825,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 510.4,
-          "lineEnd": 511.26
-        },
-        {
-          "chars": [
+            },
             {
               "text": "如",
               "pinyin": "rú",
@@ -10046,11 +10018,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 511.78,
-          "lineEnd": 520.844
+          ]
         },
         {
+          "lineStart": 520.844,
+          "lineEnd": 527.7,
           "chars": [
             {
               "text": "是",
@@ -10184,9 +10156,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 520.844,
-          "lineEnd": 527.7
+          ]
         }
       ],
       "startTime": 475.0,
@@ -10196,6 +10166,8 @@
       "id": 11,
       "lines": [
         {
+          "lineStart": 527.7,
+          "lineEnd": 535.7,
           "chars": [
             {
               "text": "如",
@@ -10332,11 +10304,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 527.7,
-          "lineEnd": 535.7
+          ]
         },
         {
+          "lineStart": 536.72,
+          "lineEnd": 555.68,
           "chars": [
             {
               "text": "世",
@@ -10352,13 +10324,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 536.72,
-          "lineEnd": 537.68
-        },
-        {
-          "chars": [
+            },
             {
               "text": "一",
               "pinyin": "yī",
@@ -10713,11 +10679,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 537.68,
-          "lineEnd": 555.68
+          ]
         },
         {
+          "lineStart": 557.08,
+          "lineEnd": 565.48,
           "chars": [
             {
               "text": "佛",
@@ -10881,11 +10847,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 557.08,
-          "lineEnd": 565.48
+          ]
         },
         {
+          "lineStart": 565.48,
+          "lineEnd": 574.7,
           "chars": [
             {
               "text": "若",
@@ -11070,11 +11036,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 565.48,
-          "lineEnd": 574.7
+          ]
         },
         {
+          "lineStart": 576.06,
+          "lineEnd": 585.64,
           "chars": [
             {
               "text": "鬼",
@@ -11271,9 +11237,7 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 576.06,
-          "lineEnd": 585.64
+          ]
         }
       ],
       "startTime": 527.7,
@@ -11283,6 +11247,8 @@
       "id": 12,
       "lines": [
         {
+          "lineStart": 585.64,
+          "lineEnd": 592.44,
           "chars": [
             {
               "text": "但",
@@ -11428,11 +11394,11 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 585.64,
-          "lineEnd": 592.44
+          ]
         },
         {
+          "lineStart": 592.44,
+          "lineEnd": 605.6,
           "chars": [
             {
               "text": "尔",
@@ -11656,11 +11622,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 592.44,
-          "lineEnd": 605.6
+          ]
         },
         {
+          "lineStart": 605.6,
+          "lineEnd": 611.2,
           "chars": [
             {
               "text": "是",
@@ -11764,11 +11730,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 605.6,
-          "lineEnd": 611.2
+          ]
         },
         {
+          "lineStart": 611.78,
+          "lineEnd": 617.68,
           "chars": [
             {
               "text": "却",
@@ -11887,11 +11853,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 611.78,
-          "lineEnd": 617.68
+          ]
         },
         {
+          "lineStart": 617.68,
+          "lineEnd": 621.329,
           "chars": [
             {
               "text": "劫",
@@ -11953,11 +11919,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 617.68,
-          "lineEnd": 621.329
+          ]
         },
         {
+          "lineStart": 621.329,
+          "lineEnd": 624.48,
           "chars": [
             {
               "text": "其",
@@ -12013,11 +11979,11 @@
             {
               "text": "。"
             }
-          ],
-          "lineStart": 621.329,
-          "lineEnd": 624.48
+          ]
         },
         {
+          "lineStart": 625.41,
+          "lineEnd": 633.72,
           "chars": [
             {
               "text": "地",
@@ -12033,13 +11999,7 @@
             },
             {
               "text": "！"
-            }
-          ],
-          "lineStart": 625.41,
-          "lineEnd": 626.1
-        },
-        {
-          "chars": [
+            },
             {
               "text": "是",
               "pinyin": "shì",
@@ -12184,12 +12144,7 @@
             {
               "text": "」"
             }
-          ],
-          "lineStart": 626.1,
-          "lineEnd": 633.72
-        },
-        {
-          "chars": []
+          ]
         }
       ],
       "startTime": 585.64,
