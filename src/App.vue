@@ -1,7 +1,9 @@
 <script setup>
+import WeChatEnvNotice from './components/WeChatEnvNotice.vue'
 </script>
 
 <template>
+  <WeChatEnvNotice />
   <router-view v-slot="{ Component }">
     <transition name="fade" mode="out-in">
       <component :is="Component" :key="$route.name" />

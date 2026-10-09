@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAudioSync } from '../composables/useAudioSync'
+import { useNetworkNotice } from '../composables/useNetworkNotice'
 import catalog from '../data/catalog.json'
 
 const router = useRouter()
@@ -9,6 +10,9 @@ const router = useRouter()
 // --- 经卷与品目状态 ---
 const selectedBookId = ref(localStorage.getItem('chanyue_listen_book') || 'xinjing')
 const selectedChapterId = ref(localStorage.getItem('chanyue_listen_chapter') || 'chapter_1')
+
+const { getTrafficNotice } = useNetworkNotice()
+const trafficNotice = computed(() => getTrafficNotice(selectedBookId.value))
 
 const bookMeta = ref(null)
 const chapterData = ref(null)
@@ -655,6 +659,16 @@ onUnmounted(() => {
         <span>前往阅读本卷全文</span>
         <span class="portal-arrow">→</span>
       </div>
+
+      <!-- 长篇经文/蜂窝流量温润微注脚 -->
+      <p v-if="trafficNotice" class="station-traffic-note">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" class="traffic-note-icon">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+        <span>{{ trafficNotice }}</span>
+      </p>
     </div>
 
     <!-- 弹窗一：经卷与品目选择（Teleport至body，全屏纯净磨砂，响应式胶囊卡片，告别生硬固定黑框） -->
@@ -1097,6 +1111,23 @@ onUnmounted(() => {
 
 .reader-portal-link:hover .portal-arrow {
   transform: translateX(3px);
+}
+
+.station-traffic-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.8;
+  margin: 6px 0 0;
+  letter-spacing: 0.2px;
+}
+
+.traffic-note-icon {
+  color: var(--gold-dim);
+  flex-shrink: 0;
 }
 
 /* 全局磨砂浮层模态框（响应式、全屏通透无黑框） */

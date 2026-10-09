@@ -7,6 +7,7 @@ import SutraBody from '../components/SutraBody.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
 import SearchModal from '../components/SearchModal.vue'
 import { useAudioSync } from '../composables/useAudioSync.js'
+import { useNetworkNotice } from '../composables/useNetworkNotice.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -29,6 +30,10 @@ function extractText(val) {
 
 const bookId = computed(() => route.params.bookId)
 const chapterId = computed(() => route.params.chapterId || 'chapter_1')
+
+const { getTrafficNotice } = useNetworkNotice()
+const currentTrafficNotice = computed(() => getTrafficNotice(bookId.value))
+
 const activeParagraphs = computed(() => chapterData.value?.paragraphs || [])
 const paragraphsRef = activeParagraphs
 
@@ -628,6 +633,7 @@ function handleToggle() {
           :duration="duration"
           :isPlaying="isPlaying"
           :progress="progress"
+          :trafficNotice="currentTrafficNotice"
           @toggle="handleToggle"
           @seek="seekByPercent"
           class="audio-player-fixed"

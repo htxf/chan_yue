@@ -3,16 +3,30 @@
   磨砂玻璃效果，极简禅风设计
 -->
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   currentTime: Number,
   duration: Number,
   isPlaying: Boolean,
-  progress: Number
+  progress: Number,
+  trafficNotice: { type: String, default: '' }
 })
 
 const emit = defineEmits(['toggle', 'seek'])
+
+const noticeVisible = ref(Boolean(props.trafficNotice))
+let noticeTimer = null
+
+watch(() => props.trafficNotice, (val) => {
+  if (val) {
+    noticeVisible.value = true
+    if (noticeTimer) clearTimeout(noticeTimer)
+    noticeTimer = setTimeout(() => {
+      noticeVisible.value = false
+    }, 6000)
+  }
+}, { immediate: true })
 
 /** 格式化时间 mm:ss */
 function fmt(sec) {
@@ -33,44 +47,59 @@ function onProgressClick(e) {
 </script>
 
 <template>
-  <div class="audio-player" id="audio-player">
-    <button
-      id="play-btn"
-      class="play-btn"
-      :class="{ playing: isPlaying }"
-      @click="emit('toggle')"
-      :aria-label="isPlaying ? '暂停' : '播放'"
-    >
-      <!-- 播放图标 -->
-      <svg v-if="!isPlaying" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
-      <!-- 暂停图标 -->
-      <svg v-else viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-        <rect x="6" y="4" width="4" height="16" rx="1"/>
-        <rect x="14" y="4" width="4" height="16" rx="1"/>
-      </svg>
-    </button>
-
-    <div class="progress-area" @click="onProgressClick">
-      <div class="progress-track">
-        <div
-          class="progress-fill"
-          :style="{ width: `${progress}%` }"
-        ></div>
-        <div
-          class="progress-thumb"
-          :style="{ left: `${progress}%` }"
-        ></div>
+  <div class="audio-player-wrapper">
+    <transition name="notice-pop">
+      <div v-if="noticeVisible && trafficNotice" class="traffic-notice-badge" role="status">
+        <svg class="traffic-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+        <span class="traffic-text">{{ trafficNotice }}</span>
+        <button class="traffic-close-btn" @click="noticeVisible = false" aria-label="关闭流量提示">×</button>
       </div>
-    </div>
+    </transition>
 
-    <span class="time-display">{{ timeDisplay }}</span>
+    <div class="audio-player" id="audio-player">
+      <button
+        id="play-btn"
+        class="play-btn"
+        :class="{ playing: isPlaying }"
+        @click="emit('toggle')"
+        :aria-label="isPlaying ? '暂停' : '播放'"
+      >
+        <!-- 播放图标 -->
+        <svg v-if="!isPlaying" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <!-- 暂停图标 -->
+        <svg v-else viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <rect x="6" y="4" width="4" height="16" rx="1"/>
+          <rect x="14" y="4" width="4" height="16" rx="1"/>
+        </svg>
+      </button>
+
+      <div class="progress-area" @click="onProgressClick">
+        <div class="progress-track">
+          <div
+            class="progress-fill"
+            :style="{ width: `${progress}%` }"
+          ></div>
+          <div
+            class="progress-thumb"
+            :style="{ left: `${progress}%` }"
+          ></div>
+        </div>
+      </div>
+
+      <span class="time-display">{{ timeDisplay }}</span>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.audio-player {
+.audio-player-wrapper {
   position: fixed;
   bottom: 24px;
   left: 50%;
@@ -78,6 +107,70 @@ function onProgressClick(e) {
   width: calc(100% - 32px);
   max-width: 680px;
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.traffic-notice-badge {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(22, 19, 16, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 165, 116, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.traffic-icon {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.traffic-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  color: var(--text-primary);
+  opacity: 0.88;
+  letter-spacing: 0.2px;
+}
+
+.traffic-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  padding: 0 0 0 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.traffic-close-btn:hover {
+  color: var(--gold);
+}
+
+.notice-pop-enter-active,
+.notice-pop-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notice-pop-enter-from,
+.notice-pop-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+}
+
+.audio-player {
+  pointer-events: auto;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -92,6 +185,7 @@ function onProgressClick(e) {
     0 0 0 1px rgba(255, 255, 255, 0.04),
     0 0 24px rgba(212, 165, 116, 0.06);
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .audio-player::before {
