@@ -1237,7 +1237,7 @@
         },
         {
           "lineStart": 61.35,
-          "lineEnd": 70.735,
+          "lineEnd": 65.325,
           "chars": [
             {
               "text": "如",
@@ -1334,7 +1334,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 65.719,
+          "lineEnd": 69.315,
+          "chars": [
             {
               "text": "是",
               "pinyin": "shì",
@@ -1418,7 +1424,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 69.724,
+          "lineEnd": 70.735,
+          "chars": [
             {
               "text": "宁",
               "pinyin": "nìng",

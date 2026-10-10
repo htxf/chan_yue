@@ -67,7 +67,7 @@
       "lines": [
         {
           "lineStart": 4.641,
-          "lineEnd": 23.616,
+          "lineEnd": 9.334,
           "chars": [
             {
               "text": "“"
@@ -179,7 +179,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 9.742,
+          "lineEnd": 15.245,
+          "chars": [
             {
               "text": "得",
               "pinyin": "dé",
@@ -293,7 +299,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 15.639,
+          "lineEnd": 23.616,
+          "chars": [
             {
               "text": "‘"
             },

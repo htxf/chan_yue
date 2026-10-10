@@ -61,7 +61,7 @@
       "lines": [
         {
           "lineStart": 4.304,
-          "lineEnd": 12.488,
+          "lineEnd": 7.753,
           "chars": [
             {
               "text": "“"
@@ -134,7 +134,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 8.175,
+          "lineEnd": 10.985,
+          "chars": [
             {
               "text": "以",
               "pinyin": "yǐ",
@@ -203,7 +209,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 11.421,
+          "lineEnd": 12.488,
+          "chars": [
             {
               "text": "于",
               "pinyin": "yú",

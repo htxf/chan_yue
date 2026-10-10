@@ -326,4 +326,21 @@ function getLineUnits(chars) {
   .sutra-punct   { font-size: 20px; }
   .sutra-paragraph { padding: 10px 2px; }
 }
+
+/* ===== 电脑宽屏（>= 1024px）：字号与间距等比舒展，单行饱满，消除断尾 ===== */
+@media (min-width: 1024px) {
+  .sutra-line    { gap: 3px 6px; line-height: 2.35; margin-bottom: 8px; }
+  .sutra-char    { font-size: 30px; letter-spacing: 2.5px; }
+  .sutra-char rt { font-size: 13.5px; padding-bottom: 4px; }
+  .sutra-punct   { font-size: 26px; }
+  .sutra-paragraph { padding: 20px 12px; }
+}
+
+@media (min-width: 1440px) {
+  .sutra-line    { gap: 4px 7px; line-height: 2.4; margin-bottom: 10px; }
+  .sutra-char    { font-size: 32px; letter-spacing: 3px; }
+  .sutra-char rt { font-size: 14px; padding-bottom: 5px; }
+  .sutra-punct   { font-size: 28px; }
+  .sutra-paragraph { padding: 24px 16px; }
+}
 </style>

@@ -67,7 +67,7 @@
       "lines": [
         {
           "lineStart": 4.543,
-          "lineEnd": 11.842,
+          "lineEnd": 9.636,
           "chars": [
             {
               "text": "“"
@@ -185,7 +185,13 @@
             },
             {
               "text": "，"
-            },
+            }
+          ]
+        },
+        {
+          "lineStart": 10.03,
+          "lineEnd": 11.842,
+          "chars": [
             {
               "text": "是",
               "pinyin": "shì",

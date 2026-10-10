@@ -112,6 +112,21 @@ function onProgressClick(e) {
   align-items: center;
   gap: 8px;
   pointer-events: none;
+  transition: max-width 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .audio-player-wrapper {
+    width: min(92vw, 860px);
+    max-width: 860px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .audio-player-wrapper {
+    width: min(90vw, 940px);
+    max-width: 940px;
+  }
 }
 
 .traffic-notice-badge {
