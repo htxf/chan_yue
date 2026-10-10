@@ -16,7 +16,39 @@ def detect_verse_paragraph(lines):
         return True
     return False
 
+DIALOGUE_SPLIT_PATTERN = re.compile(r'(不也，世尊[！。]”*|甚多，世尊[！。]”*|甚大，世尊[！。]”*|唯然，世尊[！。]”*|如是，世尊[！。]”*)(须菩提|佛言|佛告|尔时)')
+
+def split_dialogue_turns(line):
+    chars = line.get('chars', [])
+    text = ''.join(c.get('text', '') for c in chars)
+    m = DIALOGUE_SPLIT_PATTERN.search(text)
+    if not m:
+        return [line]
+    
+    cut_len = len(text[:m.end(1)])
+    sub1 = chars[:cut_len]
+    sub2 = chars[cut_len:]
+    
+    res = []
+    for sub in [sub1, sub2]:
+        first_char = next((c for c in sub if 'startTime' in c), None)
+        last_char = next((c for c in reversed(sub) if 'endTime' in c), None)
+        res.append({
+            'lineStart': first_char['startTime'] if (first_char and 'startTime' in first_char) else line['lineStart'],
+            'lineEnd': last_char['endTime'] if (last_char and 'endTime' in last_char) else line['lineEnd'],
+            'chars': sub
+        })
+    return res
+
 def split_long_line_by_breath(line):
+    # 先做问答对答角色切分
+    d_lines = split_dialogue_turns(line)
+    if len(d_lines) > 1:
+        res = []
+        for dl in d_lines:
+            res.extend(split_long_line_by_breath(dl))
+        return res
+
     chars = line.get('chars', [])
     text = ''.join(c.get('text', '') for c in chars)
     han_count = get_clean_han_count(text)
